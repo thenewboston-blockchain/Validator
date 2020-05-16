@@ -9,5 +9,6 @@ urlpatterns = [
 
     # API (v1)
     path('', include('v1.self_configurations.urls')),
+    path('', include('v1.banks.urls')),
 
 ]
