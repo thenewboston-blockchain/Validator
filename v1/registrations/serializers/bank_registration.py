@@ -43,9 +43,10 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         # TODO: Save Txs (there's only 1) to transaction log and update balance sheet
         print(txs)
 
-        # TODO: Do background check on Bank, if good update status to ACCEPTED
+        # TODO: Do background check on Bank, if good update status to ACCEPTED (celery task)
         # TODO: If ACCEPTED create Bank if it doesn't exist as well
         # TODO: Set proper Bank FK on BankRegistration as well
+        # TODO: Send a request to the bank letting them know of the results either way
 
         return bank_registration
 
