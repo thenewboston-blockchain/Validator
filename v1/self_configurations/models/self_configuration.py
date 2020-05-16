@@ -5,9 +5,14 @@ from v1.constants.models import NODE_TYPE_CHOICES
 from v1.network.constants.nodes import VALIDATOR
 from v1.network.models.network_node import NetworkNode
 
+"""
+primary - when set to True, validator will accept incoming bank transactions as the primary validator
+"""
+
 
 class SelfConfiguration(NetworkNode):
     node_type = models.CharField(choices=NODE_TYPE_CHOICES, default=VALIDATOR, max_length=9)
+    primary = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'self_configurations'
