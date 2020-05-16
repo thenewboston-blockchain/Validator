@@ -19,6 +19,7 @@ INSTALLED_APPS = [
 
     # API (v1)
     'v1.banks.apps.BanksConfig',
+    'v1.registrations.apps.RegistrationsConfig',
     'v1.self_configurations.apps.SelfConfigurationsConfig',
     'v1.validators.apps.ValidatorsConfig',
 
