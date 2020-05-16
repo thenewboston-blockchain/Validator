@@ -20,6 +20,7 @@ class SelfConfiguration(NetworkNode):
     def __str__(self):
         return (
             f'Node type: {self.node_type} | '
+            f'Primary: {self.primary} | '
             f'Version: {self.version}'
         )
 
