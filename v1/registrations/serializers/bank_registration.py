@@ -30,8 +30,6 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         tx_details = validated_data['txs']
         txs = tx_details['txs']
 
-        # TODO: Set proper IP address below
-
         bank_registration = BankRegistration.objects.create(
             bank=None,
             fee=tx_details['validator_registration_fee'],
