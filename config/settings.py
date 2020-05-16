@@ -17,6 +17,9 @@ INSTALLED_APPS = [
     # Requirements
     'rest_framework',
 
+    # API (v1)
+    'v1.self_configurations.apps.SelfConfigurationsConfig',
+
 ]
 
 MIDDLEWARE = [
