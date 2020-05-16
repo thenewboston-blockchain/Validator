@@ -30,7 +30,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         tx_details = validated_data['txs']
         txs = tx_details['txs']
 
-        # TODO: Set proper Bank FK and IP address below
+        # TODO: Set proper IP address below
 
         bank_registration = BankRegistration.objects.create(
             bank=None,
@@ -45,6 +45,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
 
         # TODO: Do background check on Bank, if good update status to ACCEPTED
         # TODO: If ACCEPTED create Bank if it doesn't exist as well
+        # TODO: Set proper Bank FK on BankRegistration as well
 
         return bank_registration
 
