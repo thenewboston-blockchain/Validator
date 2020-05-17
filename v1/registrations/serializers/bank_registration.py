@@ -5,6 +5,7 @@ from v1.network.constants.models import PENDING
 from v1.network.constants.models import PROTOCOL_CHOICES
 from v1.network.serializers.network_transaction import NetworkTransactionSerializer
 from v1.network.utils.format import format_address
+from v1.network.utils.network import fetch
 from v1.network.utils.serializers import all_field_names
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from ..models.bank_registration import BankRegistration
@@ -55,7 +56,11 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         # TODO: Set proper Bank FK on BankRegistration as well
         # TODO: Send a request to the bank letting them know of the results either way
         address = format_address(ip_address=ip_address, port=port, protocol=protocol)
-        print(address)
+        config_address = f'{address}/config'
+        print(config_address)
+
+        results = fetch(url=config_address, headers={})
+        print(results)
 
         return bank_registration
 
