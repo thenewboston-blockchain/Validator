@@ -6,6 +6,7 @@ from ..utils.validators import validate_is_real_number
 
 class NetworkNode(models.Model):
     identifier = models.CharField(max_length=256)
+    ip_address = models.GenericIPAddressField(unique=True)
     version = models.CharField(max_length=32)
 
     # Fees
