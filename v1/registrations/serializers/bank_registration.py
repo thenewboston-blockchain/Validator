@@ -4,6 +4,7 @@ from v1.banks.models.bank import Bank
 from v1.network.constants.models import PENDING
 from v1.network.constants.models import PROTOCOL_CHOICES
 from v1.network.serializers.network_transaction import NetworkTransactionSerializer
+from v1.network.utils.format import format_address
 from v1.network.utils.serializers import all_field_names
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from ..models.bank_registration import BankRegistration
@@ -31,6 +32,8 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         """
 
         ip_address = validated_data['ip_address']
+        port = validated_data['port']
+        protocol = validated_data['protocol']
         tx_details = validated_data['txs']
         txs = tx_details['txs']
 
@@ -39,8 +42,8 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             fee=tx_details['validator_registration_fee'],
             identifier=validated_data['verifying_key_hex'],
             ip_address=ip_address,
-            port=None,
-            protocol=None,
+            port=port,
+            protocol=protocol,
             status=PENDING
         )
 
@@ -51,6 +54,8 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         # TODO: If ACCEPTED create Bank if it doesn't exist as well
         # TODO: Set proper Bank FK on BankRegistration as well
         # TODO: Send a request to the bank letting them know of the results either way
+        address = format_address(ip_address=ip_address, port=port, protocol=protocol)
+        print(address)
 
         return bank_registration
 
@@ -76,24 +81,16 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         Validate IP address
         """
 
-        request = self.context['request']
-        ip_address = request.META.get('REMOTE_ADDR')
+        ip_address = data['ip_address']
+        port = data['port']
 
-        if not ip_address:
-            raise serializers.ValidationError('Unable to determine IP address')
+        if Bank.objects.filter(ip_address=ip_address, port=port).exists():
+            raise serializers.ValidationError('Bank at that location already exists')
 
-        if Bank.objects.filter(ip_address=ip_address).exists():
-            raise serializers.ValidationError('Bank with that ip_address already exists')
+        if BankRegistration.objects.filter(ip_address=ip_address, port=port, status=PENDING).exists():
+            raise serializers.ValidationError('Bank at that location already has pending registration')
 
-        if BankRegistration.objects.filter(ip_address=ip_address, status=PENDING).exists():
-            raise serializers.ValidationError('Bank with that ip_address already has pending registration')
-
-        # TODO: Proper ip_address validation
-
-        return {
-            **data,
-            'ip_address': ip_address
-        }
+        return data
 
     @staticmethod
     def validate_verifying_key_hex(verifying_key_hex):

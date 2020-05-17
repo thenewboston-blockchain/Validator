@@ -27,6 +27,6 @@ class BankRegistration(NetworkRegistration):
         return (
             f'ID: {self.id} | '
             f'Identifier: {self.identifier} | '
-            f'IP address: {format_node_address(self)} | '
+            f'IP address: {format_node_address(node=self)} | '
             f'Status: {self.status}'
         )
