@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from v1.banks.models.bank import Bank
 from v1.network.constants.models import PENDING
+from v1.network.constants.models import PROTOCOL_CHOICES
 from v1.network.serializers.network_transaction import NetworkTransactionSerializer
 from v1.network.utils.serializers import all_field_names
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
@@ -17,9 +18,12 @@ class BankRegistrationSerializer(serializers.ModelSerializer):
 
 
 class BankRegistrationSerializerCreate(serializers.Serializer):
-    signature = serializers.CharField(max_length=256, required=True)
-    txs = NetworkTransactionSerializer(many=True, required=True)
-    verifying_key_hex = serializers.CharField(max_length=256, required=True)
+    ip_address = serializers.IPAddressField(protocol='both')
+    port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
+    protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
+    signature = serializers.CharField(max_length=256)
+    txs = NetworkTransactionSerializer(many=True)
+    verifying_key_hex = serializers.CharField(max_length=256)
 
     def create(self, validated_data):
         """
@@ -35,6 +39,8 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             fee=tx_details['validator_registration_fee'],
             identifier=validated_data['verifying_key_hex'],
             ip_address=ip_address,
+            port=None,
+            protocol=None,
             status=PENDING
         )
 
