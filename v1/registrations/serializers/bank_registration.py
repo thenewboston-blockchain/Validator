@@ -60,6 +60,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         print(config_address)
 
         results = fetch(url=config_address, headers={})
+
+        # TODO: Check that configs match, if so approve (if not decline)
+        # TODO: Just send the serialized BankRegistration object with the updated status
         print(results)
 
         return bank_registration
