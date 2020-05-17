@@ -1,6 +1,10 @@
 from django.contrib import admin
 from django.urls import include, path
 
+admin.site.index_title = 'Admin'
+admin.site.site_header = 'Validator'
+admin.site.site_title = 'Validator'
+
 urlpatterns = [
 
     # Core
