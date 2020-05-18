@@ -13,6 +13,7 @@ def registered_bank(func):
 
     @wraps(func)
     def inner(request, *args, **kwargs):
+
         if not request.user.is_authenticated:
             ip_address = request.META.get('REMOTE_ADDR')
 
