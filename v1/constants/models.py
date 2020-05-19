@@ -1,4 +1,4 @@
-from v1.network.constants.nodes import VALIDATOR
+from thenewboston.constants.nodes import VALIDATOR
 
 NODE_TYPE_CHOICES = [
     (VALIDATOR, VALIDATOR),

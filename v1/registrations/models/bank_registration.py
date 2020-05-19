@@ -2,9 +2,9 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 
 from v1.banks.models.bank import Bank
-from v1.network.constants.models import PROTOCOL_CHOICES
-from v1.network.models.network_registration import NetworkRegistration
-from v1.network.utils.format import format_node_address
+from thenewboston.constants.models import PROTOCOL_CHOICES
+from thenewboston.models.network_registration import NetworkRegistration
+from thenewboston.utils.format import format_node_address
 
 
 class BankRegistration(NetworkRegistration):

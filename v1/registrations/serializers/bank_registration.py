@@ -1,12 +1,12 @@
 from rest_framework import serializers
 
 from v1.banks.models.bank import Bank
-from v1.network.constants.models import PENDING
-from v1.network.constants.models import PROTOCOL_CHOICES
-from v1.network.serializers.network_transaction import NetworkTransactionSerializer
-from v1.network.utils.format import format_address
-from v1.network.utils.network import fetch
-from v1.network.utils.serializers import all_field_names
+from thenewboston.constants.models import PENDING
+from thenewboston.constants.models import PROTOCOL_CHOICES
+from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
+from thenewboston.utils.format import format_address
+from thenewboston.utils.network import fetch
+from thenewboston.utils.serializers import all_field_names
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from ..models.bank_registration import BankRegistration
 

@@ -2,8 +2,8 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from v1.constants.models import NODE_TYPE_CHOICES
-from v1.network.constants.nodes import VALIDATOR
-from v1.network.models.network_node import NetworkNode
+from thenewboston.constants.nodes import VALIDATOR
+from thenewboston.models.network_node import NetworkNode
 
 """
 primary - when set to True, validator will accept incoming bank transactions as the primary validator
