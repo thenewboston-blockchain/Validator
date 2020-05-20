@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from v1.banks.models.bank import Bank
 
 
-def registered_bank(func):
+def is_registered_bank(func):
     """
     Verify that the client making the request is a trusted node
     """
@@ -21,9 +21,8 @@ def registered_bank(func):
                 return Response(status=status.HTTP_401_UNAUTHORIZED)
 
             # TODO: This should be hitting the cache
-            # TODO: Proper error message formatting
             if not Bank.objects.filter(ip_address=ip_address).exists():
-                return Response('Must be registered bank', status=status.HTTP_401_UNAUTHORIZED)
+                return Response(status=status.HTTP_401_UNAUTHORIZED)
 
         return func(request, *args, **kwargs)
 
