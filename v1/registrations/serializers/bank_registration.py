@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from v1.banks.models.bank import Bank
-from thenewboston.constants.models import PENDING
-from thenewboston.constants.models import PROTOCOL_CHOICES
+from thenewboston.constants.network import PENDING
+from thenewboston.constants.network import PROTOCOL_CHOICES
 from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch

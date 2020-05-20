@@ -2,7 +2,7 @@ from django.core.validators import MaxValueValidator
 from django.db import models
 
 from v1.banks.models.bank import Bank
-from thenewboston.constants.models import PROTOCOL_CHOICES
+from thenewboston.constants.network import PROTOCOL_CHOICES
 from thenewboston.models.network_registration import NetworkRegistration
 from thenewboston.utils.format import format_node_address
 
