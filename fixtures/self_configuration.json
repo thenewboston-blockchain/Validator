@@ -3,7 +3,7 @@
     "model": "self_configurations.selfconfiguration",
     "pk": 1,
     "fields": {
-      "identifier": "validator_001",
+      "account_number": "validator_001",
       "ip_address": "127.0.0.1",
       "port": 8001,
       "protocol": "http",
