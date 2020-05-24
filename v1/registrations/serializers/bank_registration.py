@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from thenewboston.constants.network import PENDING
-from thenewboston.constants.network import PROTOCOL_CHOICES
+from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES
 from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
 from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
