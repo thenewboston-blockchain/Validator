@@ -13,8 +13,8 @@ primary - when set to True, validator will accept incoming bank transactions as 
 
 
 class SelfConfiguration(NetworkNode):
+    primary_validator = models.ForeignKey(Validator, on_delete=models.SET_NULL, blank=True, null=True)
     node_type = models.CharField(choices=NODE_TYPE_CHOICES, default=VALIDATOR, max_length=9)
-    primary = models.BooleanField(default=False)
 
     class Meta:
         default_related_name = 'self_configurations'
@@ -22,7 +22,6 @@ class SelfConfiguration(NetworkNode):
     def __str__(self):
         return (
             f'Node type: {self.node_type} | '
-            f'Primary: {self.primary} | '
             f'Version: {self.version}'
         )
 

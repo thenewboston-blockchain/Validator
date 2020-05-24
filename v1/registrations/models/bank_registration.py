@@ -8,8 +8,8 @@ from v1.banks.models.bank import Bank
 
 
 class BankRegistration(NetworkRegistration):
+    account_number = models.CharField(max_length=256)
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE, blank=True, null=True)
-    identifier = models.CharField(max_length=256)
     ip_address = models.GenericIPAddressField()
     port = models.PositiveIntegerField(
         blank=True,
@@ -26,7 +26,7 @@ class BankRegistration(NetworkRegistration):
     def __str__(self):
         return (
             f'ID: {self.id} | '
-            f'Identifier: {self.identifier} | '
-            f'IP address: {format_node_address(node=self)} | '
+            f'Account Number: {self.account_number} | '
+            f'IP Address: {format_node_address(node=self)} | '
             f'Status: {self.status}'
         )

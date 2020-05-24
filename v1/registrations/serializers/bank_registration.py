@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from thenewboston.constants.network import PENDING
-from thenewboston.constants.network import PROTOCOL_CHOICES
+from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES
 from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
+from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
@@ -20,12 +20,12 @@ class BankRegistrationSerializer(serializers.ModelSerializer):
 
 
 class BankRegistrationSerializerCreate(serializers.Serializer):
+    account_number = serializers.CharField(max_length=64)
     ip_address = serializers.IPAddressField(protocol='both')
     port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
     protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
-    signature = serializers.CharField(max_length=256)
+    signature = serializers.CharField(max_length=128)
     txs = NetworkTransactionSerializer(many=True)
-    verifying_key_hex = serializers.CharField(max_length=256)
 
     def create(self, validated_data):
         """
@@ -39,9 +39,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         txs = tx_details['txs']
 
         bank_registration = BankRegistration.objects.create(
+            account_number=validated_data['account_number'],
             bank=None,
             fee=tx_details['validator_registration_fee'],
-            identifier=validated_data['verifying_key_hex'],
             ip_address=ip_address,
             port=port,
             protocol=protocol,
@@ -70,20 +70,6 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
     def update(self, instance, validated_data):
         raise RuntimeError('Method unavailable')
 
-    @staticmethod
-    def _validate_tx_exists(*, amount, recipient, txs):
-        """
-        Check for the existence of a Tx
-        """
-
-        tx = next((tx for tx in txs if tx.get('amount') == amount and tx.get('recipient') == recipient), None)
-        if not tx:
-            raise serializers.ValidationError({
-                'error_message': 'Tx not found',
-                'expected_amount': amount,
-                'expected_recipient': recipient
-            })
-
     def validate(self, data):
         """
         Validate IP address
@@ -101,21 +87,22 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         return data
 
     @staticmethod
-    def validate_verifying_key_hex(verifying_key_hex):
+    def validate_account_number(account_number):
         """
         Check if bank already exists
         Check for existing pending registration
         """
 
-        if Bank.objects.filter(identifier=verifying_key_hex).exists():
-            raise serializers.ValidationError('Bank with that verifying_key_hex already exists')
+        if Bank.objects.filter(account_number=account_number).exists():
+            raise serializers.ValidationError('Bank with that account number already exists')
 
-        if BankRegistration.objects.filter(identifier=verifying_key_hex, status=PENDING).exists():
-            raise serializers.ValidationError('Bank with that verifying_key_hex already has pending registration')
+        if BankRegistration.objects.filter(account_number=account_number, status=PENDING).exists():
+            raise serializers.ValidationError('Bank with that account number already has pending registration')
 
-        return verifying_key_hex
+        return account_number
 
-    def validate_txs(self, txs):
+    @staticmethod
+    def validate_txs(txs):
         """
         Verify that correct payment exist
         Verify that there are no extra payments
@@ -140,8 +127,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         if len(txs) > 1:
             raise serializers.ValidationError('Only 1 Tx required')
 
-        self._validate_tx_exists(
+        validate_transaction_exists(
             amount=validator_registration_fee,
+            error=serializers.ValidationError,
             recipient=self_configuration.identifier,
             txs=txs
         )
