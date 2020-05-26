@@ -21,4 +21,4 @@ class BankBlockView(APIView):
             signature=request.data.get('signature'),
             message=message
         )
-        return Response(status=status.HTTP_200_OK)
+        return Response({}, status=status.HTTP_200_OK)
