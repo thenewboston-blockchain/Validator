@@ -30,19 +30,23 @@ def process_bank_block_queue():
 
     for bank_block in bank_block_queue:
         block = bank_block.get('block')
+        confirmation_identifier = bank_block.get('confirmation_identifier')
+        signature = bank_block.get('signature')
         message = sort_and_encode(block)
+
         verify_signature(
-            account_number=bank_block.get('confirmation_identifier'),
-            signature=bank_block.get('signature'),
+            account_number=confirmation_identifier,
+            signature=signature,
             message=message
         )
         confirmed_block = {
             **block,
             'block_identifier': block_chain_head_hash
         }
+
         block_hash_value = get_block_hash_value(block=confirmed_block)
-        cache.set(BLOCK_CHAIN_HEAD_HASH, block_hash_value, None)
         cache.set(block_cache_key(block_hash_value), confirmed_block, None)
+        cache.set(BLOCK_CHAIN_HEAD_HASH, block_hash_value, None)
 
         # TODO: Send this out to the original bank and all backup validators
         logger.warning(confirmed_block)
