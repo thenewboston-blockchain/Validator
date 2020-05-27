@@ -16,6 +16,10 @@ class BankBlockView(APIView):
         description: Add a bank block to the queue
         """
 
+        # TODO: Serializer will check everything except point balances (registered bank, block formatting, etc...)
+        # TODO: Also throw an error if this validator is not a primary validator
+        # TODO: If everything is good, add it to the bank block queue
+
         queue = cache.get(BANK_BLOCK_QUEUE)
 
         if queue:

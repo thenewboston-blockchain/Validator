@@ -35,9 +35,9 @@ def process_bank_block_queue():
         message = sort_and_encode(block)
 
         verify_signature(
-            account_number=confirmation_identifier,
+            message=message,
             signature=signature,
-            message=message
+            verify_key=confirmation_identifier
         )
         confirmed_block = {
             **block,
