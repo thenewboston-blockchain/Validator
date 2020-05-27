@@ -5,9 +5,9 @@
     "fields": {
       "account_number": "validator_001",
       "default_transaction_fee": "2.0000000000000000",
-      "ip_address": "127.0.0.1",
+      "ip_address": "192.168.1.65",
       "node_type": "VALIDATOR",
-      "port": 8001,
+      "port": 8000,
       "primary_validator": 1,
       "protocol": "http",
       "registration_fee": "16.0000000000000000",
