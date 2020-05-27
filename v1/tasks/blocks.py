@@ -55,3 +55,12 @@ def process_bank_block_queue():
         logger.warning(confirmed_block)
 
     cache.set(BANK_BLOCK_QUEUE, [], None)
+
+
+@shared_task
+def process_confirmation_block_queue():
+    """
+    Process confirmation block queue
+    """
+
+    pass
