@@ -4,14 +4,15 @@
     "pk": 1,
     "fields": {
       "account_number": "validator_001",
-      "default_transaction_fee": "2.0000000000000000",
       "ip_address": "192.168.1.65",
-      "node_type": "VALIDATOR",
+      "network_identifier": "",
       "port": 8000,
-      "primary_validator": 1,
       "protocol": "http",
+      "version": "v1.0",
+      "default_transaction_fee": "2.0000000000000000",
       "registration_fee": "16.0000000000000000",
-      "version": "v1.0"
+      "primary_validator": 1,
+      "node_type": "VALIDATOR"
     }
   }
 ]

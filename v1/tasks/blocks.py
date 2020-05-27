@@ -30,14 +30,14 @@ def process_bank_block_queue():
 
     for bank_block in bank_block_queue:
         block = bank_block.get('block')
-        confirmation_identifier = bank_block.get('confirmation_identifier')
+        network_identifier = bank_block.get('network_identifier')
         signature = bank_block.get('signature')
         message = sort_and_encode(block)
 
         verify_signature(
             message=message,
             signature=signature,
-            verify_key=confirmation_identifier
+            verify_key=network_identifier
         )
 
         # TODO: Send error message back to bank if the sender doesn't have enough points
