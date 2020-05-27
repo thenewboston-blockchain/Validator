@@ -39,6 +39,9 @@ def process_bank_block_queue():
             signature=signature,
             verify_key=confirmation_identifier
         )
+
+        # TODO: Send error message back to bank if the sender doesn't have enough points
+
         confirmed_block = {
             **block,
             'block_identifier': block_chain_head_hash
