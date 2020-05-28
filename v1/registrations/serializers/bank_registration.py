@@ -3,11 +3,10 @@ from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES
 from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
 from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
-from thenewboston.utils.format import format_address
-from thenewboston.utils.network import fetch
 
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.tasks.bank_registrations import process_bank_registration
 from ..models.bank_registration import BankRegistration
 
 
@@ -47,23 +46,10 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             protocol=protocol,
             status=PENDING
         )
-
-        # TODO: Save Txs (there's only 1) to transaction log and update balance sheet
-        print(txs)
-
-        # TODO: Do background check on Bank, if good update status to ACCEPTED (celery task)
-        # TODO: If ACCEPTED create Bank if it doesn't exist as well
-        # TODO: Set proper Bank FK on BankRegistration as well
-        # TODO: Send a request to the bank letting them know of the results either way
-        address = format_address(ip_address=ip_address, port=port, protocol=protocol)
-        config_address = f'{address}/config'
-        print(config_address)
-
-        results = fetch(url=config_address, headers={})
-
-        # TODO: Check that configs match, if so approve (if not decline)
-        # TODO: Just send the serialized BankRegistration object with the updated status
-        print(results)
+        process_bank_registration.delay(
+            bank_registration_id=bank_registration.id,
+            txs=txs
+        )
 
         return bank_registration
 
