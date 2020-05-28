@@ -23,6 +23,17 @@ class BankRegistrationView(APIView):
         """
         description: Register a bank
         parameters:
+          - name: account_number
+            required: true
+            type: string
+          - name: ip_address
+            required: true
+            type: string
+          - name: port
+            type: integer
+          - name: protocol
+            required: true
+            type: string
           - name: signature
             required: true
             type: string
@@ -41,9 +52,6 @@ class BankRegistrationView(APIView):
                 recipient:
                   required: true
                   type: string
-          - name: verifying_key_hex
-            required: true
-            type: string
         """
 
         serializer = BankRegistrationSerializerCreate(data=request.data, context={'request': request})
