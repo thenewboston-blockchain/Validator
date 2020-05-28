@@ -26,9 +26,9 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
     }
     confirmed_block = {
         'block_identifier': block_identifier,
-        'message': sort_and_encode(message),
+        'message': message,
         'network_identifier': network_identifier,
-        'signature': generate_signature(message=message, signing_key=signing_key)
+        'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
     }
 
     node_address = format_address(ip_address=ip_address, port=port, protocol=protocol)

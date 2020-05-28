@@ -51,7 +51,7 @@ def process_bank_block_queue():
         sign_and_send_confirmed_block.delay(
             block=block,
             block_identifier=block_chain_head_hash,
-            ip_addres='192.168.1.232',
+            ip_address='192.168.1.232',
             port=8000,
             protocol='http',
             url_path='/confirmation_blocks'
