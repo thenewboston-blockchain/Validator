@@ -7,6 +7,7 @@ from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.constants.cache_keys import BANK_BLOCK_QUEUE, BLOCK_CHAIN_HEAD_HASH, block_cache_key
+from .confirmed_blocks import sign_and_send_confirmed_block
 
 logger = get_task_logger(__name__)
 
@@ -41,18 +42,20 @@ def process_bank_block_queue():
         )
 
         # TODO: Send error message back to bank if the sender doesn't have enough points
-
-        confirmed_block = {
-            **block,
-            'block_identifier': block_chain_head_hash
-        }
-
-        block_hash_value = get_block_hash_value(block=confirmed_block)
-        cache.set(block_cache_key(block_hash_value), confirmed_block, None)
+        block_hash_value = get_block_hash_value(block=block)
+        cache.set(block_cache_key(block_hash_value), block, None)
         cache.set(BLOCK_CHAIN_HEAD_HASH, block_hash_value, None)
 
         # TODO: Send this out to the original bank and all backup validators
-        logger.warning(confirmed_block)
+        logger.warning(block)
+        sign_and_send_confirmed_block.delay(
+            block=block,
+            block_identifier=block_chain_head_hash,
+            ip_addres='192.168.1.232',
+            port=8000,
+            protocol='http',
+            url_path='/confirmation_blocks'
+        )
 
     cache.set(BANK_BLOCK_QUEUE, [], None)
 
