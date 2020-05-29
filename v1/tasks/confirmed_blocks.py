@@ -33,4 +33,8 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
 
     node_address = format_address(ip_address=ip_address, port=port, protocol=protocol)
     url = f'{node_address}{url_path}'
-    post(url=url, body=confirmed_block)
+
+    try:
+        post(url=url, body=confirmed_block)
+    except Exception as e:
+        print(e)
