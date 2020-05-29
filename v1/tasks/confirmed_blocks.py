@@ -37,4 +37,5 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
     try:
         post(url=url, body=confirmed_block)
     except Exception as e:
+        # TODO: Log these and consider reducing the trust of the offending bank
         print(e)
