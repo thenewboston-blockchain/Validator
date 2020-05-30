@@ -4,11 +4,13 @@ from hashlib import sha3_256 as sha3
 from urllib.request import Request, urlopen
 
 from django.conf import settings
+from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from thenewboston.utils.fields import common_field_names
 from thenewboston.utils.files import read_json, write_json
 
 from v1.accounts.models.account import Account
+from v1.constants.cache_keys import BANK_BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE, HEAD_HASH, get_account_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 
@@ -62,12 +64,37 @@ class Command(BaseCommand):
 
         return h.hexdigest()
 
-    def _update_accounts(self, file):
+    def _rebuild_cache(self, *, head_hash):
+        """
+        Rebuild cache
+        """
+
+        self.stdout.write(self.style.SUCCESS('Rebuilding cache...'))
+
+        cache.clear()
+        cache.set(BANK_BLOCK_QUEUE, [], None)
+        cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+        cache.set(HEAD_HASH, head_hash, None)
+
+        accounts = Account.objects.all()
+
+        for account in accounts:
+            account_cache_key = get_account_cache_key(account_number=account.account_number)
+            account_data = {
+                'balance': account.balance,
+                'balance_lock': account.balance_lock
+            }
+            cache.set(account_cache_key, account_data, None)
+
+        self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
+
+    def _update_accounts(self, *, file):
         """
         Update the accounts from the root account file
         """
 
         self.stdout.write(self.style.SUCCESS('Updating accounts...'))
+
         Account.objects.all().delete()
         data = read_json(file)
 
@@ -79,7 +106,7 @@ class Command(BaseCommand):
             ) for k, v in data.items()
         ]
         Account.objects.bulk_create(accounts)
-        self.stdout.write(self.style.SUCCESS('Account updates complete'))
+        self.stdout.write(self.style.SUCCESS('Accounts updated successfully'))
 
     def handle(self, *args, **options):
         """
@@ -102,6 +129,7 @@ class Command(BaseCommand):
         self_configuration.seed_hash = '0'
         self_configuration.save()
 
-        self._update_accounts(file)
+        self._update_accounts(file=file)
+        self._rebuild_cache(head_hash=file_hash)
 
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))

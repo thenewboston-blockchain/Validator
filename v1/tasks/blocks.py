@@ -5,7 +5,7 @@ from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.constants.cache_keys import BANK_BLOCK_QUEUE
+from v1.constants.cache_keys import BANK_BLOCK_QUEUE, get_account_cache_key
 from .confirmed_blocks import sign_and_send_confirmed_block
 
 logger = get_task_logger(__name__)
@@ -36,7 +36,21 @@ def process_bank_block_queue():
             verify_key=network_identifier
         )
 
-        # TODO: Send error message back to bank if the sender doesn't have enough points
+        sender_account_number = block['account_number']
+        sender_account_cache_key = get_account_cache_key(account_number=sender_account_number)
+        sender_account = cache.get(sender_account_cache_key)
+
+        if not sender_account:
+            logger.error(f'Account number {sender_account_number} does not exist')
+            continue
+
+        txs = block['txs']
+        total_amount = sum([tx['amount'] for tx in txs])
+        sender_balance = sender_account['balance']
+
+        if total_amount > sender_balance:
+            logger.error(f'Transaction total of {total_amount} is greater than account balance of {sender_balance}')
+            continue
 
         sign_and_send_confirmed_block.delay(
             block=block,
