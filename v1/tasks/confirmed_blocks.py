@@ -50,9 +50,7 @@ def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path
     ]
     recipient_accounts = cache.get_many(recipient_account_cache_keys)
 
-    for k, v in sender_account:
-        logger.error(k)
-        logger.error(v)
+    logger.error(sender_account)
 
     for k, v in recipient_accounts:
         logger.error(k)
