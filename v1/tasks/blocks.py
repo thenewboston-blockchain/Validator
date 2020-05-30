@@ -11,6 +11,22 @@ from .confirmed_blocks import sign_and_send_confirmed_block
 logger = get_task_logger(__name__)
 
 
+def is_total_amount_valid(*, block, sender_account):
+    """
+    Validate total amount
+    """
+
+    txs = block['txs']
+    total_amount = sum([tx['amount'] for tx in txs])
+    sender_balance = sender_account['balance']
+
+    if total_amount > sender_balance:
+        error = f'Transaction total of {total_amount} is greater than account balance of {sender_balance}'
+        return False, error
+
+    return True, None
+
+
 @shared_task
 def process_bank_block_queue():
     """
@@ -44,12 +60,10 @@ def process_bank_block_queue():
             logger.error(f'Account number {sender_account_number} does not exist')
             continue
 
-        txs = block['txs']
-        total_amount = sum([tx['amount'] for tx in txs])
-        sender_balance = sender_account['balance']
+        total_amount_valid, error = is_total_amount_valid(block=block, sender_account=sender_account)
 
-        if total_amount > sender_balance:
-            logger.error(f'Transaction total of {total_amount} is greater than account balance of {sender_balance}')
+        if not total_amount_valid:
+            logger.error(error)
             continue
 
         sign_and_send_confirmed_block.delay(

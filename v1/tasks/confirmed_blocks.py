@@ -12,7 +12,7 @@ from thenewboston.utils.network import post
 from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
-from v1.constants.cache_keys import HEAD_HASH
+from v1.constants.cache_keys import HEAD_HASH, get_account_cache_key
 
 logger = get_task_logger(__name__)
 
@@ -36,6 +36,27 @@ def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
     network_identifier = get_verify_key(signing_key=signing_key)
     network_identifier = encode_verify_key(verify_key=network_identifier)
+
+    sender_account_number = block['account_number']
+    sender_account_cache_key = get_account_cache_key(account_number=sender_account_number)
+    sender_account = cache.get(sender_account_cache_key)
+
+    txs = block['txs']
+    total_amount = sum([tx['amount'] for tx in txs])
+    recipient_account_numbers = [tx['recipient'] for tx in txs]
+
+    recipient_account_cache_keys = [
+        get_account_cache_key(account_number=recipient) for recipient in recipient_account_numbers
+    ]
+    recipient_accounts = cache.get_many(recipient_account_cache_keys)
+
+    for k, v in sender_account:
+        logger.error(k)
+        logger.error(v)
+
+    for k, v in recipient_accounts:
+        logger.error(k)
+        logger.error(v)
 
     message = {
         'block': block,
