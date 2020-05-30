@@ -52,7 +52,11 @@ def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path
 
     logger.error(sender_account)
 
-    for k, v in recipient_accounts:
+    for k, v in cache.get_many([sender_account_cache_key]).items():
+        logger.error(k)
+        logger.error(v)
+
+    for k, v in recipient_accounts.items():
         logger.error(k)
         logger.error(v)
 
