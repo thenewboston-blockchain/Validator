@@ -21,6 +21,16 @@ python3 manage.py initialize_validator -h
 class Command(BaseCommand):
     help = 'Initialize validator as the primary validator for the network'
 
+    @staticmethod
+    def _create_related_validator(*, self_configuration):
+        """
+        Update related row in the validator table
+        """
+
+        field_names = common_field_names(self_configuration, Validator)
+        data = {f: getattr(self_configuration, f) for f in field_names}
+        return Validator.objects.create(**data, trust=100)
+
     def _download_json(self, *, url, file):
         """
         Download JSON file and save
@@ -71,34 +81,16 @@ class Command(BaseCommand):
         Account.objects.bulk_create(accounts)
         self.stdout.write(self.style.SUCCESS('Account updates complete'))
 
-    @staticmethod
-    def _update_related_validator(*, self_configuration, validator_queryset):
-        """
-        Update related row in the validator table
-        """
-
-        field_names = common_field_names(self_configuration, Validator)
-        data = {f: getattr(self_configuration, f) for f in field_names}
-        validator_queryset.update(**data)
-
     def handle(self, *args, **options):
         """
         Initialize validator as the primary validator for the network
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        validator = Validator.objects.filter(ip_address=self_configuration.ip_address)
+        Validator.objects.all().delete()
+        validator = self._create_related_validator(self_configuration=self_configuration)
 
-        if not validator:
-            self.stdout.write(self.style.ERROR('Could not find related validator'))
-            return
-
-        self._update_related_validator(
-            self_configuration=self_configuration,
-            validator_queryset=validator
-        )
-
-        self_configuration.primary_validator = validator.first()
+        self_configuration.primary_validator = validator
         self_configuration.save()
 
         file = os.path.join(settings.TMP_DIR, '0.json')
