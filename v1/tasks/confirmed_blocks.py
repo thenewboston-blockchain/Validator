@@ -1,5 +1,8 @@
+from hashlib import sha3_256 as sha3
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
+from django.core.cache import cache
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
 from thenewboston.blocks.signatures import generate_signature
@@ -9,7 +12,17 @@ from thenewboston.utils.network import post
 from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
+from v1.constants.cache_keys import HEAD_HASH
+
 logger = get_task_logger(__name__)
+
+
+def get_message_hash(*, message):
+    """
+    Generate a balance lock from a Tx
+    """
+
+    return sha3(sort_and_encode(message)).digest().hex()
 
 
 @shared_task
@@ -33,6 +46,15 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
         'network_identifier': network_identifier,
         'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
     }
+
+    # TODO: Send this out to the original bank and all backup validators
+    logger.warning(confirmed_block)
+
+    message_hash = get_message_hash(message=message)
+    cache.set(HEAD_HASH, message_hash, None)
+
+    # TODO: Delete this
+    logger.info(message_hash)
 
     node_address = format_address(ip_address=ip_address, port=port, protocol=protocol)
     url = f'{node_address}{url_path}'
