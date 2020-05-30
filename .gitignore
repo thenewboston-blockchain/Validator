@@ -2,3 +2,7 @@
 .idea
 db.sqlite3
 venv
+
+# Temporary files
+tmp/*
+!tmp/.gitkeep
