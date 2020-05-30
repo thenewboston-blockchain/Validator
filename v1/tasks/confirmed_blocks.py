@@ -26,11 +26,12 @@ def get_message_hash(*, message):
 
 
 @shared_task
-def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, protocol, url_path):
+def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path):
     """
     Sign block and send to recipient
     """
 
+    head_hash = cache.get(HEAD_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
     network_identifier = get_verify_key(signing_key=signing_key)
@@ -38,7 +39,7 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
 
     message = {
         'block': block,
-        'block_identifier': block_identifier,
+        'block_identifier': head_hash,
         'updated_balances': []
     }
     confirmed_block = {
@@ -47,14 +48,8 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
         'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
     }
 
-    # TODO: Send this out to the original bank and all backup validators
-    logger.warning(confirmed_block)
-
     message_hash = get_message_hash(message=message)
     cache.set(HEAD_HASH, message_hash, None)
-
-    # TODO: Delete this
-    logger.info(message_hash)
 
     node_address = format_address(ip_address=ip_address, port=port, protocol=protocol)
     url = f'{node_address}{url_path}'

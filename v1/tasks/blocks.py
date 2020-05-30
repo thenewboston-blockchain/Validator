@@ -3,7 +3,7 @@ from django.core.cache import cache
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
-from v1.constants.cache_keys import BANK_BLOCK_QUEUE, HEAD_HASH
+from v1.constants.cache_keys import BANK_BLOCK_QUEUE
 from .confirmed_blocks import sign_and_send_confirmed_block
 
 
@@ -14,7 +14,6 @@ def process_bank_block_queue():
     """
 
     bank_block_queue = cache.get(BANK_BLOCK_QUEUE)
-    head_hash = cache.get(HEAD_HASH)
 
     for bank_block in bank_block_queue:
         block = bank_block.get('block')
@@ -32,7 +31,6 @@ def process_bank_block_queue():
 
         sign_and_send_confirmed_block.delay(
             block=block,
-            block_identifier=head_hash,
             ip_address='192.168.1.232',
             port=8000,
             protocol='http',
