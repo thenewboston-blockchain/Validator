@@ -1,4 +1,5 @@
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
 from thenewboston.blocks.signatures import generate_signature
@@ -7,6 +8,8 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
+
+logger = get_task_logger(__name__)
 
 
 @shared_task
@@ -38,4 +41,4 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
         post(url=url, body=confirmed_block)
     except Exception as e:
         # TODO: Log these and consider reducing the trust of the offending bank
-        print(e)
+        logger.error(e)
