@@ -6,8 +6,9 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from thenewboston.utils.fields import common_field_names
-from thenewboston.utils.files import write_json
+from thenewboston.utils.files import read_json, write_json
 
+from v1.accounts.models.account import Account
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 
@@ -51,6 +52,25 @@ class Command(BaseCommand):
 
         return h.hexdigest()
 
+    def _update_accounts(self, file):
+        """
+        Update the accounts from the root account file
+        """
+
+        self.stdout.write(self.style.SUCCESS('Updating accounts...'))
+        Account.objects.all().delete()
+        data = read_json(file)
+
+        accounts = [
+            Account(
+                account_number=k,
+                balance=v['balance'],
+                balance_lock=v['balance_lock']
+            ) for k, v in data.items()
+        ]
+        Account.objects.bulk_create(accounts)
+        self.stdout.write(self.style.SUCCESS('Account updates complete'))
+
     @staticmethod
     def _update_related_validator(*, self_configuration, validator_queryset):
         """
@@ -90,4 +110,6 @@ class Command(BaseCommand):
         self_configuration.seed_hash = '0'
         self_configuration.save()
 
-        self.stdout.write(self.style.SUCCESS('ok'))
+        self._update_accounts(file)
+
+        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
