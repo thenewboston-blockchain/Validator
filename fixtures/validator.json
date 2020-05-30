@@ -5,11 +5,16 @@
     "fields": {
       "account_number": "validator_001",
       "ip_address": "127.0.0.1",
+      "network_identifier": "",
       "port": 8001,
       "protocol": "http",
       "version": "v1.0",
       "default_transaction_fee": "2.0000000000000000",
       "registration_fee": "16.0000000000000000",
+      "head_hash": "",
+      "root_account_file": "",
+      "root_account_file_hash": "",
+      "seed_hash": "",
       "trust": "100.00"
     }
   }

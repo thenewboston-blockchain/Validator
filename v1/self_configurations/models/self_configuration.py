@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from thenewboston.constants.network import HEAD_HASH_LENGTH, VALIDATOR
-from thenewboston.models.network_node import NetworkNode
+from thenewboston.constants.network import VALIDATOR
+from thenewboston.models.network_validator import NetworkValidator
 from thenewboston.utils.fields import common_field_names
 
 from v1.constants.models import NODE_TYPE_CHOICES
@@ -12,15 +12,9 @@ primary - when set to True, validator will accept incoming bank transactions as 
 """
 
 
-class SelfConfiguration(NetworkNode):
+class SelfConfiguration(NetworkValidator):
     primary_validator = models.ForeignKey(Validator, on_delete=models.SET_NULL, blank=True, null=True)
     node_type = models.CharField(choices=NODE_TYPE_CHOICES, default=VALIDATOR, max_length=9)
-
-    # Sync settings
-    head_hash = models.CharField(max_length=HEAD_HASH_LENGTH)
-    root_account_file = models.URLField(max_length=1024)
-    root_account_file_hash = models.CharField(max_length=HEAD_HASH_LENGTH)
-    seed_hash = models.CharField(max_length=HEAD_HASH_LENGTH)
 
     class Meta:
         default_related_name = 'self_configurations'
