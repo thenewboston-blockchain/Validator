@@ -12,7 +12,11 @@
       "default_transaction_fee": "2.0000000000000000",
       "registration_fee": "16.0000000000000000",
       "primary_validator": 1,
-      "node_type": "VALIDATOR"
+      "node_type": "VALIDATOR",
+      "head_hash": "abc",
+      "root_account_file": "https://raw.githubusercontent.com/buckyroberts/Spider/master/spider.py",
+      "root_account_file_hash": "123",
+      "seed_hash": "0"
     }
   }
 ]
