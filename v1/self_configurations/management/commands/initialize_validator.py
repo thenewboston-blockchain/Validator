@@ -1,5 +1,6 @@
 import json
 import os
+from hashlib import sha3_256 as sha3
 from urllib.request import Request, urlopen
 
 from django.conf import settings
@@ -34,6 +35,23 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(e))
 
     @staticmethod
+    def _get_file_hash(file):
+        """
+        Return hash value of file
+        """
+
+        h = sha3()
+
+        with open(file, 'rb') as file:
+            chunk = 0
+
+            while chunk != b'':
+                chunk = file.read(1024)
+                h.update(chunk)
+
+        return h.hexdigest()
+
+    @staticmethod
     def _update_related_validator(*, self_configuration, validator_queryset):
         """
         Update related row in the validator table
@@ -63,9 +81,13 @@ class Command(BaseCommand):
         self_configuration.primary_validator = validator.first()
         self_configuration.save()
 
-        self._download_json(
-            url=self_configuration.root_account_file,
-            file=os.path.join(settings.TMP_DIR, 'sample2.json')
-        )
+        file = os.path.join(settings.TMP_DIR, '0.json')
+        self._download_json(url=self_configuration.root_account_file, file=file)
+
+        file_hash = self._get_file_hash(file)
+        self_configuration.head_hash = file_hash
+        self_configuration.root_account_file_hash = file_hash
+        self_configuration.seed_hash = '0'
+        self_configuration.save()
 
         self.stdout.write(self.style.SUCCESS('ok'))
