@@ -1,10 +1,14 @@
 from celery import shared_task
+from celery.utils.log import get_task_logger
 from django.core.cache import cache
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
+from v1.banks.models.bank import Bank
 from v1.constants.cache_keys import BANK_BLOCK_QUEUE
 from .confirmed_blocks import sign_and_send_confirmed_block
+
+logger = get_task_logger(__name__)
 
 
 @shared_task
@@ -19,10 +23,15 @@ def process_bank_block_queue():
         block = bank_block.get('block')
         network_identifier = bank_block.get('network_identifier')
         signature = bank_block.get('signature')
-        message = sort_and_encode(block)
+
+        bank = Bank.objects.filter(network_identifier=network_identifier).first()
+
+        if not bank:
+            logger.error(f'Bank with network_identifier {network_identifier} does not exist')
+            continue
 
         verify_signature(
-            message=message,
+            message=sort_and_encode(block),
             signature=signature,
             verify_key=network_identifier
         )
@@ -31,9 +40,9 @@ def process_bank_block_queue():
 
         sign_and_send_confirmed_block.delay(
             block=block,
-            ip_address='192.168.1.232',
-            port=8000,
-            protocol='http',
+            ip_address=bank.ip_address,
+            port=bank.port,
+            protocol=bank.protocol,
             url_path='/confirmation_blocks'
         )
 
