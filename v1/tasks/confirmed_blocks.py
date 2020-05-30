@@ -46,7 +46,7 @@ def update_accounts_table(*, sender_account_number, recipient_account_numbers):
 
     results.append({
         'account_number': sender_account_number,
-        'balance': sender_account_balance,
+        'balance': str(sender_account_balance),
         'balance_lock': sender_account_balance_lock
     })
 
@@ -57,7 +57,7 @@ def update_accounts_table(*, sender_account_number, recipient_account_numbers):
 
         results.append({
             'account_number': recipient,
-            'balance': recipient_account_balance
+            'balance': str(recipient_account_balance)
         })
 
     return results
@@ -78,12 +78,13 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
     sender_account_number = block['account_number']
     sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
     sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
+    sender_account_balance = cache.get(sender_account_balance_cache_key)
 
     txs = block['txs']
     total_amount = sum([tx['amount'] for tx in txs])
 
     # Update sender account
-    cache.decr(sender_account_balance_cache_key, total_amount)
+    cache.set(sender_account_balance_cache_key, sender_account_balance - total_amount)
     cache.set(sender_account_balance_lock_cache_key, new_balance_lock)
 
     # Update recipient accounts
@@ -96,14 +97,12 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
         if recipient_account_balance is None:
             cache.set(recipient_account_balance_cache_key, amount)
         else:
-            cache.incr(recipient_account_balance_cache_key, amount)
+            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount)
 
     updated_balances = update_accounts_table(
         sender_account_number=sender_account_number,
         recipient_account_numbers=[tx['recipient'] for tx in txs]
     )
-
-    logger.error(updated_balances)
 
     message = {
         'block': block,
