@@ -22,10 +22,10 @@ def sign_and_send_confirmed_block(*, block, block_identifier, ip_address, port, 
 
     message = {
         'block': block,
+        'block_identifier': block_identifier,
         'updated_balances': []
     }
     confirmed_block = {
-        'block_identifier': block_identifier,
         'message': message,
         'network_identifier': network_identifier,
         'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
