@@ -12,6 +12,7 @@ from thenewboston.utils.network import post
 from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
+from v1.accounts.models.account import Account
 from v1.constants.cache_keys import HEAD_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
 
 logger = get_task_logger(__name__)
@@ -23,6 +24,43 @@ def get_message_hash(*, message):
     """
 
     return sha3(sort_and_encode(message)).digest().hex()
+
+
+def update_accounts_table(*, sender_account_number, recipient_account_numbers):
+    """
+    Update the accounts table in the database
+    Return updated balances
+    """
+
+    results = []
+
+    sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
+    sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
+    sender_account_balance = cache.get(sender_account_balance_cache_key)
+    sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
+
+    Account.objects.filter(account_number=sender_account_number).update(
+        balance=sender_account_balance,
+        balance_lock=sender_account_balance_lock
+    )
+
+    results.append({
+        'account_number': sender_account_number,
+        'balance': sender_account_balance,
+        'balance_lock': sender_account_balance_lock
+    })
+
+    for recipient in recipient_account_numbers:
+        recipient_account_balance_cache_key = get_account_balance_cache_key(account_number=recipient)
+        recipient_account_balance = cache.get(recipient_account_balance_cache_key)
+        Account.objects.filter(account_number=recipient).update(balance=recipient_account_balance)
+
+        results.append({
+            'account_number': recipient,
+            'balance': recipient_account_balance
+        })
+
+    return results
 
 
 @shared_task
@@ -60,10 +98,17 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
         else:
             cache.incr(recipient_account_balance_cache_key, amount)
 
+    updated_balances = update_accounts_table(
+        sender_account_number=sender_account_number,
+        recipient_account_numbers=[tx['recipient'] for tx in txs]
+    )
+
+    logger.error(updated_balances)
+
     message = {
         'block': block,
         'block_identifier': head_hash,
-        'updated_balances': []
+        'updated_balances': updated_balances
     }
     confirmed_block = {
         'message': message,
