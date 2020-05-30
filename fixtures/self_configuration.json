@@ -14,7 +14,7 @@
       "primary_validator": 1,
       "node_type": "VALIDATOR",
       "head_hash": "abc",
-      "root_account_file": "https://raw.githubusercontent.com/buckyroberts/Spider/master/spider.py",
+      "root_account_file": "https://gist.githubusercontent.com/buckyroberts/519b5cb82a0a5b5d4ae8a2175b722520/raw/9237deb449e27cab93cb89ea3346ecdfc61fe9ea/0.json",
       "root_account_file_hash": "123",
       "seed_hash": "0"
     }
