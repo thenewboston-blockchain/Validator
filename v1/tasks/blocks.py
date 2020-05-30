@@ -2,26 +2,26 @@ from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
 from thenewboston.blocks.signatures import verify_signature
+from thenewboston.blocks.validation import validate_block_transaction_chain
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.constants.cache_keys import BANK_BLOCK_QUEUE, get_account_cache_key
+from v1.constants.cache_keys import BANK_BLOCK_QUEUE, get_account_balance_cache_key, get_account_balance_lock_cache_key
 from .confirmed_blocks import sign_and_send_confirmed_block
 
 logger = get_task_logger(__name__)
 
 
-def is_total_amount_valid(*, block, sender_account):
+def is_total_amount_valid(*, block, account_balance):
     """
     Validate total amount
     """
 
     txs = block['txs']
     total_amount = sum([tx['amount'] for tx in txs])
-    sender_balance = sender_account['balance']
 
-    if total_amount > sender_balance:
-        error = f'Transaction total of {total_amount} is greater than account balance of {sender_balance}'
+    if total_amount > account_balance:
+        error = f'Transaction total of {total_amount} is greater than account balance of {account_balance}'
         return False, error
 
     return True, None
@@ -53,22 +53,30 @@ def process_bank_block_queue():
         )
 
         sender_account_number = block['account_number']
-        sender_account_cache_key = get_account_cache_key(account_number=sender_account_number)
-        sender_account = cache.get(sender_account_cache_key)
+        sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
+        sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
+        sender_account_balance = cache.get(sender_account_balance_cache_key)
+        sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
 
-        if not sender_account:
-            logger.error(f'Account number {sender_account_number} does not exist')
+        if sender_account_balance is None:
+            logger.error(f'Account balance for {sender_account_number} not found')
             continue
 
-        total_amount_valid, error = is_total_amount_valid(block=block, sender_account=sender_account)
+        total_amount_valid, error = is_total_amount_valid(block=block, account_balance=sender_account_balance)
 
         if not total_amount_valid:
             logger.error(error)
             continue
 
+        new_balance_lock = validate_block_transaction_chain(
+            balance_lock=sender_account_balance_lock,
+            txs=block['txs']
+        )
+
         sign_and_send_confirmed_block.delay(
             block=block,
             ip_address=bank.ip_address,
+            new_balance_lock=new_balance_lock,
             port=bank.port,
             protocol=bank.protocol,
             url_path='/confirmation_blocks'

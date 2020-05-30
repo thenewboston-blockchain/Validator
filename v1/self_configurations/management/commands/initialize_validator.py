@@ -10,7 +10,13 @@ from thenewboston.utils.fields import common_field_names
 from thenewboston.utils.files import read_json, write_json
 
 from v1.accounts.models.account import Account
-from v1.constants.cache_keys import BANK_BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE, HEAD_HASH, get_account_cache_key
+from v1.constants.cache_keys import (
+    BANK_BLOCK_QUEUE,
+    CONFIRMATION_BLOCK_QUEUE,
+    HEAD_HASH,
+    get_account_balance_cache_key,
+    get_account_balance_lock_cache_key
+)
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 
@@ -79,12 +85,11 @@ class Command(BaseCommand):
         accounts = Account.objects.all()
 
         for account in accounts:
-            account_cache_key = get_account_cache_key(account_number=account.account_number)
-            account_data = {
-                'balance': account.balance,
-                'balance_lock': account.balance_lock
-            }
-            cache.set(account_cache_key, account_data, None)
+            account_number = account.account_number
+            account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
+            account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
+            cache.set(account_balance_cache_key, account.balance, None)
+            cache.set(account_balance_lock_cache_key, account.balance_lock, None)
 
         self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
 

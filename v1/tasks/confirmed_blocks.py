@@ -12,7 +12,7 @@ from thenewboston.utils.network import post
 from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
-from v1.constants.cache_keys import HEAD_HASH, get_account_cache_key
+from v1.constants.cache_keys import HEAD_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
 
 logger = get_task_logger(__name__)
 
@@ -26,7 +26,7 @@ def get_message_hash(*, message):
 
 
 @shared_task
-def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path):
+def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, protocol, url_path):
     """
     Sign block and send to recipient
     """
@@ -38,27 +38,27 @@ def sign_and_send_confirmed_block(*, block, ip_address, port, protocol, url_path
     network_identifier = encode_verify_key(verify_key=network_identifier)
 
     sender_account_number = block['account_number']
-    sender_account_cache_key = get_account_cache_key(account_number=sender_account_number)
-    sender_account = cache.get(sender_account_cache_key)
+    sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
+    sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
 
     txs = block['txs']
     total_amount = sum([tx['amount'] for tx in txs])
-    recipient_account_numbers = [tx['recipient'] for tx in txs]
 
-    recipient_account_cache_keys = [
-        get_account_cache_key(account_number=recipient) for recipient in recipient_account_numbers
-    ]
-    recipient_accounts = cache.get_many(recipient_account_cache_keys)
+    # Update sender account
+    cache.decr(sender_account_balance_cache_key, total_amount)
+    cache.set(sender_account_balance_lock_cache_key, new_balance_lock)
 
-    logger.error(sender_account)
+    # Update recipient accounts
+    for tx in txs:
+        amount = tx['amount']
+        recipient = tx['recipient']
+        recipient_account_balance_cache_key = get_account_balance_cache_key(account_number=recipient)
+        recipient_account_balance = cache.get(recipient_account_balance_cache_key)
 
-    for k, v in cache.get_many([sender_account_cache_key]).items():
-        logger.error(k)
-        logger.error(v)
-
-    for k, v in recipient_accounts.items():
-        logger.error(k)
-        logger.error(v)
+        if recipient_account_balance is None:
+            cache.set(recipient_account_balance_cache_key, amount)
+        else:
+            cache.incr(recipient_account_balance_cache_key, amount)
 
     message = {
         'block': block,
