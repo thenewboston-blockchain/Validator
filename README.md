@@ -24,6 +24,17 @@ To initialize the project:
 2. Run `bash scripts/reboot.sh` to load in fixture data
 3. Run `python3 manage.py initialize_validator` to initialize related models
 
+Install and run Redis:
+```
+brew install redis
+redis-server
+```
+
+Run Celery:
+```
+celery -A config.settings worker -l debug
+```
+
 ## Running Tests
 
 Run all tests:
