@@ -17,6 +17,7 @@ class BankBlockView(APIView):
         """
 
         # TODO: Serializer will check everything except point balances (registered bank, block formatting, etc...)
+        # TODO: These initial checks should not hit the SQL database
         # TODO: Also throw an error if this validator is not a primary validator
         # TODO: If everything is good, add the entire bank block to the bank block queue
 
