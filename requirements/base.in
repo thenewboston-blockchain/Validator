@@ -1,4 +1,4 @@
-/Users/bucky/Desktop/Projects/thenewboston-python/dist/thenewboston-0.0.1.tar.gz
+-e git+ssh://git@github.com/thenewboston-developers/thenewboston-python.git#egg=thenewboston
 celery==4.4.2
 django-redis==4.11.0
 redis==3.5.2
