@@ -3,10 +3,10 @@
 Set required environment variables:
 ```
 # Valid values are development, local, postgres_local, production, or staging
-DJANGO_APPLICATION_ENVIRONMENT
+DJANGO_APPLICATION_ENVIRONMENT='local'
 
 # 64 character signing key used to authenticate network requests
-NETWORK_SIGNING_KEY
+NETWORK_SIGNING_KEY='6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81'
 ```
 
 Install and run Redis:
