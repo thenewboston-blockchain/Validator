@@ -2,6 +2,7 @@
 celery==4.4.2
 django-debug-toolbar==2.2
 django-redis==4.11.0
+flower==0.9.4
 redis==3.5.2
 uWSGI==2.0.18
 wheel==0.34.2

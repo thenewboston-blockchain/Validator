@@ -60,6 +60,11 @@ Run all tests in parallel:
 python3 manage.py test --parallel
 ```
 
+To monitor celery tasks:
+```
+celery flower -A config.settings --address=127.0.0.1 --port=5555
+```
+
 ## Developers
 
 When adding a package, add to `requirements/base.in` and then :
