@@ -25,10 +25,9 @@ DJANGO_APPLICATION_ENVIRONMENT='local'
 NETWORK_SIGNING_KEY='6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81'
 ```
 
-Install and run Redis:
+Install Redis:
 ```
 brew install redis
-redis-server
 ```
 
 Create a virtual environment with Python 3.6 or higher.
@@ -43,27 +42,29 @@ To initialize the project:
 2. Run `bash scripts/reboot.sh` to load in fixture data
 3. Run `python3 manage.py initialize_validator` to initialize related models
 
+
+## Local Development
+
+Run Redis:
+```
+redis-server
+```
+
 Run Celery:
 ```
 celery -A config.settings worker -l debug
 ```
 
-## Running Tests
-
-Run all tests:
-```
-python3 manage.py test
-```
-
-Run all tests in parallel:
+To run all tests in parallel:
 ```
 python3 manage.py test --parallel
 ```
 
-To monitor celery tasks:
+To monitor Celery tasks:
 ```
 celery flower -A config.settings --address=127.0.0.1 --port=5555
 ```
+
 
 ## Developers
 
