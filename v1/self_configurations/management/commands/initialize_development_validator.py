@@ -1,13 +1,11 @@
-import json
 import os
 from hashlib import sha3_256 as sha3
-from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from thenewboston.utils.fields import common_field_names
-from thenewboston.utils.files import read_json, write_json
+from thenewboston.utils.files import read_json
 
 from v1.accounts.models.account import Account
 from v1.constants.cache_keys import (
@@ -21,8 +19,17 @@ from v1.self_configurations.helpers.self_configuration import get_self_configura
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_validator
-python3 manage.py initialize_validator -h
+python3 manage.py initialize_development_validator
+python3 manage.py initialize_development_validator -h
+
+Running this script will:
+- delete all known validators
+- create a validator object referencing self (in the validator table)
+- set self as the primary validator
+- read in the initial balances (Treasury only) data from /tmp/0.json
+- update SelfConfiguration
+- create Account object (Treasury only)
+- rebuild cache
 """
 
 
@@ -38,20 +45,6 @@ class Command(BaseCommand):
         field_names = common_field_names(self_configuration, Validator)
         data = {f: getattr(self_configuration, f) for f in field_names}
         return Validator.objects.create(**data, trust=100)
-
-    def _download_json(self, *, url, file):
-        """
-        Download JSON file and save
-        """
-
-        try:
-            request = Request(url)
-            response = urlopen(request)
-            results = json.loads(response.read())
-            write_json(file, results)
-        except Exception as e:
-            self.stdout.write(self.style.ERROR(url))
-            self.stdout.write(self.style.ERROR(e))
 
     @staticmethod
     def _get_file_hash(file):
@@ -126,8 +119,6 @@ class Command(BaseCommand):
         self_configuration.save()
 
         file = os.path.join(settings.TMP_DIR, '0.json')
-        self._download_json(url=self_configuration.root_account_file, file=file)
-
         file_hash = self._get_file_hash(file)
         self_configuration.head_hash = file_hash
         self_configuration.root_account_file_hash = file_hash

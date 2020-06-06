@@ -9,3 +9,4 @@ venv
 # Temporary files
 tmp/*
 !tmp/.gitkeep
+!tmp/0.json
