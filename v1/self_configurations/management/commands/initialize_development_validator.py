@@ -20,15 +20,14 @@ from v1.validators.models.validator import Validator
 
 """
 python3 manage.py initialize_development_validator
-python3 manage.py initialize_development_validator -h
 
 Running this script will:
 - delete all known validators
 - create a validator object referencing self (in the validator table)
 - set self as the primary validator
-- read in the initial balances (Treasury only) data from /tmp/0.json
+- read in the initial balances from /tmp/0.json
 - update SelfConfiguration
-- create Account object (Treasury only)
+- create Account objects
 - rebuild cache
 """
 
