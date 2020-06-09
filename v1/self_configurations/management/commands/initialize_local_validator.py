@@ -19,7 +19,7 @@ from v1.self_configurations.helpers.self_configuration import get_self_configura
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_development_validator
+python3 manage.py initialize_local_validator
 
 Running this script will:
 - delete all known validators
