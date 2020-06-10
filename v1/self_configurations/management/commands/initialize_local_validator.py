@@ -5,6 +5,7 @@ from django.core import management
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.core.management.commands import loaddata
+from django.core.validators import validate_ipv46_address
 
 from config.helpers.environment import ENVIRONMENT
 from v1.accounts.models.account import Account
@@ -62,12 +63,15 @@ class Command(BaseCommand):
         if ENVIRONMENT not in valid_environments:
             raise RuntimeError(f'DJANGO_APPLICATION_ENVIRONMENT must be in {valid_environments}')
 
+        ip = options['ip']
+        validate_ipv46_address(ip)
+
         self.install_fixture_data()
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        SelfConfiguration.objects.filter(pk=self_configuration.id).update(ip_address=options['ip'])
+        SelfConfiguration.objects.filter(pk=self_configuration.id).update(ip_address=ip)
         validator = self_configuration.primary_validator
-        validator.ip_address = options['ip']
+        validator.ip_address = ip
         validator.save()
 
         self.rebuild_cache(head_hash=self_configuration.head_hash)
