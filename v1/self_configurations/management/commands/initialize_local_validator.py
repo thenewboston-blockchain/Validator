@@ -6,6 +6,7 @@ from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.core.management.commands import loaddata
 
+from config.helpers.environment import ENVIRONMENT
 from v1.accounts.models.account import Account
 from v1.banks.models.bank import Bank
 from v1.constants.cache_keys import (
@@ -23,13 +24,15 @@ from v1.validators.models.validator import Validator
 python3 manage.py initialize_local_validator
 
 Running this script will:
-- delete all known validators
-- create a validator object referencing self (in the validator table)
-- set self as the primary validator
-- read in the initial balances from /tmp/0.json
-- update SelfConfiguration
-- create Account objects
+- delete all Accounts, Banks, SelfConfigurations, Users, and Validators
+- load in fixture data (same models as above)
 - rebuild cache
+
+Fixture data sets self as the primary validator.
+
+Default superuser is:
+username: bucky
+password: pass1234
 """
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,11 +42,26 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Initialize validator as the primary validator for the network'
+    help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'
 
-    def _install_fixture_data(self):
+    def handle(self, *args, **options):
         """
-        Update the accounts from the root account file
+        Run script
+        """
+
+        valid_environments = ['local', 'postgres_local']
+
+        if ENVIRONMENT not in valid_environments:
+            raise RuntimeError(f'DJANGO_APPLICATION_ENVIRONMENT must be in {valid_environments}')
+
+        self_configuration = self.install_fixture_data()
+        self.rebuild_cache(head_hash=self_configuration.head_hash)
+        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
+
+    def install_fixture_data(self):
+        """
+        Delete all Accounts, Banks, SelfConfigurations, Users, and Validators
+        Load in fixture data (same models as above)
         """
 
         global FIXTURES_DIR
@@ -71,7 +89,7 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS('Fixture data installed successfully'))
         return get_self_configuration(exception_class=RuntimeError)
 
-    def _rebuild_cache(self, *, head_hash):
+    def rebuild_cache(self, *, head_hash):
         """
         Rebuild cache
         """
@@ -93,12 +111,3 @@ class Command(BaseCommand):
             cache.set(account_balance_lock_cache_key, account.balance_lock, None)
 
         self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
-
-    def handle(self, *args, **options):
-        """
-        Initialize validator as the primary validator for the network
-        """
-
-        self_configuration = self._install_fixture_data()
-        self._rebuild_cache(head_hash=self_configuration.head_hash)
-        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
