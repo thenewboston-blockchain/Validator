@@ -1,4 +1,4 @@
-## Project Setup
+## Temporary (until initial release)
 
 The development environment uses a private repository. To be able to install this as a dependency you will need to add
 an SSH key to your GitHub account. 
@@ -15,6 +15,9 @@ pbcopy < ~/.ssh/id_rsa.pub
 ```
 
 Add your SSH key to GitHub: https://github.com/settings/keys
+
+
+## Initial Project Setup
 
 Set required environment variables:
 ```
@@ -38,12 +41,13 @@ pip3 install -r requirements/local.txt
 ```
 
 To initialize the project:
-1. Fill out `fixtures/self_configuration.json`
-2. Run `bash scripts/reboot.sh` to load in fixture data
-3. Run `python3 manage.py initialize_local_validator` to initialize related models
+```
+python3 manage.py migrate
+python3 manage.py initialize_local_validator -ip [IP ADDRESS]
+```
 
 
-## Local Development
+## Running Application Locally
 
 Run Redis:
 ```
@@ -55,11 +59,6 @@ Run Celery:
 celery -A config.settings worker -l debug
 ```
 
-To run all tests in parallel:
-```
-python3 manage.py test --parallel
-```
-
 To monitor Celery tasks:
 ```
 celery flower -A config.settings --address=127.0.0.1 --port=5555
@@ -67,6 +66,11 @@ celery flower -A config.settings --address=127.0.0.1 --port=5555
 
 
 ## Developers
+
+To run all tests in parallel:
+```
+python3 manage.py test --parallel
+```
 
 When adding a package, add to `requirements/base.in` and then :
 ```

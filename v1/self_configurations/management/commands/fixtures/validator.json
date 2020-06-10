@@ -1,6 +1,6 @@
 [
   {
-    "model": "self_configurations.selfconfiguration",
+    "model": "validators.validator",
     "pk": 1,
     "fields": {
       "account_number": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314",
@@ -11,12 +11,11 @@
       "version": "v1.0",
       "default_transaction_fee": "2.0000000000000000",
       "registration_fee": "16.0000000000000000",
-      "head_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
+      "head_hash": "593e7c9e71e027c424c333593a013ebf07adef3ddfd7f9da1b502a9d9b0ab9bd",
       "root_account_file": "https://gist.githubusercontent.com/buckyroberts/519b5cb82a0a5b5d4ae8a2175b722520/raw/9237deb449e27cab93cb89ea3346ecdfc61fe9ea/0.json",
-      "root_account_file_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
+      "root_account_file_hash": "593e7c9e71e027c424c333593a013ebf07adef3ddfd7f9da1b502a9d9b0ab9bd",
       "seed_hash": "0",
-      "primary_validator": null,
-      "node_type": "VALIDATOR"
+      "trust": "100.00"
     }
   }
 ]

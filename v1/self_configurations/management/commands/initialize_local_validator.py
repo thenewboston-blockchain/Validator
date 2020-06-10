@@ -1,13 +1,15 @@
 import os
-from hashlib import sha3_256 as sha3
 
-from django.conf import settings
+from django.contrib.auth import get_user_model
+from django.core import management
 from django.core.cache import cache
 from django.core.management.base import BaseCommand
-from thenewboston.utils.fields import common_field_names
-from thenewboston.utils.files import read_json
+from django.core.management.commands import loaddata
+from django.core.validators import validate_ipv46_address
 
+from config.helpers.environment import ENVIRONMENT
 from v1.accounts.models.account import Account
+from v1.banks.models.bank import Bank
 from v1.constants.cache_keys import (
     BANK_BLOCK_QUEUE,
     CONFIRMATION_BLOCK_QUEUE,
@@ -16,53 +18,96 @@ from v1.constants.cache_keys import (
     get_account_balance_lock_cache_key
 )
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
 python3 manage.py initialize_local_validator
 
 Running this script will:
-- delete all known validators
-- create a validator object referencing self (in the validator table)
-- set self as the primary validator
-- read in the initial balances from /tmp/0.json
-- update SelfConfiguration
-- create Account objects
+- delete all Accounts, Banks, SelfConfigurations, Users, and Validators
+- load in fixture data (same models as above)
 - rebuild cache
+
+Fixture data sets self as the primary validator.
+
+Default superuser is:
+username: bucky
+password: pass1234
 """
+
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURES_DIR = os.path.join(CURRENT_DIR, 'fixtures')
+
+User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Initialize validator as the primary validator for the network'
+    help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'
 
-    @staticmethod
-    def _create_related_validator(*, self_configuration):
+    def add_arguments(self, parser):
         """
-        Update related row in the validator table
-        """
-
-        field_names = common_field_names(self_configuration, Validator)
-        data = {f: getattr(self_configuration, f) for f in field_names}
-        return Validator.objects.create(**data, trust=100)
-
-    @staticmethod
-    def _get_file_hash(file):
-        """
-        Return hash value of file
+        Required arguments:
+        -ip_address - Public IP address
         """
 
-        h = sha3()
+        parser.add_argument('-ip', help='Public IP address', required=True)
 
-        with open(file, 'rb') as file:
-            chunk = 0
+    def handle(self, *args, **options):
+        """
+        Run script
+        """
 
-            while chunk != b'':
-                chunk = file.read(1024)
-                h.update(chunk)
+        valid_environments = ['local', 'postgres_local']
 
-        return h.hexdigest()
+        if ENVIRONMENT not in valid_environments:
+            raise RuntimeError(f'DJANGO_APPLICATION_ENVIRONMENT must be in {valid_environments}')
 
-    def _rebuild_cache(self, *, head_hash):
+        ip = options['ip']
+        validate_ipv46_address(ip)
+
+        self.install_fixture_data()
+
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+        SelfConfiguration.objects.filter(pk=self_configuration.id).update(ip_address=ip)
+        validator = self_configuration.primary_validator
+        validator.ip_address = ip
+        validator.save()
+
+        self.rebuild_cache(head_hash=self_configuration.head_hash)
+        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
+
+    def install_fixture_data(self):
+        """
+        Delete all Accounts, Banks, SelfConfigurations, Users, and Validators
+        Load in fixture data (same models as above)
+        """
+
+        global FIXTURES_DIR
+
+        self.stdout.write(self.style.SUCCESS('Installing fixture data...'))
+
+        Account.objects.all().delete()
+        Bank.objects.all().delete()
+        SelfConfiguration.objects.all().delete()
+        User.objects.all().delete()
+        Validator.objects.all().delete()
+
+        fixture_files = [
+            'validator.json',
+            'account.json',
+            'bank.json',
+            'self_configuration.json',
+            'user.json'
+        ]
+
+        for fixture_file in fixture_files:
+            fixtures = os.path.join(FIXTURES_DIR, fixture_file)
+            management.call_command(loaddata.Command(), fixtures, verbosity=1)
+
+        self.stdout.write(self.style.SUCCESS('Fixture data installed successfully'))
+
+    def rebuild_cache(self, *, head_hash):
         """
         Rebuild cache
         """
@@ -84,47 +129,3 @@ class Command(BaseCommand):
             cache.set(account_balance_lock_cache_key, account.balance_lock, None)
 
         self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
-
-    def _update_accounts(self, *, file):
-        """
-        Update the accounts from the root account file
-        """
-
-        self.stdout.write(self.style.SUCCESS('Updating accounts...'))
-
-        Account.objects.all().delete()
-        data = read_json(file)
-
-        accounts = [
-            Account(
-                account_number=k,
-                balance=v['balance'],
-                balance_lock=v['balance_lock']
-            ) for k, v in data.items()
-        ]
-        Account.objects.bulk_create(accounts)
-        self.stdout.write(self.style.SUCCESS('Accounts updated successfully'))
-
-    def handle(self, *args, **options):
-        """
-        Initialize validator as the primary validator for the network
-        """
-
-        self_configuration = get_self_configuration(exception_class=RuntimeError)
-        Validator.objects.all().delete()
-        validator = self._create_related_validator(self_configuration=self_configuration)
-
-        self_configuration.primary_validator = validator
-        self_configuration.save()
-
-        file = os.path.join(settings.TMP_DIR, '0.json')
-        file_hash = self._get_file_hash(file)
-        self_configuration.head_hash = file_hash
-        self_configuration.root_account_file_hash = file_hash
-        self_configuration.seed_hash = '0'
-        self_configuration.save()
-
-        self._update_accounts(file=file)
-        self._rebuild_cache(head_hash=file_hash)
-
-        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))

@@ -3,19 +3,17 @@ from faker import Faker
 from rest_framework.test import APITestCase
 
 from v1.self_configurations.management.commands.initialize_local_validator import Command
-from .data import FIXTURES
 
 
 class TestBase(APITestCase):
     fake = Faker()
-    fixtures = FIXTURES
 
     def setUp(self):
         """
         Initialize development validator
         """
 
-        Command().handle()
+        Command().handle(ip='127.0.0.1')
 
     def tearDown(self):
         """
