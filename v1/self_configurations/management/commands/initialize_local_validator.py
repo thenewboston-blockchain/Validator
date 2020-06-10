@@ -44,6 +44,14 @@ User = get_user_model()
 class Command(BaseCommand):
     help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'
 
+    def add_arguments(self, parser):
+        """
+        Required arguments:
+        -ip_address - Public IP address
+        """
+
+        parser.add_argument('-ip', help='Public IP address', required=True)
+
     def handle(self, *args, **options):
         """
         Run script
@@ -54,7 +62,14 @@ class Command(BaseCommand):
         if ENVIRONMENT not in valid_environments:
             raise RuntimeError(f'DJANGO_APPLICATION_ENVIRONMENT must be in {valid_environments}')
 
-        self_configuration = self.install_fixture_data()
+        self.install_fixture_data()
+
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+        SelfConfiguration.objects.filter(pk=self_configuration.id).update(ip_address=options['ip'])
+        validator = self_configuration.primary_validator
+        validator.ip_address = options['ip']
+        validator.save()
+
         self.rebuild_cache(head_hash=self_configuration.head_hash)
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
 
@@ -87,7 +102,6 @@ class Command(BaseCommand):
             management.call_command(loaddata.Command(), fixtures, verbosity=1)
 
         self.stdout.write(self.style.SUCCESS('Fixture data installed successfully'))
-        return get_self_configuration(exception_class=RuntimeError)
 
     def rebuild_cache(self, *, head_hash):
         """
