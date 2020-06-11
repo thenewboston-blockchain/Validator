@@ -1,7 +1,9 @@
 import decimal
 
+from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from thenewboston.constants.network import MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.utils.validators import validate_is_real_number
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
@@ -87,9 +89,15 @@ class Command(BaseCommand):
                 self._error('default_transaction_fee required')
                 continue
 
-            is_valid, default_transaction_fee = self.validate_and_convert_to_decimal(default_transaction_fee)
+            is_valid_decimal, default_transaction_fee = self.validate_and_convert_to_decimal(default_transaction_fee)
 
-            if not is_valid:
+            if not is_valid_decimal:
+                continue
+
+            try:
+                validate_is_real_number(default_transaction_fee)
+            except ValidationError:
+                self._error('Value must be a real number')
                 continue
 
             if default_transaction_fee < MIN_POINT_VALUE:
@@ -104,11 +112,10 @@ class Command(BaseCommand):
         Run script
         """
 
-        print(options)
         self.check_initialization_requirements()
 
         # Input values
-        # self.get_account_number()
+        self.get_account_number()
         self.get_default_transaction_fee()
 
         self.stdout.write(self.style.SUCCESS('Nice'))
