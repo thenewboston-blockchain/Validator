@@ -1,5 +1,7 @@
+import decimal
+
 from django.core.management.base import BaseCommand, CommandError
-from thenewboston.constants.network import VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
@@ -61,7 +63,7 @@ class Command(BaseCommand):
             account_number = input('Enter account number (required): ')
 
             if not account_number:
-                self._error(f'account_number required')
+                self._error('account_number required')
                 continue
 
             if len(account_number) != VERIFY_KEY_LENGTH:
@@ -69,6 +71,33 @@ class Command(BaseCommand):
                 continue
 
             self.required_input['account_number'] = account_number
+            valid = True
+
+    def get_default_transaction_fee(self):
+        """
+        Get default transaction fee from user
+        """
+
+        valid = False
+
+        while not valid:
+            default_transaction_fee = input('Enter default transaction fee (required): ')
+
+            if not default_transaction_fee:
+                self._error('default_transaction_fee required')
+                continue
+
+            try:
+                default_transaction_fee = decimal.Decimal(default_transaction_fee)
+            except decimal.InvalidOperation:
+                self._error(f'Can not convert {default_transaction_fee} to a decimal')
+                continue
+
+            if default_transaction_fee < MIN_POINT_VALUE:
+                self._error(f'Value can not be less than {MIN_POINT_VALUE}')
+                continue
+
+            self.required_input['default_transaction_fee'] = default_transaction_fee
             valid = True
 
     def handle(self, *args, **options):
@@ -80,6 +109,7 @@ class Command(BaseCommand):
         self.check_initialization_requirements()
 
         # Input values
-        self.get_account_number()
+        # self.get_account_number()
+        self.get_default_transaction_fee()
 
         self.stdout.write(self.style.SUCCESS('Nice'))
