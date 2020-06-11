@@ -55,10 +55,13 @@ class Command(BaseCommand):
         Get account number from user
         """
 
-        while not self.required_input['account_number']:
+        valid = False
+
+        while not valid:
             account_number = input('Enter account number (required): ')
 
             if not account_number:
+                self._error(f'account_number required')
                 continue
 
             if len(account_number) != VERIFY_KEY_LENGTH:
@@ -66,6 +69,7 @@ class Command(BaseCommand):
                 continue
 
             self.required_input['account_number'] = account_number
+            valid = True
 
     def handle(self, *args, **options):
         """
