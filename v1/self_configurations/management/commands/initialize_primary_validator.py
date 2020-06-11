@@ -2,6 +2,7 @@ import decimal
 
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
+from django.core.validators import URLValidator
 from thenewboston.constants.network import MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
 from thenewboston.utils.validators import validate_is_real_number
 
@@ -107,6 +108,30 @@ class Command(BaseCommand):
             self.required_input['default_transaction_fee'] = default_transaction_fee
             valid = True
 
+    def get_root_account_file(self):
+        """
+        Get root account file from user
+        """
+
+        valid = False
+
+        while not valid:
+            root_account_file = input('Enter root account file URL (required): ')
+
+            if not root_account_file:
+                self._error('root_account_file required')
+                continue
+
+            try:
+                url_validator = URLValidator(schemes=['http', 'https'])
+                url_validator(root_account_file)
+            except ValidationError:
+                self._error('Invalid URL')
+                continue
+
+            self.required_input['root_account_file'] = root_account_file
+            valid = True
+
     def handle(self, *args, **options):
         """
         Run script
@@ -115,8 +140,9 @@ class Command(BaseCommand):
         self.check_initialization_requirements()
 
         # Input values
-        self.get_account_number()
-        self.get_default_transaction_fee()
+        # self.get_account_number()
+        # self.get_default_transaction_fee()
+        self.get_root_account_file()
 
         self.stdout.write(self.style.SUCCESS('Nice'))
 
