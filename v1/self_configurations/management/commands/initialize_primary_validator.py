@@ -1,9 +1,15 @@
 import decimal
+import json
+import os
+from pathlib import Path
+from urllib.request import Request, urlopen
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.core.validators import URLValidator
 from thenewboston.constants.network import MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.utils.files import get_file_hash, write_json
 from thenewboston.utils.validators import validate_is_real_number
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
@@ -13,12 +19,15 @@ from v1.validators.models.validator import Validator
 python3 manage.py initialize_primary_validator
 """
 
+LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
+
 
 class Command(BaseCommand):
     help = 'Initialize primary validator'
 
     def __init__(self):
         super().__init__()
+
         self.required_input = {
             'account_number': None,
             'default_transaction_fee': None,
@@ -54,6 +63,22 @@ class Command(BaseCommand):
 
         if Validator.objects.exists():
             raise CommandError('Unable to initialize with existing Validator(s)')
+
+    @staticmethod
+    def download_root_account_file(*, url, destination_file_path):
+        """
+        Download root account JSON file and save
+        """
+
+        print('Downloading file...')
+
+        request = Request(url)
+        response = urlopen(request)
+        results = json.loads(response.read())
+
+        # TODO: Validate formatting
+
+        write_json(destination_file_path, results)
 
     def get_account_number(self):
         """
@@ -129,7 +154,25 @@ class Command(BaseCommand):
                 self._error('Invalid URL')
                 continue
 
-            self.required_input['root_account_file'] = root_account_file
+            if Path(root_account_file).suffix != '.json':
+                self._error('JSON file required')
+                continue
+
+            try:
+                self.download_root_account_file(
+                    url=root_account_file,
+                    destination_file_path=LOCAL_ROOT_ACCOUNT_FILE_PATH
+                )
+            except Exception as e:
+                self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
+                self.stdout.write(self.style.ERROR(e))
+
+            file_hash = get_file_hash(LOCAL_ROOT_ACCOUNT_FILE_PATH)
+            self.required_input.update({
+                'head_hash': file_hash,
+                'root_account_file': root_account_file,
+                'root_account_file_hash': file_hash
+            })
             valid = True
 
     def handle(self, *args, **options):
@@ -144,6 +187,7 @@ class Command(BaseCommand):
         # self.get_default_transaction_fee()
         self.get_root_account_file()
 
+        self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
 
     def validate_and_convert_to_decimal(self, value):
