@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from thenewboston.constants.network import VALIDATOR
+from thenewboston.constants.network import VALIDATOR, VERIFY_KEY_LENGTH
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
@@ -31,6 +31,13 @@ class Command(BaseCommand):
             'version': None
         }
 
+    def _error(self, message):
+        """
+        Display error message string in console
+        """
+
+        self.stdout.write(self.style.ERROR(message))
+
     @staticmethod
     def check_initialization_requirements():
         """
@@ -49,11 +56,16 @@ class Command(BaseCommand):
         """
 
         while not self.required_input['account_number']:
-            account_number = input('Enter account number: ')
+            account_number = input('Enter account number (required): ')
 
-            if account_number:
-                self.required_input['account_number'] = account_number
-                print(account_number)
+            if not account_number:
+                continue
+
+            if len(account_number) != VERIFY_KEY_LENGTH:
+                self._error(f'account_number must be {VERIFY_KEY_LENGTH} characters long')
+                continue
+
+            self.required_input['account_number'] = account_number
 
     def handle(self, *args, **options):
         """
