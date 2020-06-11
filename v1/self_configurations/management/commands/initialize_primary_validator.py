@@ -87,14 +87,13 @@ class Command(BaseCommand):
                 self._error('default_transaction_fee required')
                 continue
 
-            try:
-                default_transaction_fee = decimal.Decimal(default_transaction_fee)
-            except decimal.InvalidOperation:
-                self._error(f'Can not convert {default_transaction_fee} to a decimal')
+            is_valid, default_transaction_fee = self.validate_and_convert_to_decimal(default_transaction_fee)
+
+            if not is_valid:
                 continue
 
             if default_transaction_fee < MIN_POINT_VALUE:
-                self._error(f'Value can not be less than {MIN_POINT_VALUE}')
+                self._error(f'Value can not be less than {MIN_POINT_VALUE:.16f}')
                 continue
 
             self.required_input['default_transaction_fee'] = default_transaction_fee
@@ -113,3 +112,19 @@ class Command(BaseCommand):
         self.get_default_transaction_fee()
 
         self.stdout.write(self.style.SUCCESS('Nice'))
+
+    def validate_and_convert_to_decimal(self, value):
+        """
+        Validate that given value can be converted to Decimal value
+        Returns: is_valid (bool), decimal_value (Decimal)
+
+        Must return is_valid flag along with decimal_value to allow for proper validation of valid falsy value (0.0)
+        """
+
+        try:
+            value = decimal.Decimal(value)
+        except decimal.InvalidOperation:
+            self._error(f'Can not convert {value} to a decimal')
+            return False, None
+
+        return True, value
