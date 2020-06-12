@@ -8,7 +8,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.core.validators import URLValidator
-from thenewboston.constants.network import MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import HEAD_HASH_LENGTH, MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
 from thenewboston.utils.files import get_file_hash, write_json
 from thenewboston.utils.validators import validate_is_real_number
 
@@ -175,6 +175,40 @@ class Command(BaseCommand):
             })
             valid = True
 
+    def get_seed_block_hash(self):
+        """
+        Get seed block hash from user
+        """
+
+        valid = False
+
+        while not valid:
+            seed_block_hash = input('Enter seed block hash (required): ')
+
+            if not seed_block_hash:
+                self._error('seed_block_hash required')
+                continue
+
+            if seed_block_hash == '0':
+                self.required_input['seed_block_hash'] = seed_block_hash
+                break
+
+            if len(seed_block_hash) != HEAD_HASH_LENGTH:
+                self._error(
+                    f'Invalid character length for seed_block_hash\n\n'
+                    f'Enter a {HEAD_HASH_LENGTH} character hash value when syncing with an existing network\n'
+                    f'- recommended\n'
+                    f'- set value to the hash of the last block that was used when root_account_file was generated\n'
+                    f'- initializes this validator as a primary validator candidate\n\n'
+                    f'Enter 0 if initializing a test network\n'
+                    f'- not recommended\n'
+                    f'- used for development'
+                )
+                continue
+
+            self.required_input['seed_block_hash'] = seed_block_hash
+            valid = True
+
     def handle(self, *args, **options):
         """
         Run script
@@ -185,9 +219,8 @@ class Command(BaseCommand):
         # Input values
         # self.get_account_number()
         # self.get_default_transaction_fee()
-        self.get_root_account_file()
-
-        # TODO: get_seed_block_hash()
+        # self.get_root_account_file()
+        self.get_seed_block_hash()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
