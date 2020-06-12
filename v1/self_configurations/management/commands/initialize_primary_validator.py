@@ -7,7 +7,7 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
-from django.core.validators import URLValidator
+from django.core.validators import URLValidator, validate_ipv46_address
 from thenewboston.constants.network import HEAD_HASH_LENGTH, MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
 from thenewboston.utils.files import get_file_hash, write_json
 from thenewboston.utils.validators import validate_is_real_number
@@ -137,6 +137,29 @@ class Command(BaseCommand):
             self.required_input['default_transaction_fee'] = default_transaction_fee
             valid = True
 
+    def get_ip_address(self):
+        """
+        Get IP address from user
+        """
+
+        valid = False
+
+        while not valid:
+            ip_address = input('Enter IP address (required): ')
+
+            if not ip_address:
+                self._error('ip_address required')
+                continue
+
+            try:
+                validate_ipv46_address(ip_address)
+            except ValidationError:
+                self._error('Enter a valid IPv4 or IPv6 address')
+                continue
+
+            self.required_input['ip_address'] = ip_address
+            valid = True
+
     def get_root_account_file(self):
         """
         Get root account file from user
@@ -224,7 +247,8 @@ class Command(BaseCommand):
         # self.get_account_number()
         # self.get_default_transaction_fee()
         # self.get_root_account_file()
-        self.get_seed_block_hash()
+        # self.get_seed_block_hash()
+        self.get_ip_address()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
