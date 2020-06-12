@@ -19,7 +19,7 @@ from v1.validators.models.validator import Validator
 python3 manage.py initialize_primary_validator
 
 Must handle both:
-- syncing with an existing network (primary validator candidate)
+- branching from an existing network (primary validator candidate)
 - network initialization (for testing/development)
 """
 
@@ -200,7 +200,7 @@ class Command(BaseCommand):
             if len(seed_block_hash) != HEAD_HASH_LENGTH:
                 self._error(
                     f'Invalid character length for seed_block_hash\n\n'
-                    f'Enter a {HEAD_HASH_LENGTH} character hash value when syncing with an existing network\n'
+                    f'Enter a {HEAD_HASH_LENGTH} character hash value when branching from an existing network\n'
                     f'- recommended\n'
                     f'- set value to the hash of the last block that was used when root_account_file was generated\n'
                     f'- initializes this validator as a primary validator candidate\n\n'
