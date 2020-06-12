@@ -44,9 +44,7 @@ class Command(BaseCommand):
             'head_hash': None,
             'ip_address': None,
             'network_identifier': None,
-            'node_type': VALIDATOR,
             'port': None,
-            'primary_validator': None,
             'protocol': None,
             'registration_fee': None,
             'root_account_file': None,
@@ -132,7 +130,7 @@ class Command(BaseCommand):
         valid = False
 
         while not valid:
-            ip_address = input('Enter IP address (required): ')
+            ip_address = input('Enter public IP address (required): ')
 
             if not ip_address:
                 self._error('ip_address required')
@@ -350,8 +348,23 @@ class Command(BaseCommand):
         self.get_port()
         self.get_version_number()
 
-        self.stdout.write(self.style.SUCCESS(self.required_input))
-        self.stdout.write(self.style.SUCCESS('Nice'))
+        self.initialize_validator()
+
+    def initialize_validator(self):
+        """
+        Create SelfConfiguration and Validator objects
+        """
+
+        validator = Validator.objects.create(
+            **self.required_input,
+            trust=100
+        )
+        SelfConfiguration.objects.create(
+            **self.required_input,
+            node_type=VALIDATOR,
+            primary_validator=validator
+        )
+        self.stdout.write(self.style.SUCCESS('Initialization complete'))
 
     def validate_and_convert_to_decimal(self, value):
         """
