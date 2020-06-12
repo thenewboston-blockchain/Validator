@@ -41,7 +41,7 @@ class Command(BaseCommand):
             'registration_fee': None,
             'root_account_file': None,
             'root_account_file_hash': None,
-            'seed_hash': None,
+            'seed_block_hash': None,
             'version': None
         }
 
