@@ -168,6 +168,36 @@ class Command(BaseCommand):
             self.required_input['ip_address'] = ip_address
             valid = True
 
+    def get_port(self):
+        """
+        Get port from user
+        """
+
+        valid = False
+
+        while not valid:
+            port = input('Enter port: ')
+
+            if not port:
+                break
+
+            try:
+                port = int(port)
+            except ValueError:
+                self._error(f'{port} is not a valid integer')
+                continue
+
+            if port < 0:
+                self._error(f'port can not be less than 0')
+                continue
+
+            if port > 65535:
+                self._error(f'port can not be greater than 65535')
+                continue
+
+            self.required_input['port'] = port
+            valid = True
+
     def get_protocol(self):
         """
         Get protocol from user
@@ -265,6 +295,28 @@ class Command(BaseCommand):
             self.required_input['seed_block_hash'] = seed_block_hash
             valid = True
 
+    def get_version_number(self):
+        """
+        Get version from user
+        """
+
+        max_length = 32
+        valid = False
+
+        while not valid:
+            version = input('Enter version (required): ')
+
+            if not version:
+                self._error('version required')
+                continue
+
+            if len(version) > max_length:
+                self._error(f'version must be less than or equal to {max_length} characters long')
+                continue
+
+            self.required_input['version'] = version
+            valid = True
+
     def handle(self, *args, **options):
         """
         Run script
@@ -273,19 +325,21 @@ class Command(BaseCommand):
         self.check_initialization_requirements()
 
         # Input values
-        # self.get_account_number()
-        self.get_fee(
-            attribute_name='default_transaction_fee',
-            human_readable_name='default transaction fee'
-        )
-        self.get_fee(
-            attribute_name='registration_fee',
-            human_readable_name='registration fee'
-        )
+        self.get_account_number()
+        # self.get_fee(
+        #     attribute_name='default_transaction_fee',
+        #     human_readable_name='default transaction fee'
+        # )
+        # self.get_fee(
+        #     attribute_name='registration_fee',
+        #     human_readable_name='registration fee'
+        # )
         # self.get_root_account_file()
         # self.get_seed_block_hash()
-        # self.get_ip_address()
         # self.get_protocol()
+        # self.get_ip_address()
+        # self.get_port()
+        # self.get_version_number()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
