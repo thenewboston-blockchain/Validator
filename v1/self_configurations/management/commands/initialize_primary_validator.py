@@ -90,27 +90,6 @@ class Command(BaseCommand):
 
         write_json(destination_file_path, results)
 
-    def get_account_number(self):
-        """
-        Get account number from user
-        """
-
-        valid = False
-
-        while not valid:
-            account_number = input('Enter account number (required): ')
-
-            if not account_number:
-                self._error('account_number required')
-                continue
-
-            if len(account_number) != VERIFY_KEY_LENGTH:
-                self._error(f'account_number must be {VERIFY_KEY_LENGTH} characters long')
-                continue
-
-            self.required_input['account_number'] = account_number
-            valid = True
-
     def get_fee(self, *, attribute_name, human_readable_name):
         """
         Validate fee
@@ -295,6 +274,29 @@ class Command(BaseCommand):
             self.required_input['seed_block_hash'] = seed_block_hash
             valid = True
 
+    def get_verify_key(self, *, attribute_name, human_readable_name):
+        """
+        Validate verify key
+        - account_number
+        - network_identifier
+        """
+
+        valid = False
+
+        while not valid:
+            verify_key = input(f'Enter {human_readable_name} (required): ')
+
+            if not verify_key:
+                self._error(f'{attribute_name} required')
+                continue
+
+            if len(verify_key) != VERIFY_KEY_LENGTH:
+                self._error(f'{attribute_name} must be {VERIFY_KEY_LENGTH} characters long')
+                continue
+
+            self.required_input[attribute_name] = verify_key
+            valid = True
+
     def get_version_number(self):
         """
         Get version from user
@@ -325,21 +327,28 @@ class Command(BaseCommand):
         self.check_initialization_requirements()
 
         # Input values
-        self.get_account_number()
-        # self.get_fee(
-        #     attribute_name='default_transaction_fee',
-        #     human_readable_name='default transaction fee'
-        # )
-        # self.get_fee(
-        #     attribute_name='registration_fee',
-        #     human_readable_name='registration fee'
-        # )
-        # self.get_root_account_file()
-        # self.get_seed_block_hash()
-        # self.get_protocol()
-        # self.get_ip_address()
-        # self.get_port()
-        # self.get_version_number()
+        self.get_verify_key(
+            attribute_name='network_identifier',
+            human_readable_name='network identifier'
+        )
+        self.get_verify_key(
+            attribute_name='account_number',
+            human_readable_name='account number'
+        )
+        self.get_fee(
+            attribute_name='default_transaction_fee',
+            human_readable_name='default transaction fee'
+        )
+        self.get_fee(
+            attribute_name='registration_fee',
+            human_readable_name='registration fee'
+        )
+        self.get_root_account_file()
+        self.get_seed_block_hash()
+        self.get_protocol()
+        self.get_ip_address()
+        self.get_port()
+        self.get_version_number()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
