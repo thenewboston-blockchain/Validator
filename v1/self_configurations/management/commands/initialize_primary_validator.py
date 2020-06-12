@@ -111,36 +111,38 @@ class Command(BaseCommand):
             self.required_input['account_number'] = account_number
             valid = True
 
-    def get_default_transaction_fee(self):
+    def get_fee(self, *, attribute_name, human_readable_name):
         """
-        Get default transaction fee from user
+        Validate fee
+        - default_transaction_fee
+        - registration_fee
         """
 
         valid = False
 
         while not valid:
-            default_transaction_fee = input('Enter default transaction fee (required): ')
+            fee = input(f'Enter {human_readable_name} (required): ')
 
-            if not default_transaction_fee:
-                self._error('default_transaction_fee required')
+            if not fee:
+                self._error(f'{attribute_name} required')
                 continue
 
-            is_valid_decimal, default_transaction_fee = self.validate_and_convert_to_decimal(default_transaction_fee)
+            is_valid_decimal, fee = self.validate_and_convert_to_decimal(fee)
 
             if not is_valid_decimal:
                 continue
 
             try:
-                validate_is_real_number(default_transaction_fee)
+                validate_is_real_number(fee)
             except ValidationError:
                 self._error('Value must be a real number')
                 continue
 
-            if default_transaction_fee < MIN_POINT_VALUE:
+            if fee < MIN_POINT_VALUE:
                 self._error(f'Value can not be less than {MIN_POINT_VALUE:.16f}')
                 continue
 
-            self.required_input['default_transaction_fee'] = default_transaction_fee
+            self.required_input[attribute_name] = fee
             valid = True
 
     def get_ip_address(self):
@@ -272,11 +274,18 @@ class Command(BaseCommand):
 
         # Input values
         # self.get_account_number()
-        # self.get_default_transaction_fee()
+        self.get_fee(
+            attribute_name='default_transaction_fee',
+            human_readable_name='default transaction fee'
+        )
+        self.get_fee(
+            attribute_name='registration_fee',
+            human_readable_name='registration fee'
+        )
         # self.get_root_account_file()
         # self.get_seed_block_hash()
         # self.get_ip_address()
-        self.get_protocol()
+        # self.get_protocol()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
