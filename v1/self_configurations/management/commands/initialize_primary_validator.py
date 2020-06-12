@@ -17,6 +17,10 @@ from v1.validators.models.validator import Validator
 
 """
 python3 manage.py initialize_primary_validator
+
+Must handle both:
+- syncing with an existing network (primary validator candidate)
+- network initialization (for testing/development)
 """
 
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
