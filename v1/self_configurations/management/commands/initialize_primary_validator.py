@@ -187,6 +187,8 @@ class Command(BaseCommand):
         # self.get_default_transaction_fee()
         self.get_root_account_file()
 
+        # TODO: get_seed_block_hash()
+
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
 
