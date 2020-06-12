@@ -76,7 +76,7 @@ class Command(BaseCommand):
         response = urlopen(request)
         results = json.loads(response.read())
 
-        # TODO: Validate formatting
+        # TODO: Validate data formatting
 
         write_json(destination_file_path, results)
 
