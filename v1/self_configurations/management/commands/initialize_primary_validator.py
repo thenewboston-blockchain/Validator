@@ -8,7 +8,13 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.core.validators import URLValidator, validate_ipv46_address
-from thenewboston.constants.network import HEAD_HASH_LENGTH, MIN_POINT_VALUE, VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import (
+    HEAD_HASH_LENGTH,
+    MIN_POINT_VALUE,
+    PROTOCOL_LIST,
+    VALIDATOR,
+    VERIFY_KEY_LENGTH
+)
 from thenewboston.utils.files import get_file_hash, write_json
 from thenewboston.utils.validators import validate_is_real_number
 
@@ -160,6 +166,27 @@ class Command(BaseCommand):
             self.required_input['ip_address'] = ip_address
             valid = True
 
+    def get_protocol(self):
+        """
+        Get protocol from user
+        """
+
+        valid = False
+
+        while not valid:
+            protocol = input('Enter protocol (required): ')
+
+            if not protocol:
+                self._error('protocol required')
+                continue
+
+            if protocol not in PROTOCOL_LIST:
+                self._error(f'protocol must be one of {PROTOCOL_LIST}')
+                continue
+
+            self.required_input['protocol'] = protocol
+            valid = True
+
     def get_root_account_file(self):
         """
         Get root account file from user
@@ -248,7 +275,8 @@ class Command(BaseCommand):
         # self.get_default_transaction_fee()
         # self.get_root_account_file()
         # self.get_seed_block_hash()
-        self.get_ip_address()
+        # self.get_ip_address()
+        self.get_protocol()
 
         self.stdout.write(self.style.SUCCESS(self.required_input))
         self.stdout.write(self.style.SUCCESS('Nice'))
