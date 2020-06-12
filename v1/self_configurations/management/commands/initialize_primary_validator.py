@@ -80,7 +80,7 @@ class Command(BaseCommand):
         response = urlopen(request)
         results = json.loads(response.read())
 
-        # TODO: Validate data formatting
+        # TODO: Validate data formatting (do not use DRF serializer for performance reasons)
 
         write_json(destination_file_path, results)
 
