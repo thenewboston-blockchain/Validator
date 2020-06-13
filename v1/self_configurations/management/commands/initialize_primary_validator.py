@@ -29,6 +29,9 @@ Must handle both:
 - network initialization (for testing/development)
 """
 
+# TODO: Create Account objects
+# TODO: Update/sync cache
+
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
 
 
