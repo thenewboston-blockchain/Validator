@@ -2,7 +2,6 @@ import os
 
 from django.contrib.auth import get_user_model
 from django.core import management
-from django.core.cache import cache
 from django.core.management.base import BaseCommand
 from django.core.management.commands import loaddata
 from django.core.validators import validate_ipv46_address
@@ -10,13 +9,7 @@ from django.core.validators import validate_ipv46_address
 from config.helpers.environment import ENVIRONMENT
 from v1.accounts.models.account import Account
 from v1.banks.models.bank import Bank
-from v1.constants.cache_keys import (
-    BANK_BLOCK_QUEUE,
-    CONFIRMATION_BLOCK_QUEUE,
-    HEAD_HASH,
-    get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
-)
+from v1.cache_tools.helpers import rebuild_cache
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
@@ -74,7 +67,7 @@ class Command(BaseCommand):
         validator.ip_address = ip
         validator.save()
 
-        self.rebuild_cache(head_hash=self_configuration.head_hash)
+        rebuild_cache(head_hash=self_configuration.head_hash)
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
 
     def install_fixture_data(self):
@@ -106,26 +99,3 @@ class Command(BaseCommand):
             management.call_command(loaddata.Command(), fixtures, verbosity=1)
 
         self.stdout.write(self.style.SUCCESS('Fixture data installed successfully'))
-
-    def rebuild_cache(self, *, head_hash):
-        """
-        Rebuild cache
-        """
-
-        self.stdout.write(self.style.SUCCESS('Rebuilding cache...'))
-
-        cache.clear()
-        cache.set(BANK_BLOCK_QUEUE, [], None)
-        cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
-        cache.set(HEAD_HASH, head_hash, None)
-
-        accounts = Account.objects.all()
-
-        for account in accounts:
-            account_number = account.account_number
-            account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
-            account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
-            cache.set(account_balance_cache_key, account.balance, None)
-            cache.set(account_balance_lock_cache_key, account.balance_lock, None)
-
-        self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))

@@ -14,7 +14,7 @@
       "head_hash": "593e7c9e71e027c424c333593a013ebf07adef3ddfd7f9da1b502a9d9b0ab9bd",
       "root_account_file": "https://gist.githubusercontent.com/buckyroberts/519b5cb82a0a5b5d4ae8a2175b722520/raw/9237deb449e27cab93cb89ea3346ecdfc61fe9ea/0.json",
       "root_account_file_hash": "593e7c9e71e027c424c333593a013ebf07adef3ddfd7f9da1b502a9d9b0ab9bd",
-      "seed_hash": "0",
+      "seed_block_hash": "0",
       "trust": "100.00"
     }
   }
