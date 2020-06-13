@@ -34,8 +34,12 @@ def process_bank_block_queue():
     """
     Process bank block queue
 
-    For each bank block in the queue:
-    - verify banks signature
+    For each bank block in the queue, verify:
+    - banks signature
+    - senders signature
+    - account balance exists
+    - amount sent does not exceed account balance
+    - balance key matches balance lock
     """
 
     bank_block_queue = cache.get(BANK_BLOCK_QUEUE)
@@ -51,6 +55,7 @@ def process_bank_block_queue():
             logger.error(f'Bank with network_identifier {network_identifier} does not exist')
             continue
 
+        # Verify banks signature
         verify_signature(
             message=sort_and_encode(block),
             signature=signature,
@@ -58,23 +63,34 @@ def process_bank_block_queue():
         )
 
         sender_account_number = block['account_number']
+        sender_message = block['message']
+        sender_signature = block['signature']
+        sender_balance_key = sender_message['balance_key']
+
+        # Verify senders signature
+        verify_signature(
+            message=sort_and_encode(sender_message),
+            signature=sender_signature,
+            verify_key=sender_account_number
+        )
+
         sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
         sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
         sender_account_balance = cache.get(sender_account_balance_cache_key)
         sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
 
+        # Verify account balance exists
         if sender_account_balance is None:
             logger.error(f'Account balance for {sender_account_number} not found')
             continue
 
         total_amount_valid, error = is_total_amount_valid(block=block, account_balance=sender_account_balance)
 
+        # Verify amount sent does not exceed account balance
         if not total_amount_valid:
             logger.error(error)
 
-        sender_message = block['message']
-        sender_balance_key = sender_message['balance_key']
-
+        # Verify balance key matches balance lock
         if sender_balance_key != sender_account_balance_lock:
             logger.error(f'Balance key of {sender_balance_key} does not match balance lock of {sender_account_balance_lock}')
             continue
