@@ -67,7 +67,7 @@ class Command(BaseCommand):
         validator.ip_address = ip
         validator.save()
 
-        rebuild_cache(head_hash=self_configuration.head_hash)
+        rebuild_cache(head_block_hash=self_configuration.root_account_file_hash)
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
 
     def install_fixture_data(self):

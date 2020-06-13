@@ -4,13 +4,13 @@ from v1.accounts.models.account import Account
 from .cache_keys import (
     BANK_BLOCK_QUEUE,
     CONFIRMATION_BLOCK_QUEUE,
-    HEAD_HASH,
+    HEAD_BLOCK_HASH,
     get_account_balance_cache_key,
     get_account_balance_lock_cache_key
 )
 
 
-def rebuild_cache(*, head_hash):
+def rebuild_cache(*, head_block_hash):
     """
     Rebuild cache
     """
@@ -18,7 +18,7 @@ def rebuild_cache(*, head_hash):
     cache.clear()
     cache.set(BANK_BLOCK_QUEUE, [], None)
     cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
-    cache.set(HEAD_HASH, head_hash, None)
+    cache.set(HEAD_BLOCK_HASH, head_block_hash, None)
 
     accounts = Account.objects.all()
 

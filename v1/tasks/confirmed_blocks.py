@@ -13,7 +13,7 @@ from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
 from v1.accounts.models.account import Account
-from v1.cache_tools.cache_keys import HEAD_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
 
 logger = get_task_logger(__name__)
 
@@ -69,7 +69,7 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
     Sign block and send to recipient
     """
 
-    head_hash = cache.get(HEAD_HASH)
+    head_block_hash = cache.get(HEAD_BLOCK_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
     network_identifier = get_verify_key(signing_key=signing_key)
@@ -106,7 +106,7 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
 
     message = {
         'block': block,
-        'block_identifier': head_hash,
+        'block_identifier': head_block_hash,
         'updated_balances': updated_balances
     }
     confirmed_block = {
@@ -116,7 +116,7 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
     }
 
     message_hash = get_message_hash(message=message)
-    cache.set(HEAD_HASH, message_hash, None)
+    cache.set(HEAD_BLOCK_HASH, message_hash, None)
 
     node_address = format_address(ip_address=ip_address, port=port, protocol=protocol)
     url = f'{node_address}{url_path}'

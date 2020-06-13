@@ -46,10 +46,10 @@ class Command(BaseCommand):
     def __init__(self):
         super().__init__()
 
+        self.head_block_hash = None
         self.required_input = {
             'account_number': None,
             'default_transaction_fee': None,
-            'head_hash': None,
             'ip_address': None,
             'network_identifier': None,
             'port': None,
@@ -223,8 +223,8 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.ERROR(e))
 
             file_hash = get_file_hash(LOCAL_ROOT_ACCOUNT_FILE_PATH)
+            self.head_block_hash = file_hash
             self.required_input.update({
-                'head_hash': file_hash,
                 'root_account_file': root_account_file,
                 'root_account_file_hash': file_hash
             })
@@ -383,7 +383,7 @@ class Command(BaseCommand):
         self.initialize_accounts()
 
         # Rebuild cache
-        rebuild_cache(head_hash=self.required_input['head_hash'])
+        rebuild_cache(head_block_hash=self.head_block_hash)
 
         self.stdout.write(self.style.SUCCESS('Primary validator initialization complete'))
 
