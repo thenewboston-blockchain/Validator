@@ -83,9 +83,6 @@ class Command(BaseCommand):
         request = Request(url)
         response = urlopen(request)
         results = json.loads(response.read())
-
-        # TODO: Validate data formatting (do not use DRF serializer for performance reasons)
-
         write_json(destination_file_path, results)
 
     def get_fee(self, *, attribute_name, human_readable_name):
