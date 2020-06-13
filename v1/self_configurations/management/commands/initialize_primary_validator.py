@@ -6,7 +6,7 @@ from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 from django.core.validators import URLValidator, validate_ipv46_address
 from thenewboston.constants.network import (
     HEAD_HASH_LENGTH,
@@ -27,7 +27,8 @@ from v1.validators.models.validator import Validator
 python3 manage.py initialize_primary_validator
 
 Running this script will:
-- create SelfConfiguration and Validator objects
+- delete existing SelfConfiguration and related Validator objects
+- create SelfConfiguration and related Validator objects
 - create Account objects based on downloaded root_account_file
 - rebuild cache
 
@@ -66,18 +67,6 @@ class Command(BaseCommand):
         """
 
         self.stdout.write(self.style.ERROR(message))
-
-    @staticmethod
-    def check_initialization_requirements():
-        """
-        Verify that no existing SelfConfiguration or Validator(s) already exist
-        """
-
-        if SelfConfiguration.objects.exists():
-            raise CommandError('Unable to initialize with existing SelfConfiguration')
-
-        if Validator.objects.exists():
-            raise CommandError('Unable to initialize with existing Validator(s)')
 
     @staticmethod
     def download_root_account_file(*, url, destination_file_path):
@@ -325,8 +314,6 @@ class Command(BaseCommand):
         Run script
         """
 
-        self.check_initialization_requirements()
-
         # Input values
         self.get_verify_key(
             attribute_name='network_identifier',
@@ -361,18 +348,29 @@ class Command(BaseCommand):
 
         Account.objects.all().delete()
         account_data = read_json(LOCAL_ROOT_ACCOUNT_FILE_PATH)
-        accounts = [{
-            'account_number': k,
-            'balance': v['balance'],
-            'balance_lock': v['balance_lock'],
-        } for k, v in account_data.items()]
+        accounts = [
+            Account(
+                account_number=k,
+                balance=v['balance'],
+                balance_lock=v['balance_lock']
+            ) for k, v in account_data.items()
+        ]
         Account.objects.bulk_create(accounts)
 
     def initialize_validator(self):
         """
-        Create SelfConfiguration and Validator objects
+        Process to initialize validator:
+        - delete existing SelfConfiguration and related Validator objects
+        - create SelfConfiguration and related Validator objects
+        - create Account objects based on downloaded root_account_file
+        - rebuild cache
         """
 
+        # Delete existing SelfConfiguration and related Validator objects
+        SelfConfiguration.objects.all().delete()
+        Validator.objects.filter(ip_address=self.required_input['ip_address']).delete()
+
+        # Create SelfConfiguration and related Validator objects
         validator = Validator.objects.create(
             **self.required_input,
             trust=100
@@ -384,10 +382,10 @@ class Command(BaseCommand):
         )
         self.initialize_accounts()
 
-        self.stdout.write(self.style.SUCCESS('Rebuilding cache...'))
+        # Rebuild cache
         rebuild_cache(head_hash=self.required_input['head_hash'])
-        self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
-        self.stdout.write(self.style.SUCCESS('Initialization complete'))
+
+        self.stdout.write(self.style.SUCCESS('Primary validator initialization complete'))
 
     def validate_and_convert_to_decimal(self, value):
         """
