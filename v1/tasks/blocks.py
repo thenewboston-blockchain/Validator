@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
@@ -6,11 +8,8 @@ from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import (
-    BANK_BLOCK_QUEUE,
-    get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
-)
+from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
+from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE
 from .confirmed_blocks import sign_and_send_validated_block
 
 logger = get_task_logger(__name__)
@@ -24,7 +23,7 @@ def is_total_amount_valid(*, block, account_balance):
     message = block['message']
     txs = message['txs']
 
-    total_amount = sum([tx['amount'] for tx in txs])
+    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
 
     if total_amount > account_balance:
         error = f'Transaction total of {total_amount} is greater than account balance of {account_balance}'
@@ -78,10 +77,8 @@ def process_bank_block_queue():
             verify_key=sender_account_number
         )
 
-        sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
-        sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
-        sender_account_balance = cache.get(sender_account_balance_cache_key)
-        sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
+        sender_account_balance = get_account_balance(account_number=sender_account_number)
+        sender_account_balance_lock = get_account_balance_lock(account_number=sender_account_number)
 
         # Verify account balance exists
         if sender_account_balance is None:
@@ -107,6 +104,7 @@ def process_bank_block_queue():
             new_balance_lock=generate_balance_lock(message=block['message']),
             port=bank.port,
             protocol=bank.protocol,
+            sender_account_balance=sender_account_balance,
             url_path='/confirmation_blocks'
         )
 
