@@ -31,4 +31,4 @@ def get_account_balance_lock(*, account_number):
         account = Account.objects.filter(account_number=account_number).first()
 
         if account:
-            return account.account_balance_lock
+            return account.balance_lock
