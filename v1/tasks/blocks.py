@@ -6,7 +6,11 @@ from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from v1.cache_tools.cache_keys import (
+    BANK_BLOCK_QUEUE,
+    get_account_balance_cache_key,
+    get_account_balance_lock_cache_key
+)
 from .confirmed_blocks import sign_and_send_validated_block
 
 logger = get_task_logger(__name__)
@@ -92,7 +96,9 @@ def process_bank_block_queue():
 
         # Verify balance key matches balance lock
         if sender_balance_key != sender_account_balance_lock:
-            logger.error(f'Balance key of {sender_balance_key} does not match balance lock of {sender_account_balance_lock}')
+            logger.error(
+                f'Balance key of {sender_balance_key} does not match balance lock of {sender_account_balance_lock}'
+            )
             continue
 
         sign_and_send_validated_block.delay(
