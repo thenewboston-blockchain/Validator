@@ -1,17 +1,10 @@
 from django.core.cache import cache
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.views import APIView
 
 from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
 
 
-# head_block_hash
-class HeadBlockHashDetail(APIView):
-
-    @staticmethod
-    def get(request):
-        """
-        description: Get head block hash
-        """
-
-        return Response(cache.get(HEAD_BLOCK_HASH))
+@api_view(['GET'])
+def head_block_hash_view(_):
+    return Response(cache.get(HEAD_BLOCK_HASH))
