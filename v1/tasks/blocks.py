@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
@@ -21,7 +23,7 @@ def is_total_amount_valid(*, block, account_balance):
     message = block['message']
     txs = message['txs']
 
-    total_amount = sum([tx['amount'] for tx in txs])
+    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
 
     if total_amount > account_balance:
         error = f'Transaction total of {total_amount} is greater than account balance of {account_balance}'
@@ -102,6 +104,7 @@ def process_bank_block_queue():
             new_balance_lock=generate_balance_lock(message=block['message']),
             port=bank.port,
             protocol=bank.protocol,
+            sender_account_balance=sender_account_balance,
             url_path='/confirmation_blocks'
         )
 
