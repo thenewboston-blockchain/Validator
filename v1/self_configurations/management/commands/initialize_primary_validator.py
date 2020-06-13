@@ -79,7 +79,6 @@ class Command(BaseCommand):
         """
 
         print('Downloading file...')
-
         request = Request(url)
         response = urlopen(request)
         results = json.loads(response.read())
