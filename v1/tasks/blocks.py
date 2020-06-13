@@ -1,17 +1,13 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
+from thenewboston.blocks.balance_lock import generate_balance_lock
 from thenewboston.blocks.signatures import verify_signature
-from thenewboston.blocks.validation import validate_block_transaction_chain
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import (
-    BANK_BLOCK_QUEUE,
-    get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
-)
-from .confirmed_blocks import sign_and_send_confirmed_block
+from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from .confirmed_blocks import sign_and_send_validated_block
 
 logger = get_task_logger(__name__)
 
@@ -21,7 +17,9 @@ def is_total_amount_valid(*, block, account_balance):
     Validate total amount
     """
 
-    txs = block['txs']
+    message = block['message']
+    txs = message['txs']
+
     total_amount = sum([tx['amount'] for tx in txs])
 
     if total_amount > account_balance:
@@ -35,6 +33,13 @@ def is_total_amount_valid(*, block, account_balance):
 def process_bank_block_queue():
     """
     Process bank block queue
+
+    For each bank block in the queue, verify:
+    - banks signature
+    - senders signature
+    - account balance exists
+    - amount sent does not exceed account balance
+    - balance key matches balance lock
     """
 
     bank_block_queue = cache.get(BANK_BLOCK_QUEUE)
@@ -50,6 +55,7 @@ def process_bank_block_queue():
             logger.error(f'Bank with network_identifier {network_identifier} does not exist')
             continue
 
+        # Verify banks signature
         verify_signature(
             message=sort_and_encode(block),
             signature=signature,
@@ -57,30 +63,42 @@ def process_bank_block_queue():
         )
 
         sender_account_number = block['account_number']
+        sender_message = block['message']
+        sender_signature = block['signature']
+        sender_balance_key = sender_message['balance_key']
+
+        # Verify senders signature
+        verify_signature(
+            message=sort_and_encode(sender_message),
+            signature=sender_signature,
+            verify_key=sender_account_number
+        )
+
         sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
         sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
         sender_account_balance = cache.get(sender_account_balance_cache_key)
         sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
 
+        # Verify account balance exists
         if sender_account_balance is None:
             logger.error(f'Account balance for {sender_account_number} not found')
             continue
 
         total_amount_valid, error = is_total_amount_valid(block=block, account_balance=sender_account_balance)
 
+        # Verify amount sent does not exceed account balance
         if not total_amount_valid:
             logger.error(error)
+
+        # Verify balance key matches balance lock
+        if sender_balance_key != sender_account_balance_lock:
+            logger.error(f'Balance key of {sender_balance_key} does not match balance lock of {sender_account_balance_lock}')
             continue
 
-        new_balance_lock = validate_block_transaction_chain(
-            balance_lock=sender_account_balance_lock,
-            txs=block['txs']
-        )
-
-        sign_and_send_confirmed_block.delay(
+        sign_and_send_validated_block.delay(
             block=block,
             ip_address=bank.ip_address,
-            new_balance_lock=new_balance_lock,
+            new_balance_lock=generate_balance_lock(message=block['message']),
             port=bank.port,
             protocol=bank.protocol,
             url_path='/confirmation_blocks'
