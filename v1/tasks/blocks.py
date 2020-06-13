@@ -1,17 +1,13 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
 from django.core.cache import cache
+from thenewboston.blocks.balance_lock import generate_balance_lock
 from thenewboston.blocks.signatures import verify_signature
-from thenewboston.blocks.validation import validate_block_transaction_chain
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import (
-    BANK_BLOCK_QUEUE,
-    get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
-)
-from .confirmed_blocks import sign_and_send_confirmed_block
+from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from .confirmed_blocks import sign_and_send_validated_block
 
 logger = get_task_logger(__name__)
 
@@ -21,7 +17,9 @@ def is_total_amount_valid(*, block, account_balance):
     Validate total amount
     """
 
-    txs = block['txs']
+    message = block['message']
+    txs = message['txs']
+
     total_amount = sum([tx['amount'] for tx in txs])
 
     if total_amount > account_balance:
@@ -35,6 +33,9 @@ def is_total_amount_valid(*, block, account_balance):
 def process_bank_block_queue():
     """
     Process bank block queue
+
+    For each bank block in the queue:
+    - verify banks signature
     """
 
     bank_block_queue = cache.get(BANK_BLOCK_QUEUE)
@@ -70,17 +71,18 @@ def process_bank_block_queue():
 
         if not total_amount_valid:
             logger.error(error)
+
+        sender_message = block['message']
+        sender_balance_key = sender_message['balance_key']
+
+        if sender_balance_key != sender_account_balance_lock:
+            logger.error(f'Balance key of {sender_balance_key} does not match balance lock of {sender_account_balance_lock}')
             continue
 
-        new_balance_lock = validate_block_transaction_chain(
-            balance_lock=sender_account_balance_lock,
-            txs=block['txs']
-        )
-
-        sign_and_send_confirmed_block.delay(
+        sign_and_send_validated_block.delay(
             block=block,
             ip_address=bank.ip_address,
-            new_balance_lock=new_balance_lock,
+            new_balance_lock=generate_balance_lock(message=block['message']),
             port=bank.port,
             protocol=bank.protocol,
             url_path='/confirmation_blocks'

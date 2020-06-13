@@ -64,7 +64,7 @@ def update_accounts_table(*, sender_account_number, recipient_account_numbers):
 
 
 @shared_task
-def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, protocol, url_path):
+def sign_and_send_validated_block(*, block, ip_address, new_balance_lock, port, protocol, url_path):
     """
     Sign block and send to recipient
     """
@@ -80,7 +80,9 @@ def sign_and_send_confirmed_block(*, block, ip_address, new_balance_lock, port, 
     sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
     sender_account_balance = cache.get(sender_account_balance_cache_key)
 
-    txs = block['txs']
+    message = block['message']
+    txs = message['txs']
+
     total_amount = sum([tx['amount'] for tx in txs])
 
     # Update sender account
