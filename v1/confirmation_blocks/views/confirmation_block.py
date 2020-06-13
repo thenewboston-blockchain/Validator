@@ -3,7 +3,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from v1.constants.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
 from v1.tasks.blocks import process_confirmation_block_queue
 
 

@@ -6,7 +6,11 @@ from thenewboston.blocks.validation import validate_block_transaction_chain
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.constants.cache_keys import BANK_BLOCK_QUEUE, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from v1.cache_tools.cache_keys import (
+    BANK_BLOCK_QUEUE,
+    get_account_balance_cache_key,
+    get_account_balance_lock_cache_key
+)
 from .confirmed_blocks import sign_and_send_confirmed_block
 
 logger = get_task_logger(__name__)

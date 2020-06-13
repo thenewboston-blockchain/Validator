@@ -15,22 +15,26 @@ from thenewboston.constants.network import (
     VALIDATOR,
     VERIFY_KEY_LENGTH
 )
-from thenewboston.utils.files import get_file_hash, write_json
+from thenewboston.utils.files import get_file_hash, read_json, write_json
 from thenewboston.utils.validators import validate_is_real_number
 
+from v1.accounts.models.account import Account
+from v1.cache_tools.helpers import rebuild_cache
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
 python3 manage.py initialize_primary_validator
 
+Running this script will:
+- create SelfConfiguration and Validator objects
+- create Account objects based on downloaded root_account_file
+- rebuild cache
+
 Must handle both:
 - branching from an existing network (primary validator candidate)
 - network initialization (for testing/development)
 """
-
-# TODO: Create Account objects
-# TODO: Update/sync cache
 
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
 
@@ -349,6 +353,21 @@ class Command(BaseCommand):
 
         self.initialize_validator()
 
+    @staticmethod
+    def initialize_accounts():
+        """
+        Create Account objects
+        """
+
+        Account.objects.all().delete()
+        account_data = read_json(LOCAL_ROOT_ACCOUNT_FILE_PATH)
+        accounts = [{
+            'account_number': k,
+            'balance': v['balance'],
+            'balance_lock': v['balance_lock'],
+        } for k, v in account_data.items()]
+        Account.objects.bulk_create(accounts)
+
     def initialize_validator(self):
         """
         Create SelfConfiguration and Validator objects
@@ -363,6 +382,11 @@ class Command(BaseCommand):
             node_type=VALIDATOR,
             primary_validator=validator
         )
+        self.initialize_accounts()
+
+        self.stdout.write(self.style.SUCCESS('Rebuilding cache...'))
+        rebuild_cache(head_hash=self.required_input['head_hash'])
+        self.stdout.write(self.style.SUCCESS('Cache rebuilt successfully'))
         self.stdout.write(self.style.SUCCESS('Initialization complete'))
 
     def validate_and_convert_to_decimal(self, value):

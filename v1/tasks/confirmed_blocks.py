@@ -13,7 +13,7 @@ from thenewboston.utils.tools import sort_and_encode
 from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
 from v1.accounts.models.account import Account
-from v1.constants.cache_keys import HEAD_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
+from v1.cache_tools.cache_keys import HEAD_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
 
 logger = get_task_logger(__name__)
 
