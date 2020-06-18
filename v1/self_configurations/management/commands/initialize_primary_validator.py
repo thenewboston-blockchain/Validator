@@ -1,4 +1,3 @@
-import decimal
 import json
 import os
 from pathlib import Path
@@ -6,17 +5,10 @@ from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.management.base import BaseCommand
-from django.core.validators import URLValidator, validate_ipv46_address
-from thenewboston.constants.network import (
-    HEAD_HASH_LENGTH,
-    MIN_POINT_VALUE,
-    PROTOCOL_LIST,
-    VALIDATOR,
-    VERIFY_KEY_LENGTH
-)
+from django.core.validators import URLValidator
+from thenewboston.base_classes.initialize_node import InitializeNode
+from thenewboston.constants.network import HEAD_HASH_LENGTH, VALIDATOR
 from thenewboston.utils.files import get_file_hash, read_json, write_json
-from thenewboston.utils.validators import validate_is_real_number
 
 from v1.accounts.models.account import Account
 from v1.cache_tools.helpers import rebuild_cache
@@ -40,7 +32,7 @@ Must handle both:
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
 
 
-class Command(BaseCommand):
+class Command(InitializeNode):
     help = 'Initialize primary validator'
 
     def __init__(self):
@@ -61,13 +53,6 @@ class Command(BaseCommand):
             'version': None
         }
 
-    def _error(self, message):
-        """
-        Display error message string in console
-        """
-
-        self.stdout.write(self.style.ERROR(message))
-
     @staticmethod
     def download_root_account_file(*, url, destination_file_path):
         """
@@ -79,114 +64,6 @@ class Command(BaseCommand):
         response = urlopen(request)
         results = json.loads(response.read())
         write_json(destination_file_path, results)
-
-    def get_fee(self, *, attribute_name, human_readable_name):
-        """
-        Validate fee
-        - default_transaction_fee
-        - registration_fee
-        """
-
-        valid = False
-
-        while not valid:
-            fee = input(f'Enter {human_readable_name} (required): ')
-
-            if not fee:
-                self._error(f'{attribute_name} required')
-                continue
-
-            is_valid_decimal, fee = self.validate_and_convert_to_decimal(fee)
-
-            if not is_valid_decimal:
-                continue
-
-            try:
-                validate_is_real_number(fee)
-            except ValidationError:
-                self._error('Value must be a real number')
-                continue
-
-            if fee < MIN_POINT_VALUE:
-                self._error(f'Value can not be less than {MIN_POINT_VALUE:.16f}')
-                continue
-
-            self.required_input[attribute_name] = fee
-            valid = True
-
-    def get_ip_address(self):
-        """
-        Get IP address from user
-        """
-
-        valid = False
-
-        while not valid:
-            ip_address = input('Enter public IP address (required): ')
-
-            if not ip_address:
-                self._error('ip_address required')
-                continue
-
-            try:
-                validate_ipv46_address(ip_address)
-            except ValidationError:
-                self._error('Enter a valid IPv4 or IPv6 address')
-                continue
-
-            self.required_input['ip_address'] = ip_address
-            valid = True
-
-    def get_port(self):
-        """
-        Get port from user
-        """
-
-        valid = False
-
-        while not valid:
-            port = input('Enter port: ')
-
-            if not port:
-                break
-
-            try:
-                port = int(port)
-            except ValueError:
-                self._error(f'{port} is not a valid integer')
-                continue
-
-            if port < 0:
-                self._error(f'port can not be less than 0')
-                continue
-
-            if port > 65535:
-                self._error(f'port can not be greater than 65535')
-                continue
-
-            self.required_input['port'] = port
-            valid = True
-
-    def get_protocol(self):
-        """
-        Get protocol from user
-        """
-
-        valid = False
-
-        while not valid:
-            protocol = input('Enter protocol (required): ')
-
-            if not protocol:
-                self._error('protocol required')
-                continue
-
-            if protocol not in PROTOCOL_LIST:
-                self._error(f'protocol must be one of {PROTOCOL_LIST}')
-                continue
-
-            self.required_input['protocol'] = protocol
-            valid = True
 
     def get_root_account_file(self):
         """
@@ -262,51 +139,6 @@ class Command(BaseCommand):
                 continue
 
             self.required_input['seed_block_hash'] = seed_block_hash
-            valid = True
-
-    def get_verify_key(self, *, attribute_name, human_readable_name):
-        """
-        Validate verify key
-        - account_number
-        - network_identifier
-        """
-
-        valid = False
-
-        while not valid:
-            verify_key = input(f'Enter {human_readable_name} (required): ')
-
-            if not verify_key:
-                self._error(f'{attribute_name} required')
-                continue
-
-            if len(verify_key) != VERIFY_KEY_LENGTH:
-                self._error(f'{attribute_name} must be {VERIFY_KEY_LENGTH} characters long')
-                continue
-
-            self.required_input[attribute_name] = verify_key
-            valid = True
-
-    def get_version_number(self):
-        """
-        Get version from user
-        """
-
-        max_length = 32
-        valid = False
-
-        while not valid:
-            version = input('Enter version (required): ')
-
-            if not version:
-                self._error('version required')
-                continue
-
-            if len(version) > max_length:
-                self._error(f'version must be less than or equal to {max_length} characters long')
-                continue
-
-            self.required_input['version'] = version
             valid = True
 
     def handle(self, *args, **options):
@@ -386,19 +218,3 @@ class Command(BaseCommand):
         rebuild_cache(head_block_hash=self.head_block_hash)
 
         self.stdout.write(self.style.SUCCESS('Primary validator initialization complete'))
-
-    def validate_and_convert_to_decimal(self, value):
-        """
-        Validate that given value can be converted to Decimal value
-        Returns: is_valid (bool), decimal_value (Decimal)
-
-        Must return is_valid flag along with decimal_value to allow for proper validation of valid falsy value (0.0)
-        """
-
-        try:
-            value = decimal.Decimal(value)
-        except decimal.InvalidOperation:
-            self._error(f'Can not convert {value} to a decimal')
-            return False, None
-
-        return True, value
