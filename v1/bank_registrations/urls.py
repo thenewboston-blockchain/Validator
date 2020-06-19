@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views.bank_registration import BankRegistrationView
+from v1.bank_registrations.views.bank_registration import BankRegistrationView
 
 urlpatterns = [
 

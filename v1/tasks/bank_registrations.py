@@ -3,7 +3,7 @@ from celery.utils.log import get_task_logger
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
-from v1.registrations.models.bank_registration import BankRegistration
+from v1.bank_registrations.models.bank_registration import BankRegistration
 
 logger = get_task_logger(__name__)
 
