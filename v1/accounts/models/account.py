@@ -1,10 +1,12 @@
+from uuid import uuid4
+
 from django.core.validators import MinValueValidator
 from django.db import models
-
 from thenewboston.utils.validators import validate_is_real_number
 
 
 class Account(models.Model):
+    id = models.UUIDField(default=uuid4, editable=False, primary_key=True)
     account_number = models.CharField(max_length=64, unique=True)
     balance = models.DecimalField(
         decimal_places=16,
