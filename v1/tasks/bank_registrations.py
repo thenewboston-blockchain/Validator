@@ -20,6 +20,7 @@ def process_bank_registration(*, bank_registration_pk, block, original_bank_regi
 
     # TODO: Update balance sheet
     # TODO: Need to make sure only to approve their registration once their block is validated (async though)
+    # TODO: Safe just to check balance, won't impact balance sheet in any way
     print(block)
 
     # TODO: Do background check on Bank, if good update status to ACCEPTED
