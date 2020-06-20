@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES
-from thenewboston.serializers.network_transaction import NetworkTransactionSerializer
+from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
+from thenewboston.serializers.network_block import NetworkBlockSerializer
 from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 
@@ -19,28 +19,31 @@ class BankRegistrationSerializer(serializers.ModelSerializer):
 
 
 class BankRegistrationSerializerCreate(serializers.Serializer):
-    account_number = serializers.CharField(max_length=64)
+    block = NetworkBlockSerializer()
     ip_address = serializers.IPAddressField(protocol='both')
+    network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
     protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
-    signature = serializers.CharField(max_length=128)
-    txs = NetworkTransactionSerializer(many=True)
+    validator_network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    version = serializers.CharField(max_length=32)
 
     def create(self, validated_data):
         """
         Create bank registration
         """
 
+        block_validation_dict = validated_data['block']
+        block = block_validation_dict['block']
+        validator_registration_fee = block_validation_dict['validator_registration_fee']
+
         ip_address = validated_data['ip_address']
         port = validated_data['port']
         protocol = validated_data['protocol']
-        tx_details = validated_data['txs']
-        txs = tx_details['txs']
 
         bank_registration = BankRegistration.objects.create(
             account_number=validated_data['account_number'],
             bank=None,
-            fee=tx_details['validator_registration_fee'],
+            fee=validator_registration_fee,
             ip_address=ip_address,
             port=port,
             protocol=protocol,
@@ -48,7 +51,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         )
         process_bank_registration.delay(
             bank_registration_id=bank_registration.id,
-            txs=txs
+            block=block
         )
 
         return bank_registration
@@ -73,22 +76,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         return data
 
     @staticmethod
-    def validate_account_number(account_number):
-        """
-        Check if bank already exists
-        Check for existing pending registration
-        """
-
-        if Bank.objects.filter(account_number=account_number).exists():
-            raise serializers.ValidationError('Bank with that account number already exists')
-
-        if BankRegistration.objects.filter(account_number=account_number, status=PENDING).exists():
-            raise serializers.ValidationError('Bank with that account number already has pending registration')
-
-        return account_number
-
-    @staticmethod
-    def validate_txs(txs):
+    def validate_block(block):
         """
         Verify that correct payment exist
         Verify that there are no extra payments
@@ -96,16 +84,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         validator_registration_fee = self_configuration.registration_fee
-
-        if validator_registration_fee == 0:
-
-            if txs:
-                raise serializers.ValidationError('No Txs required')
-
-            return {
-                'txs': txs,
-                'validator_registration_fee': validator_registration_fee
-            }
+        txs = block['message']['txs']
 
         if not txs:
             raise serializers.ValidationError('No Tx')
@@ -121,6 +100,21 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         )
 
         return {
-            'txs': txs,
+            'block': block,
             'validator_registration_fee': validator_registration_fee
         }
+
+    @staticmethod
+    def validate_network_identifier(network_identifier):
+        """
+        Check if bank already exists
+        Check for existing pending registration
+        """
+
+        if Bank.objects.filter(network_identifier=network_identifier).exists():
+            raise serializers.ValidationError('Bank with that network identifier already exists')
+
+        if BankRegistration.objects.filter(network_identifier=network_identifier, status=PENDING).exists():
+            raise serializers.ValidationError('Bank with that network identifier already has pending registration')
+
+        return network_identifier

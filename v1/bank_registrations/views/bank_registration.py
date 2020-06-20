@@ -2,6 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
+from v1.decorators.nodes import is_signed_request
 from ..models.bank_registration import BankRegistration
 from ..serializers.bank_registration import BankRegistrationSerializer, BankRegistrationSerializerCreate
 
@@ -19,42 +20,19 @@ class BankRegistrationView(APIView):
         return Response(BankRegistrationSerializer(bank_registrations, many=True).data)
 
     @staticmethod
+    @is_signed_request
     def post(request):
         """
         description: Register a bank
-        parameters:
-          - name: account_number
-            required: true
-            type: string
-          - name: ip_address
-            required: true
-            type: string
-          - name: port
-            type: integer
-          - name: protocol
-            required: true
-            type: string
-          - name: signature
-            required: true
-            type: string
-          - name: txs
-            required: true
-            type: array
-            items:
-              type: object
-              properties:
-                amount:
-                  required: true
-                  type: integer
-                balance_key:
-                  required: true
-                  type: string
-                recipient:
-                  required: true
-                  type: string
         """
 
-        serializer = BankRegistrationSerializerCreate(data=request.data, context={'request': request})
+        serializer = BankRegistrationSerializerCreate(
+            data={
+                **request.data['message'],
+                'network_identifier': request.data['network_identifier']
+            },
+            context={'request': request}
+        )
         if serializer.is_valid():
             bank_registration = serializer.save()
             return Response(

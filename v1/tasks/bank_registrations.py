@@ -9,7 +9,7 @@ logger = get_task_logger(__name__)
 
 
 @shared_task
-def process_bank_registration(*, bank_registration_id, txs):
+def process_bank_registration(*, bank_registration_id, block):
     """
     Process bank registration
     """
@@ -17,7 +17,7 @@ def process_bank_registration(*, bank_registration_id, txs):
     bank_registration = BankRegistration.objects.get(id=bank_registration_id)
 
     # TODO: Update balance sheet
-    print(txs)
+    print(block)
 
     # TODO: Do background check on Bank, if good update status to ACCEPTED
     # TODO: If ACCEPTED create Bank if it doesn't exist
