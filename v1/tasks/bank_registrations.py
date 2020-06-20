@@ -5,6 +5,7 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
 from v1.bank_registrations.models.bank_registration import BankRegistration
+from v1.banks.models.bank import Bank
 from .signed_requests import send_signed_patch_request
 
 logger = get_task_logger(__name__)
