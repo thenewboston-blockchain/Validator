@@ -41,10 +41,10 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         protocol = validated_data['protocol']
 
         bank_registration = BankRegistration.objects.create(
-            account_number=validated_data['account_number'],
             bank=None,
             fee=validator_registration_fee,
             ip_address=ip_address,
+            network_identifier=validated_data['network_identifier'],
             port=port,
             protocol=protocol,
             status=PENDING
@@ -95,7 +95,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         validate_transaction_exists(
             amount=validator_registration_fee,
             error=serializers.ValidationError,
-            recipient=self_configuration.identifier,
+            recipient=self_configuration.account_number,
             txs=txs
         )
 
