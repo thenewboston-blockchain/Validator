@@ -45,7 +45,7 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
 
     send_signed_patch_request(
         data={
-            'status': ACCEPTED
+            'status': bank_registration.status
         }, 
         ip_address=bank_registration.ip_address,
         port=bank_registration.port,
