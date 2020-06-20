@@ -1,11 +1,13 @@
 from celery import shared_task
 from celery.utils.log import get_task_logger
-from thenewboston.constants.network import ACCEPTED
+from thenewboston.constants.network import ACCEPTED, DECLINED
+from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
 from v1.bank_registrations.models.bank_registration import BankRegistration
 from v1.banks.models.bank import Bank
+from v1.banks.serializers.bank_configuration import BankConfigurationSerializer
 from .signed_requests import send_signed_patch_request
 
 logger = get_task_logger(__name__)
@@ -25,29 +27,41 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
     print(block)
 
     # TODO: Do background check on Bank, if good update status to ACCEPTED
-    # TODO: If ACCEPTED create Bank if it doesn't exist
-    # TODO: Set proper Bank FK on BankRegistration
-    # TODO: Send a **signed** PATCH request to the bank letting them know of the results either way
     address = format_address(
         ip_address=bank_registration.ip_address,
         port=bank_registration.port,
         protocol=bank_registration.protocol
     )
     config_address = f'{address}/config'
-    print(config_address)
-
     results = fetch(url=config_address, headers={})
+    serializer = BankConfigurationSerializer(data=results)
 
-    # TODO: Check that configs match, if so approve (if not decline)
-    print(results)
+    if serializer.is_valid():
+        excluded = ['trust']
+        bank = Bank.objects.update_or_create(
+            ip_address=bank_registration.ip_address,
+            defaults={
+                k: v for k, v in results.items() if k in standard_field_names(Bank) and k not in excluded
+            }
+        )
+        Bank.objects.filter(
+            ip_address=bank_registration.ip_address
+        ).exclude(
+            network_identifier=bank_registration.network_identifier
+        ).delete()
 
-    bank_registration.status = ACCEPTED
-    bank_registration.save()
+        bank_registration.bank = bank
+        bank_registration.status = ACCEPTED
+        bank_registration.save()
+    else:
+        print(serializer.errors)
+        bank_registration.status = DECLINED
+        bank_registration.save()
 
     send_signed_patch_request(
         data={
             'status': bank_registration.status
-        }, 
+        },
         ip_address=bank_registration.ip_address,
         port=bank_registration.port,
         protocol=bank_registration.protocol,
