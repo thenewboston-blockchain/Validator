@@ -11,7 +11,7 @@ logger = get_task_logger(__name__)
 
 
 @shared_task
-def process_bank_registration(*, bank_registration_pk, block, original_bank_registration_pk):
+def process_bank_registration(*, bank_registration_pk, block, source_bank_registration_pk):
     """
     Process bank registration
     """
@@ -50,5 +50,5 @@ def process_bank_registration(*, bank_registration_pk, block, original_bank_regi
         ip_address=bank_registration.ip_address,
         port=bank_registration.port,
         protocol=bank_registration.protocol,
-        url_path=f'/bank_registrations/{original_bank_registration_pk}'
+        url_path=f'/bank_registrations/{source_bank_registration_pk}'
     )

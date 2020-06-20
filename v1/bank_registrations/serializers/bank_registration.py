@@ -22,9 +22,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
     block = NetworkBlockSerializer()
     ip_address = serializers.IPAddressField(protocol='both')
     network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    original_bank_registration_pk = serializers.UUIDField(format='hex_verbose')
     port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
     protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
+    source_bank_registration_pk = serializers.UUIDField(format='hex_verbose')
     validator_network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     version = serializers.CharField(max_length=32)
 
@@ -38,9 +38,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         validator_registration_fee = block_validation_dict['validator_registration_fee']
 
         ip_address = validated_data['ip_address']
-        original_bank_registration_pk = validated_data['original_bank_registration_pk']
         port = validated_data['port']
         protocol = validated_data['protocol']
+        source_bank_registration_pk = validated_data['source_bank_registration_pk']
 
         bank_registration = BankRegistration.objects.create(
             bank=None,
@@ -54,7 +54,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         process_bank_registration.delay(
             bank_registration_pk=bank_registration.id,
             block=block,
-            original_bank_registration_pk=original_bank_registration_pk
+            source_bank_registration_pk=source_bank_registration_pk
         )
 
         return bank_registration
