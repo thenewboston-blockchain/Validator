@@ -54,7 +54,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         process_bank_registration.delay(
             bank_registration_pk=bank_registration.id,
             block=block,
-            source_bank_registration_pk=source_bank_registration_pk
+            source_bank_registration_pk=str(source_bank_registration_pk)
         )
 
         return bank_registration

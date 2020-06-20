@@ -38,7 +38,7 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
 
     if serializer.is_valid():
         excluded = ['trust']
-        bank = Bank.objects.update_or_create(
+        bank, _ = Bank.objects.update_or_create(
             ip_address=bank_registration.ip_address,
             defaults={
                 k: v for k, v in results.items() if k in standard_field_names(Bank) and k not in excluded
@@ -54,6 +54,7 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
         bank_registration.status = ACCEPTED
         bank_registration.save()
     else:
+        # TODO: Proper error handling
         print(serializer.errors)
         bank_registration.status = DECLINED
         bank_registration.save()
