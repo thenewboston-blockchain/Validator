@@ -1,3 +1,4 @@
+import logging
 from functools import wraps
 
 from nacl.exceptions import BadSignatureError
@@ -7,6 +8,8 @@ from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
+
+logger = logging.getLogger('thenewboston')
 
 
 def is_registered_bank(func):
@@ -49,15 +52,16 @@ def is_signed_request(func):
                 signature=signature,
                 verify_key=network_identifier
             )
-        except BadSignatureError:
+        except BadSignatureError as e:
+            logger.exception(e)
             # TODO: Standardize error messages
             return Response(
                 {'Error': 'Bad signature'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except Exception as e:
+            logger.exception(e)
             # TODO: Standardize error messages
-            print(e)
             return Response(
                 {'Error': 'Unknown error'},
                 status=status.HTTP_401_UNAUTHORIZED
