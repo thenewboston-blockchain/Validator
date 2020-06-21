@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from v1.cache_tools.cache_keys import BLOCK_QUEUE
-from v1.decorators.nodes import is_registered_bank
+from v1.decorators.nodes import is_signed_bank_block
 from v1.tasks.blocks import process_block_queue
 
 
@@ -12,23 +12,24 @@ from v1.tasks.blocks import process_block_queue
 class BankBlockView(APIView):
 
     @staticmethod
-    @is_registered_bank
+    @is_signed_bank_block
     def post(request):
         """
         description: Add a bank block to the queue
         """
 
-        # TODO: Serializer will check everything except point balances (registered bank, block formatting, etc...)
+        # TODO: Serializer will check block formatting
         # TODO: These initial checks should not hit the SQL database
         # TODO: Also throw an error if this validator is not a primary validator
-        # TODO: If everything is good, add the entire bank block to the bank block queue
+        # TODO: If everything is good, add the block to the block queue
 
+        block = request.data.get('block')
         queue = cache.get(BLOCK_QUEUE)
 
         if queue:
-            queue.append(request.data)
+            queue.append(block)
         else:
-            queue = [request.data]
+            queue = [block]
 
         cache.set(BLOCK_QUEUE, queue, None)
         process_block_queue.delay()
