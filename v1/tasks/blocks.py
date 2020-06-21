@@ -33,7 +33,7 @@ def get_message_hash(*, message):
     return sha3(sort_and_encode(message)).digest().hex()
 
 
-def is_block_valid(block):
+def is_block_valid(*, block):
     """
     For given block verify:
     - signature
@@ -54,8 +54,7 @@ def is_block_valid(block):
             signature=signature,
             verify_key=account_number
         )
-    except BadSignatureError as e:
-        logger.exception(e)
+    except BadSignatureError:
         return False, None
     except Exception as e:
         logger.exception(e)
@@ -72,6 +71,7 @@ def is_block_valid(block):
 
     if not total_amount_valid:
         logger.error(error)
+        return False, None
 
     balance_key = message.get('balance_key')
 
@@ -87,6 +87,8 @@ def is_block_valid(block):
 def is_total_amount_valid(*, block, account_balance):
     """
     Validate total amount
+
+    Return boolean indicating validity, error
     """
 
     message = block['message']
@@ -147,7 +149,7 @@ def process_block_queue():
     block_queue = cache.get(BLOCK_QUEUE)
 
     for block in block_queue:
-        is_valid, account_balance = is_block_valid(block)
+        is_valid, account_balance = is_block_valid(block=block)
 
         if not is_valid:
             continue
@@ -205,11 +207,11 @@ def process_validated_block(*, validated_block, sender_account_balance):
         recipient_account_numbers=[tx['recipient'] for tx in txs]
     )
 
-    confirmed_block = sign_block_to_confirm(validated_block, updated_balances)
-    send_confirmed_block_to_backup_validators(confirmed_block)
+    confirmed_block = sign_block_to_confirm(block=validated_block, updated_balances=updated_balances)
+    send_confirmed_block_to_backup_validators(confirmed_block=confirmed_block)
 
 
-def send_confirmed_block_to_backup_validators(confirmed_block):
+def send_confirmed_block_to_backup_validators(*, confirmed_block):
     """
     Send confirmed block to backup validators
     """
@@ -218,7 +220,7 @@ def send_confirmed_block_to_backup_validators(confirmed_block):
     print(confirmed_block)
 
 
-def sign_block_to_confirm(block, updated_balances):
+def sign_block_to_confirm(*, block, updated_balances):
     """
     Sign block to confirm validity
     Update HEAD_BLOCK_HASH
