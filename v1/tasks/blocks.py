@@ -9,7 +9,7 @@ from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
-from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import BLOCK_QUEUE
 from .confirmed_blocks import sign_and_send_validated_block
 
 logger = get_task_logger(__name__)
@@ -33,9 +33,9 @@ def is_total_amount_valid(*, block, account_balance):
 
 
 @shared_task
-def process_bank_block_queue():
+def process_block_queue():
     """
-    Process bank block queue
+    Process block queue
 
     For each bank block in the queue, verify:
     - banks signature
@@ -45,7 +45,7 @@ def process_bank_block_queue():
     - balance key matches balance lock
     """
 
-    bank_block_queue = cache.get(BANK_BLOCK_QUEUE)
+    bank_block_queue = cache.get(BLOCK_QUEUE)
 
     for bank_block in bank_block_queue:
         block = bank_block.get('block')
@@ -108,7 +108,7 @@ def process_bank_block_queue():
             url_path='/confirmation_blocks'
         )
 
-    cache.set(BANK_BLOCK_QUEUE, [], None)
+    cache.set(BLOCK_QUEUE, [], None)
 
 
 @shared_task

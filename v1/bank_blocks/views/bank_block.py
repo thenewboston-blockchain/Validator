@@ -3,14 +3,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE
-from v1.tasks.blocks import process_bank_block_queue
+from v1.cache_tools.cache_keys import BLOCK_QUEUE
+from v1.decorators.nodes import is_registered_bank
+from v1.tasks.blocks import process_block_queue
 
 
 # bank_blocks
 class BankBlockView(APIView):
 
     @staticmethod
+    @is_registered_bank
     def post(request):
         """
         description: Add a bank block to the queue
@@ -21,14 +23,14 @@ class BankBlockView(APIView):
         # TODO: Also throw an error if this validator is not a primary validator
         # TODO: If everything is good, add the entire bank block to the bank block queue
 
-        queue = cache.get(BANK_BLOCK_QUEUE)
+        queue = cache.get(BLOCK_QUEUE)
 
         if queue:
             queue.append(request.data)
         else:
             queue = [request.data]
 
-        cache.set(BANK_BLOCK_QUEUE, queue, None)
-        process_bank_block_queue.delay()
+        cache.set(BLOCK_QUEUE, queue, None)
+        process_block_queue.delay()
 
         return Response({}, status=status.HTTP_200_OK)
