@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from v1.decorators.nodes import is_signed_request
+from v1.decorators.nodes import is_signed_message
 from ..models.bank_registration import BankRegistration
 from ..serializers.bank_registration import BankRegistrationSerializer, BankRegistrationSerializerCreate
 
@@ -20,7 +20,7 @@ class BankRegistrationView(APIView):
         return Response(BankRegistrationSerializer(bank_registrations, many=True).data)
 
     @staticmethod
-    @is_signed_request
+    @is_signed_message
     def post(request):
         """
         description: Register a bank

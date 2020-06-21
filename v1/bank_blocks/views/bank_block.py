@@ -3,32 +3,35 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from v1.cache_tools.cache_keys import BANK_BLOCK_QUEUE
-from v1.tasks.blocks import process_bank_block_queue
+from v1.cache_tools.cache_keys import BLOCK_QUEUE
+from v1.decorators.nodes import is_signed_bank_block
+from v1.tasks.blocks import process_block_queue
 
 
 # bank_blocks
 class BankBlockView(APIView):
 
     @staticmethod
+    @is_signed_bank_block
     def post(request):
         """
         description: Add a bank block to the queue
         """
 
-        # TODO: Serializer will check everything except point balances (registered bank, block formatting, etc...)
+        # TODO: Serializer will check block formatting
         # TODO: These initial checks should not hit the SQL database
         # TODO: Also throw an error if this validator is not a primary validator
-        # TODO: If everything is good, add the entire bank block to the bank block queue
+        # TODO: If everything is good, add the block to the block queue
 
-        queue = cache.get(BANK_BLOCK_QUEUE)
+        block = request.data.get('block')
+        queue = cache.get(BLOCK_QUEUE)
 
         if queue:
-            queue.append(request.data)
+            queue.append(block)
         else:
-            queue = [request.data]
+            queue = [block]
 
-        cache.set(BANK_BLOCK_QUEUE, queue, None)
-        process_bank_block_queue.delay()
+        cache.set(BLOCK_QUEUE, queue, None)
+        process_block_queue.delay()
 
         return Response({}, status=status.HTTP_200_OK)
