@@ -1,4 +1,5 @@
 import json
+import logging
 import os
 from pathlib import Path
 from urllib.request import Request, urlopen
@@ -30,6 +31,8 @@ Must handle both:
 """
 
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
+
+logger = logging.getLogger('thenewboston')
 
 
 class Command(InitializeNode):
@@ -96,6 +99,7 @@ class Command(InitializeNode):
                     destination_file_path=LOCAL_ROOT_ACCOUNT_FILE_PATH
                 )
             except Exception as e:
+                logger.exception(e)
                 self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
                 self.stdout.write(self.style.ERROR(e))
 

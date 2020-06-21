@@ -1,8 +1,8 @@
+import logging
 from decimal import Decimal
 from hashlib import sha3_256 as sha3
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.core.cache import cache
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
@@ -17,7 +17,7 @@ from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance
 from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH, get_account_balance_cache_key, get_account_balance_lock_cache_key
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger('thenewboston')
 
 
 def get_message_hash(*, message):
@@ -140,5 +140,4 @@ def sign_and_send_validated_block(
     try:
         post(url=url, body=confirmed_block)
     except Exception as e:
-        # TODO: Log these and consider reducing the trust of the offending bank
-        logger.error(e)
+        logger.exception(e)
