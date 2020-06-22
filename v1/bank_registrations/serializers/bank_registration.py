@@ -21,11 +21,11 @@ class BankRegistrationSerializer(serializers.ModelSerializer):
 class BankRegistrationSerializerCreate(serializers.Serializer):
     block = NetworkBlockSerializer()
     ip_address = serializers.IPAddressField(protocol='both')
-    network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
     protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
     source_bank_registration_pk = serializers.UUIDField(format='hex_verbose')
-    validator_network_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    validator_node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     version = serializers.CharField(max_length=32)
 
     def create(self, validated_data):
@@ -46,7 +46,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             bank=None,
             fee=validator_registration_fee,
             ip_address=ip_address,
-            network_identifier=validated_data['network_identifier'],
+            node_identifier=validated_data['node_identifier'],
             port=port,
             protocol=protocol,
             status=PENDING
@@ -108,16 +108,16 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         }
 
     @staticmethod
-    def validate_network_identifier(network_identifier):
+    def validate_node_identifier(node_identifier):
         """
         Check if bank already exists
         Check for existing pending registration
         """
 
-        if Bank.objects.filter(network_identifier=network_identifier).exists():
-            raise serializers.ValidationError('Bank with that network identifier already exists')
+        if Bank.objects.filter(node_identifier=node_identifier).exists():
+            raise serializers.ValidationError('Bank with that node identifier already exists')
 
-        if BankRegistration.objects.filter(network_identifier=network_identifier, status=PENDING).exists():
-            raise serializers.ValidationError('Bank with that network identifier already has pending registration')
+        if BankRegistration.objects.filter(node_identifier=node_identifier, status=PENDING).exists():
+            raise serializers.ValidationError('Bank with that node identifier already has pending registration')
 
-        return network_identifier
+        return node_identifier

@@ -229,8 +229,8 @@ def sign_block_to_confirm(*, block, updated_balances):
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
-    network_identifier = get_verify_key(signing_key=signing_key)
-    network_identifier = encode_verify_key(verify_key=network_identifier)
+    node_identifier = get_verify_key(signing_key=signing_key)
+    node_identifier = encode_verify_key(verify_key=node_identifier)
 
     message = {
         'block': block,
@@ -239,7 +239,7 @@ def sign_block_to_confirm(*, block, updated_balances):
     }
     confirmed_block = {
         'message': message,
-        'network_identifier': network_identifier,
+        'node_identifier': node_identifier,
         'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
     }
 

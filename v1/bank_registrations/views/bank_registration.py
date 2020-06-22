@@ -29,7 +29,7 @@ class BankRegistrationView(APIView):
         serializer = BankRegistrationSerializerCreate(
             data={
                 **request.data['message'],
-                'network_identifier': request.data['network_identifier']
+                'node_identifier': request.data['node_identifier']
             },
             context={'request': request}
         )

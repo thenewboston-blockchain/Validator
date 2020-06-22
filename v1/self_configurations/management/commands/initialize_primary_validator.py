@@ -46,7 +46,7 @@ class Command(InitializeNode):
             'account_number': None,
             'default_transaction_fee': None,
             'ip_address': None,
-            'network_identifier': None,
+            'node_identifier': None,
             'port': None,
             'protocol': None,
             'registration_fee': None,
@@ -152,8 +152,8 @@ class Command(InitializeNode):
 
         # Input values
         self.get_verify_key(
-            attribute_name='network_identifier',
-            human_readable_name='network identifier'
+            attribute_name='node_identifier',
+            human_readable_name='node identifier'
         )
         self.get_verify_key(
             attribute_name='account_number',

@@ -47,7 +47,7 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
         Bank.objects.filter(
             ip_address=bank_registration.ip_address
         ).exclude(
-            network_identifier=bank_registration.network_identifier
+            node_identifier=bank_registration.node_identifier
         ).delete()
 
         bank_registration.bank = bank

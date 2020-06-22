@@ -10,7 +10,7 @@ from v1.banks.models.bank import Bank
 class BankRegistration(NetworkRegistration):
     bank = models.ForeignKey(Bank, on_delete=models.CASCADE, blank=True, null=True)
     ip_address = models.GenericIPAddressField()
-    network_identifier = models.CharField(max_length=VERIFY_KEY_LENGTH)
+    node_identifier = models.CharField(max_length=VERIFY_KEY_LENGTH)
     port = models.PositiveIntegerField(
         blank=True,
         null=True,
@@ -26,7 +26,7 @@ class BankRegistration(NetworkRegistration):
     def __str__(self):
         return (
             f'ID: {self.id} | '
-            f'Network Identifier: {self.network_identifier} | '
+            f'Node Identifier: {self.node_identifier} | '
             f'IP Address: {format_node_address(node=self)} | '
             f'Status: {self.status}'
         )
