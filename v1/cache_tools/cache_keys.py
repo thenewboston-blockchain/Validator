@@ -1,6 +1,6 @@
-BLOCK_QUEUE = 'BLOCK_QUEUE'
-CONFIRMATION_BLOCK_QUEUE = 'CONFIRMATION_BLOCK_QUEUE'
-HEAD_BLOCK_HASH = 'HEAD_BLOCK_HASH'
+BLOCK_QUEUE = 'block-queue'
+CONFIRMATION_BLOCK_QUEUE = 'confirmation-block-queue'
+HEAD_BLOCK_HASH = 'head-block-hash'
 
 
 def get_account_balance_cache_key(*, account_number):
@@ -8,7 +8,7 @@ def get_account_balance_cache_key(*, account_number):
     Return cache key used for storing an accounts balance
     """
 
-    return f'ACCOUNT_BALANCE:{account_number}'
+    return f'account:{account_number}:balance'
 
 
 def get_account_balance_lock_cache_key(*, account_number):
@@ -16,4 +16,4 @@ def get_account_balance_lock_cache_key(*, account_number):
     Return cache key used for storing an accounts balance lock
     """
 
-    return f'ACCOUNT_BALANCE_LOCK:{account_number}'
+    return f'account:{account_number}:balance_lock'
