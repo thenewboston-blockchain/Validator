@@ -5,6 +5,7 @@ from nacl.exceptions import BadSignatureError
 from rest_framework import status
 from rest_framework.response import Response
 from thenewboston.blocks.signatures import verify_signature
+from thenewboston.constants.errors import BAD_SIGNATURE, ERROR, UNKNOWN
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
@@ -25,7 +26,7 @@ def verify_request_signature(*, request, signed_data_key):
 
     for field in ['node_identifier', 'signature', signed_data_key]:
         if not request.data.get(field):
-            return request, {'Error': f'{field} required'}
+            return request, {ERROR: f'{field} required'}
 
     error = None
 
@@ -37,12 +38,10 @@ def verify_request_signature(*, request, signed_data_key):
         )
     except BadSignatureError as e:
         logger.exception(e)
-        # TODO: Standardize error messages
-        error = {'Error': 'Bad signature'}
+        error = {ERROR: BAD_SIGNATURE}
     except Exception as e:
         logger.exception(e)
-        # TODO: Standardize error messages
-        error = {'Error': 'Unknown error'}
+        error = {ERROR: UNKNOWN}
 
     return request, error
 
@@ -67,7 +66,7 @@ def is_signed_bank_block(func):
         # TODO: This should be hitting the cache
         if not Bank.objects.filter(node_identifier=node_identifier).exists():
             return Response(
-                {'Error': f'Bank with node_identifier {node_identifier} not registered'},
+                {ERROR: f'Bank with node_identifier {node_identifier} not registered'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
