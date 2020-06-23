@@ -14,12 +14,12 @@ logger = get_task_logger(__name__)
 
 
 @shared_task
-def process_bank_registration(*, bank_registration_pk, block, source_bank_registration_pk):
+def process_bank_registration(*, block, pk):
     """
     Process bank registration
     """
 
-    bank_registration = BankRegistration.objects.get(id=bank_registration_pk)
+    bank_registration = BankRegistration.objects.get(id=pk)
 
     # TODO: Update balance sheet
     # TODO: Need to make sure only to approve their registration once their block is validated (async though)
@@ -66,5 +66,5 @@ def process_bank_registration(*, bank_registration_pk, block, source_bank_regist
         ip_address=bank_registration.ip_address,
         port=bank_registration.port,
         protocol=bank_registration.protocol,
-        url_path=f'/bank_registrations/{source_bank_registration_pk}'
+        url_path=f'/bank_registrations/{pk}'
     )
