@@ -17,6 +17,7 @@ from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
 from v1.cache_tools.cache_keys import (
     BLOCK_QUEUE,
+    CONFIRMATION_BLOCK_QUEUE,
     HEAD_BLOCK_HASH,
     get_account_balance_cache_key,
     get_account_balance_lock_cache_key
@@ -149,12 +150,17 @@ def process_block_queue():
     block_queue = cache.get(BLOCK_QUEUE)
 
     for block in block_queue:
-        is_valid, account_balance = is_block_valid(block=block)
+        is_valid, sender_account_balance = is_block_valid(block=block)
 
         if not is_valid:
             continue
 
-        process_validated_block(validated_block=block, sender_account_balance=account_balance)
+        updated_balances = process_validated_block(
+            validated_block=block,
+            sender_account_balance=sender_account_balance
+        )
+        confirmation_block = sign_block_to_confirm(block=block, updated_balances=updated_balances)
+        send_confirmation_block_to_backup_validators(confirmation_block=confirmation_block)
 
     cache.set(BLOCK_QUEUE, [], None)
 
@@ -166,15 +172,38 @@ def process_confirmation_block_queue():
     - this is for backup validators only
     """
 
-    pass
+    confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
+    head_block_hash = cache.get(HEAD_BLOCK_HASH)
+
+    confirmation_block = next((i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash), None)
+
+    if not confirmation_block:
+        return
+
+    block = confirmation_block['block']
+    block_identifier = confirmation_block['block_identifier']
+    updated_balances = confirmation_block['updated_balances']
+
+    is_valid, sender_account_balance = is_block_valid(block=block)
+
+    if not is_valid:
+        # TODO: Change this
+        print('This is not good')
+
+    updated_balances = process_validated_block(
+        validated_block=block,
+        sender_account_balance=sender_account_balance
+    )
+
+    # TODO: Compare updated balances
+
+    # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
 
 
 def process_validated_block(*, validated_block, sender_account_balance):
     """
     Update sender account
     Update recipient accounts
-    Confirm (sign) block
-    Send confirmed block to backup validators
     """
 
     sender_account_number = validated_block['account_number']
@@ -207,8 +236,7 @@ def process_validated_block(*, validated_block, sender_account_balance):
         recipient_account_numbers=[tx['recipient'] for tx in txs]
     )
 
-    confirmation_block = sign_block_to_confirm(block=validated_block, updated_balances=updated_balances)
-    send_confirmation_block_to_backup_validators(confirmation_block=confirmation_block)
+    return updated_balances
 
 
 def send_confirmation_block_to_backup_validators(*, confirmation_block):
