@@ -63,11 +63,8 @@ class Command(BaseCommand):
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         SelfConfiguration.objects.filter(pk=self_configuration.id).update(ip_address=ip)
-        validator = self_configuration.primary_validator
-        validator.ip_address = ip
-        validator.save()
-
         rebuild_cache(head_block_hash=self_configuration.root_account_file_hash)
+
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
 
     def install_fixture_data(self):

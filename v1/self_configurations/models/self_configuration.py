@@ -8,7 +8,7 @@ from v1.constants.models import NODE_TYPE_CHOICES
 from v1.validators.models.validator import Validator
 
 """
-primary - when set to True, validator will accept incoming bank transactions as the primary validator
+primary_validator - when set to None, validator will accept incoming bank transactions as the primary validator
 """
 
 

@@ -207,14 +207,13 @@ class Command(InitializeNode):
         Validator.objects.filter(ip_address=self.required_input['ip_address']).delete()
 
         # Create SelfConfiguration and related Validator objects
-        validator = Validator.objects.create(
-            **self.required_input,
-            trust=100
-        )
         SelfConfiguration.objects.create(
             **self.required_input,
-            node_type=VALIDATOR,
-            primary_validator=validator
+            node_type=VALIDATOR
+        )
+        Validator.objects.create(
+            **self.required_input,
+            trust=100
         )
         self.initialize_accounts()
 
