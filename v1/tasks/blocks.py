@@ -8,10 +8,11 @@ from nacl.encoding import HexEncoder
 from nacl.exceptions import BadSignatureError
 from nacl.signing import SigningKey
 from thenewboston.blocks.balance_lock import generate_balance_lock
-from thenewboston.blocks.signatures import generate_signature, verify_signature
+from thenewboston.blocks.signatures import verify_signature
 from thenewboston.environment.environment_variables import get_environment_variable
+from thenewboston.utils.files import write_json
+from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.tools import sort_and_encode
-from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
 from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
@@ -207,17 +208,17 @@ def process_validated_block(*, validated_block, sender_account_balance):
         recipient_account_numbers=[tx['recipient'] for tx in txs]
     )
 
-    confirmed_block = sign_block_to_confirm(block=validated_block, updated_balances=updated_balances)
-    send_confirmed_block_to_backup_validators(confirmed_block=confirmed_block)
+    confirmation_block = sign_block_to_confirm(block=validated_block, updated_balances=updated_balances)
+    send_confirmation_block_to_backup_validators(confirmation_block=confirmation_block)
 
 
-def send_confirmed_block_to_backup_validators(*, confirmed_block):
+def send_confirmation_block_to_backup_validators(*, confirmation_block):
     """
     Send confirmed block to backup validators
     """
 
     # TODO: Send confirmed block to backup validators
-    print(confirmed_block)
+    print(confirmation_block)
 
 
 def sign_block_to_confirm(*, block, updated_balances):
@@ -229,21 +230,19 @@ def sign_block_to_confirm(*, block, updated_balances):
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
-    node_identifier = get_verify_key(signing_key=signing_key)
-    node_identifier = encode_verify_key(verify_key=node_identifier)
 
     message = {
         'block': block,
         'block_identifier': head_block_hash,
         'updated_balances': updated_balances
     }
-    confirmed_block = {
-        'message': message,
-        'node_identifier': node_identifier,
-        'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
-    }
+    confirmation_block = generate_signed_request(
+        data=message,
+        nid_signing_key=signing_key
+    )
+    write_json('./temp-confirmed-block.json', confirmation_block)
 
     message_hash = get_message_hash(message=message)
     cache.set(HEAD_BLOCK_HASH, message_hash, None)
 
-    return confirmed_block
+    return confirmation_block
