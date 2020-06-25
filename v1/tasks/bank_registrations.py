@@ -19,6 +19,9 @@ def process_bank_registration(*, block, pk):
     Process bank registration
     """
 
+    # TODO: Important!
+    # TODO: This function needs to handle PVs and CVs (banks register with both)
+
     bank_registration = BankRegistration.objects.get(id=pk)
 
     # TODO: Update balance sheet
