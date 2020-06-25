@@ -19,12 +19,14 @@ class ConfirmationBlockView(APIView):
         description: Add a confirmation block to the queue
         """
 
-        # TODO: Serializer will check everything except point balances (from PV, block formatting, etc...)
-        # TODO: Throw an error if this IS the primary validator (should not be accepting confirmed blocks, creates them)
+        # TODO: Serializer will check everything except point balances (block formatting, etc...)
         # TODO: If everything is good, add the entire confirmation block to the confirmation block queue
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         print(self_configuration)
+
+        message = request.data.get('message')
+        print(message)
 
         queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
 
