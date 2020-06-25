@@ -10,7 +10,6 @@ from nacl.signing import SigningKey
 from thenewboston.blocks.balance_lock import generate_balance_lock
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.environment.environment_variables import get_environment_variable
-from thenewboston.utils.files import write_json
 from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.tools import sort_and_encode
 
@@ -240,7 +239,6 @@ def sign_block_to_confirm(*, block, updated_balances):
         data=message,
         nid_signing_key=signing_key
     )
-    write_json('./temp-confirmed-block.json', confirmation_block)
 
     message_hash = get_message_hash(message=message)
     cache.set(HEAD_BLOCK_HASH, message_hash, None)
