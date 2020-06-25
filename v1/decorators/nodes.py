@@ -52,7 +52,7 @@ def is_signed_by_primary_validator(func):
 
     @wraps(func)
     def inner(request, *args, **kwargs):
-        request, error = verify_request_signature(request=request, signed_data_key='block')
+        request, error = verify_request_signature(request=request, signed_data_key='message')
 
         if error:
             return Response(error, status=status.HTTP_401_UNAUTHORIZED)
@@ -61,7 +61,7 @@ def is_signed_by_primary_validator(func):
 
         if not primary_validator:
             return Response(
-                {ERROR: 'Unable to accept blocks signed by self'},
+                {ERROR: 'Node set as a primary validator'},
                 status=status.HTTP_401_UNAUTHORIZED
             )
 
