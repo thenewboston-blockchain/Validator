@@ -4,6 +4,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.decorators.nodes import is_signed_by_primary_validator
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.blocks import process_confirmation_block_queue
 
 
@@ -11,6 +13,7 @@ from v1.tasks.blocks import process_confirmation_block_queue
 class ConfirmationBlockView(APIView):
 
     @staticmethod
+    @is_signed_by_primary_validator
     def post(request):
         """
         description: Add a confirmation block to the queue
@@ -19,6 +22,9 @@ class ConfirmationBlockView(APIView):
         # TODO: Serializer will check everything except point balances (from PV, block formatting, etc...)
         # TODO: Throw an error if this IS the primary validator (should not be accepting confirmed blocks, creates them)
         # TODO: If everything is good, add the entire confirmation block to the confirmation block queue
+
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+        print(self_configuration)
 
         queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
 
