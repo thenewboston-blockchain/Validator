@@ -17,5 +17,5 @@ class TestSelfConfiguration(TestBase):
         primary_validator = config['primary_validator']
         node_type = config['node_type']
 
-        self.assertIsInstance(primary_validator, dict)
+        self.assertEqual(primary_validator, None)
         self.assertEqual(node_type, VALIDATOR)

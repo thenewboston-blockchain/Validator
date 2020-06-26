@@ -172,17 +172,20 @@ def process_confirmation_block_queue():
     - this is for backup validators only
     """
 
+    cache.set(HEAD_BLOCK_HASH, '4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b', None)
+
     confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
     confirmation_block = next((i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash), None)
 
+    logger.error(head_block_hash)
+    logger.info(confirmation_block)
+
     if not confirmation_block:
         return
 
     block = confirmation_block['block']
-    block_identifier = confirmation_block['block_identifier']
-    updated_balances = confirmation_block['updated_balances']
 
     is_valid, sender_account_balance = is_block_valid(block=block)
 
@@ -196,6 +199,8 @@ def process_confirmation_block_queue():
     )
 
     # TODO: Compare updated balances
+    print(updated_balances)
+    print(confirmation_block['updated_balances'])
 
     # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
 
