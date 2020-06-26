@@ -17,3 +17,11 @@ def get_account_balance_lock_cache_key(*, account_number):
     """
 
     return f'account:{account_number}:balance_lock'
+
+
+def get_confirmation_block_cache_key(*, block_identifier):
+    """
+    Return cache key used for storing verified confirmation blocks
+    """
+
+    return f'confirmation_block:{block_identifier}'

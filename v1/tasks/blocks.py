@@ -20,7 +20,8 @@ from v1.cache_tools.cache_keys import (
     CONFIRMATION_BLOCK_QUEUE,
     HEAD_BLOCK_HASH,
     get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
+    get_account_balance_lock_cache_key,
+    get_confirmation_block_cache_key
 )
 
 logger = get_task_logger(__name__)
@@ -273,6 +274,12 @@ def sign_block_to_confirm(*, block, updated_balances):
     )
 
     message_hash = get_message_hash(message=message)
+    confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=head_block_hash)
+    cache.set(confirmation_block_cache_key, confirmation_block, None)
     cache.set(HEAD_BLOCK_HASH, message_hash, None)
+
+    # TODO: Remove these
+    logger.error(confirmation_block_cache_key)
+    logger.warning(confirmation_block)
 
     return confirmation_block
