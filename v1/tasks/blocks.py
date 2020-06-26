@@ -221,8 +221,8 @@ def process_validated_block(*, validated_block, sender_account_balance):
 
     # Update sender account
     new_balance_lock = generate_balance_lock(message=validated_block['message'])
-    cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount)
-    cache.set(sender_account_balance_lock_cache_key, new_balance_lock)
+    cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount, None)
+    cache.set(sender_account_balance_lock_cache_key, new_balance_lock, None)
 
     # Update recipient accounts
     for tx in txs:
@@ -232,9 +232,9 @@ def process_validated_block(*, validated_block, sender_account_balance):
         recipient_account_balance = get_account_balance(account_number=recipient)
 
         if recipient_account_balance is None:
-            cache.set(recipient_account_balance_cache_key, amount)
+            cache.set(recipient_account_balance_cache_key, amount, None)
         else:
-            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount)
+            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount, None)
 
     updated_balances = update_accounts_table(
         sender_account_number=sender_account_number,
