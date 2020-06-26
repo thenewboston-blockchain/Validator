@@ -53,13 +53,14 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
         head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
-        existing_confirmation_block = next(
-            (i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash),
-            None
-        )
+        if confirmation_block_queue:
+            existing_confirmation_block = next(
+                (i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash),
+                None
+            )
 
-        if existing_confirmation_block:
-            raise serializers.ValidationError('Confirmation block with that block_identifier already exists')
+            if existing_confirmation_block:
+                raise serializers.ValidationError('Confirmation block with that block_identifier already exists')
 
         return data
 

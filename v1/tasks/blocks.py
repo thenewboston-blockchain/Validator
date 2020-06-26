@@ -172,8 +172,6 @@ def process_confirmation_block_queue():
     - this is for backup validators only
     """
 
-    cache.set(HEAD_BLOCK_HASH, '4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b', None)
-
     confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
@@ -192,6 +190,7 @@ def process_confirmation_block_queue():
     if not is_valid:
         # TODO: Change this
         print('This is not good')
+        return
 
     updated_balances = process_validated_block(
         validated_block=block,
