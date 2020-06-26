@@ -15,7 +15,7 @@ from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_local_validator
+python3 manage.py initialize_test_validator
 
 Running this script will:
 - delete all Accounts, Banks, SelfConfigurations, Users, and Validators
@@ -84,11 +84,11 @@ class Command(BaseCommand):
         Validator.objects.all().delete()
 
         fixture_files = [
-            'validator.json',
             'account.json',
             'bank.json',
             'self_configuration.json',
-            'user.json'
+            'user.json',
+            'validator.json'
         ]
 
         for fixture_file in fixture_files:

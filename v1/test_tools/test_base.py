@@ -2,7 +2,7 @@ from django.core.cache import cache
 from faker import Faker
 from rest_framework.test import APITestCase
 
-from v1.self_configurations.management.commands.initialize_local_validator import Command
+from v1.self_configurations.management.commands.initialize_test_validator import Command
 
 
 class TestBase(APITestCase):

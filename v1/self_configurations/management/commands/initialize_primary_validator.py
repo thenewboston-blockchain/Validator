@@ -176,23 +176,6 @@ class Command(InitializeNode):
 
         self.initialize_validator()
 
-    @staticmethod
-    def initialize_accounts():
-        """
-        Create Account objects
-        """
-
-        Account.objects.all().delete()
-        account_data = read_json(LOCAL_ROOT_ACCOUNT_FILE_PATH)
-        accounts = [
-            Account(
-                account_number=k,
-                balance=v['balance'],
-                balance_lock=v['balance_lock']
-            ) for k, v in account_data.items()
-        ]
-        Account.objects.bulk_create(accounts)
-
     def initialize_validator(self):
         """
         Process to initialize validator:
@@ -215,9 +198,26 @@ class Command(InitializeNode):
             **self.required_input,
             trust=100
         )
-        self.initialize_accounts()
+        self.update_accounts_table()
 
         # Rebuild cache
         rebuild_cache(head_block_hash=self.head_block_hash)
 
         self.stdout.write(self.style.SUCCESS('Primary validator initialization complete'))
+
+    @staticmethod
+    def update_accounts_table():
+        """
+        Create Account objects
+        """
+
+        Account.objects.all().delete()
+        account_data = read_json(LOCAL_ROOT_ACCOUNT_FILE_PATH)
+        accounts = [
+            Account(
+                account_number=k,
+                balance=v['balance'],
+                balance_lock=v['balance_lock']
+            ) for k, v in account_data.items()
+        ]
+        Account.objects.bulk_create(accounts)
