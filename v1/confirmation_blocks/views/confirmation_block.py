@@ -20,10 +20,7 @@ class ConfirmationBlockView(APIView):
         description: Add a confirmation block to the queue
         """
 
-        serializer = ConfirmationBlockSerializerCreate(
-            data=request.data['message'],
-            context={'request': request}
-        )
+        serializer = ConfirmationBlockSerializerCreate(data=request.data['message'])
         if serializer.is_valid():
             confirmation_block_message = serializer.save()
             return Response(confirmation_block_message, status=status.HTTP_201_CREATED)
