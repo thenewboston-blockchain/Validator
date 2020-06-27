@@ -1,5 +1,4 @@
 from decimal import Decimal
-from hashlib import sha3_256 as sha3
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -7,30 +6,24 @@ from django.core.cache import cache
 from nacl.encoding import HexEncoder
 from nacl.exceptions import BadSignatureError
 from nacl.signing import SigningKey
-from thenewboston.blocks.balance_lock import generate_balance_lock
-from thenewboston.blocks.signatures import generate_signature, verify_signature
+from thenewboston.blocks.signatures import verify_signature
 from thenewboston.environment.environment_variables import get_environment_variable
+from thenewboston.utils.messages import get_message_hash
+from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.tools import sort_and_encode
-from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
 from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
 from v1.cache_tools.cache_keys import (
     BLOCK_QUEUE,
+    CONFIRMATION_BLOCK_QUEUE,
     HEAD_BLOCK_HASH,
     get_account_balance_cache_key,
-    get_account_balance_lock_cache_key
+    get_account_balance_lock_cache_key,
+    get_confirmation_block_cache_key
 )
 
 logger = get_task_logger(__name__)
-
-
-def get_message_hash(*, message):
-    """
-    Generate a balance lock from a Tx
-    """
-
-    return sha3(sort_and_encode(message)).digest().hex()
 
 
 def is_block_valid(*, block):
@@ -149,12 +142,17 @@ def process_block_queue():
     block_queue = cache.get(BLOCK_QUEUE)
 
     for block in block_queue:
-        is_valid, account_balance = is_block_valid(block=block)
+        is_valid, sender_account_balance = is_block_valid(block=block)
 
         if not is_valid:
             continue
 
-        process_validated_block(validated_block=block, sender_account_balance=account_balance)
+        updated_balances = process_validated_block(
+            validated_block=block,
+            sender_account_balance=sender_account_balance
+        )
+        confirmation_block = sign_block_to_confirm(block=block, updated_balances=updated_balances)
+        send_confirmation_block_to_backup_validators(confirmation_block=confirmation_block)
 
     cache.set(BLOCK_QUEUE, [], None)
 
@@ -166,15 +164,42 @@ def process_confirmation_block_queue():
     - this is for backup validators only
     """
 
-    pass
+    confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
+    head_block_hash = cache.get(HEAD_BLOCK_HASH)
+
+    confirmation_block = next((i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash), None)
+
+    logger.error(head_block_hash)
+    logger.info(confirmation_block)
+
+    if not confirmation_block:
+        return
+
+    block = confirmation_block['block']
+
+    is_valid, sender_account_balance = is_block_valid(block=block)
+
+    if not is_valid:
+        # TODO: Change this
+        print('This is not good')
+        return
+
+    updated_balances = process_validated_block(
+        validated_block=block,
+        sender_account_balance=sender_account_balance
+    )
+
+    # TODO: Compare updated balances
+    print(updated_balances)
+    print(confirmation_block['updated_balances'])
+
+    # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
 
 
 def process_validated_block(*, validated_block, sender_account_balance):
     """
     Update sender account
     Update recipient accounts
-    Confirm (sign) block
-    Send confirmed block to backup validators
     """
 
     sender_account_number = validated_block['account_number']
@@ -186,9 +211,9 @@ def process_validated_block(*, validated_block, sender_account_balance):
     total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
 
     # Update sender account
-    new_balance_lock = generate_balance_lock(message=validated_block['message'])
-    cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount)
-    cache.set(sender_account_balance_lock_cache_key, new_balance_lock)
+    new_balance_lock = get_message_hash(message=validated_block['message'])
+    cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount, None)
+    cache.set(sender_account_balance_lock_cache_key, new_balance_lock, None)
 
     # Update recipient accounts
     for tx in txs:
@@ -198,26 +223,25 @@ def process_validated_block(*, validated_block, sender_account_balance):
         recipient_account_balance = get_account_balance(account_number=recipient)
 
         if recipient_account_balance is None:
-            cache.set(recipient_account_balance_cache_key, amount)
+            cache.set(recipient_account_balance_cache_key, amount, None)
         else:
-            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount)
+            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount, None)
 
     updated_balances = update_accounts_table(
         sender_account_number=sender_account_number,
         recipient_account_numbers=[tx['recipient'] for tx in txs]
     )
 
-    confirmed_block = sign_block_to_confirm(block=validated_block, updated_balances=updated_balances)
-    send_confirmed_block_to_backup_validators(confirmed_block=confirmed_block)
+    return updated_balances
 
 
-def send_confirmed_block_to_backup_validators(*, confirmed_block):
+def send_confirmation_block_to_backup_validators(*, confirmation_block):
     """
     Send confirmed block to backup validators
     """
 
     # TODO: Send confirmed block to backup validators
-    print(confirmed_block)
+    print(confirmation_block)
 
 
 def sign_block_to_confirm(*, block, updated_balances):
@@ -229,21 +253,24 @@ def sign_block_to_confirm(*, block, updated_balances):
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
-    node_identifier = get_verify_key(signing_key=signing_key)
-    node_identifier = encode_verify_key(verify_key=node_identifier)
 
     message = {
         'block': block,
         'block_identifier': head_block_hash,
         'updated_balances': updated_balances
     }
-    confirmed_block = {
-        'message': message,
-        'node_identifier': node_identifier,
-        'signature': generate_signature(message=sort_and_encode(message), signing_key=signing_key)
-    }
+    confirmation_block = generate_signed_request(
+        data=message,
+        nid_signing_key=signing_key
+    )
 
     message_hash = get_message_hash(message=message)
+    confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=head_block_hash)
+    cache.set(confirmation_block_cache_key, confirmation_block, None)
     cache.set(HEAD_BLOCK_HASH, message_hash, None)
 
-    return confirmed_block
+    # TODO: Remove these
+    logger.error(confirmation_block_cache_key)
+    logger.warning(confirmation_block)
+
+    return confirmation_block

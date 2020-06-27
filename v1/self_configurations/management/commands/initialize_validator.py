@@ -7,8 +7,9 @@ from urllib.request import Request, urlopen
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
+from django.db.models import Q
 from thenewboston.base_classes.initialize_node import InitializeNode
-from thenewboston.constants.network import HEAD_HASH_LENGTH, VALIDATOR
+from thenewboston.constants.network import BLOCK_IDENTIFIER_LENGTH, HEAD_HASH_LENGTH, VALIDATOR
 from thenewboston.utils.files import get_file_hash, read_json, write_json
 
 from v1.accounts.models.account import Account
@@ -17,17 +18,13 @@ from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_primary_validator
+python3 manage.py initialize_validator
 
 Running this script will:
 - delete existing SelfConfiguration and related Validator objects
 - create SelfConfiguration and related Validator objects
 - create Account objects based on downloaded root_account_file
 - rebuild cache
-
-Must handle both:
-- branching from an existing network (primary validator candidate)
-- network initialization (for testing/development)
 """
 
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
@@ -36,15 +33,15 @@ logger = logging.getLogger('thenewboston')
 
 
 class Command(InitializeNode):
-    help = 'Initialize primary validator'
+    help = 'Initialize validator'
 
     def __init__(self):
         super().__init__()
 
-        self.head_block_hash = None
         self.required_input = {
             'account_number': None,
             'default_transaction_fee': None,
+            'head_block_hash': None,
             'ip_address': None,
             'node_identifier': None,
             'port': None,
@@ -52,7 +49,7 @@ class Command(InitializeNode):
             'registration_fee': None,
             'root_account_file': None,
             'root_account_file_hash': None,
-            'seed_block_hash': None,
+            'seed_block_identifier': None,
             'version': None
         }
 
@@ -67,6 +64,29 @@ class Command(InitializeNode):
         response = urlopen(request)
         results = json.loads(response.read())
         write_json(destination_file_path, results)
+
+    def get_head_block_hash(self):
+        """
+        Get head block hash
+        """
+
+        if not self.required_input['seed_block_identifier']:
+            return
+
+        valid = False
+
+        while not valid:
+            head_block_hash = input('Enter head_block_hash: ')
+
+            if not head_block_hash:
+                break
+
+            if len(head_block_hash) != HEAD_HASH_LENGTH:
+                self._error(f'head_block_hash must be {HEAD_HASH_LENGTH} characters long')
+                continue
+
+            self.required_input['head_block_hash'] = head_block_hash
+            valid = True
 
     def get_root_account_file(self):
         """
@@ -104,45 +124,43 @@ class Command(InitializeNode):
                 self.stdout.write(self.style.ERROR(e))
 
             file_hash = get_file_hash(LOCAL_ROOT_ACCOUNT_FILE_PATH)
-            self.head_block_hash = file_hash
+
+            if not self.required_input['head_block_hash']:
+                self.required_input['head_block_hash'] = file_hash
+
             self.required_input.update({
                 'root_account_file': root_account_file,
                 'root_account_file_hash': file_hash
             })
             valid = True
 
-    def get_seed_block_hash(self):
+    def get_seed_block_identifier(self):
         """
-        Get seed block hash from user
+        Get seed block identifier from user
         """
 
         valid = False
 
         while not valid:
-            seed_block_hash = input('Enter seed block hash (required): ')
+            seed_block_identifier = input('Enter seed block identifier: ')
 
-            if not seed_block_hash:
-                self._error('seed_block_hash required')
-                continue
-
-            if seed_block_hash == '0':
-                self.required_input['seed_block_hash'] = seed_block_hash
+            if not seed_block_identifier:
+                self.required_input['seed_block_identifier'] = ''
                 break
 
-            if len(seed_block_hash) != HEAD_HASH_LENGTH:
+            if len(seed_block_identifier) != BLOCK_IDENTIFIER_LENGTH:
                 self._error(
-                    f'Invalid character length for seed_block_hash\n\n'
-                    f'Enter a {HEAD_HASH_LENGTH} character hash value when branching from an existing network\n'
+                    f'Invalid character length for seed_block_identifier\n\n'
+                    f'Enter a {BLOCK_IDENTIFIER_LENGTH} character value when branching from an existing network\n'
                     f'- recommended\n'
-                    f'- set value to the hash of the last block that was used when root_account_file was generated\n'
-                    f'- initializes this validator as a primary validator candidate\n\n'
-                    f'Enter 0 if initializing a test network\n'
+                    f'- set value to the identifier of the last block used when root_account_file was generated\n\n'
+                    f'Enter nothing if initializing a test network\n'
                     f'- not recommended\n'
                     f'- used for development'
                 )
                 continue
 
-            self.required_input['seed_block_hash'] = seed_block_hash
+            self.required_input['seed_block_identifier'] = seed_block_identifier
             valid = True
 
     def handle(self, *args, **options):
@@ -167,8 +185,9 @@ class Command(InitializeNode):
             attribute_name='registration_fee',
             human_readable_name='registration fee'
         )
+        self.get_seed_block_identifier()
+        self.get_head_block_hash()
         self.get_root_account_file()
-        self.get_seed_block_hash()
         self.get_protocol()
         self.get_ip_address()
         self.get_port()
@@ -176,8 +195,38 @@ class Command(InitializeNode):
 
         self.initialize_validator()
 
+    def initialize_validator(self):
+        """
+        Process to initialize validator:
+        - delete existing SelfConfiguration and related Validator objects
+        - create SelfConfiguration and related Validator objects
+        - create Account objects based on downloaded root_account_file
+        - rebuild cache
+        """
+
+        head_block_hash = self.required_input.pop('head_block_hash')
+
+        # Delete existing SelfConfiguration and related Validator objects
+        SelfConfiguration.objects.all().delete()
+        Validator.objects.filter(
+            Q(ip_address=self.required_input['ip_address']) |
+            Q(node_identifier=self.required_input['node_identifier'])
+        ).delete()
+
+        # Create SelfConfiguration and related Validator objects
+        SelfConfiguration.objects.create(
+            **self.required_input,
+            node_type=VALIDATOR
+        )
+        self.update_accounts_table()
+
+        # Rebuild cache
+        rebuild_cache(head_block_hash=head_block_hash)
+
+        self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
+
     @staticmethod
-    def initialize_accounts():
+    def update_accounts_table():
         """
         Create Account objects
         """
@@ -192,32 +241,3 @@ class Command(InitializeNode):
             ) for k, v in account_data.items()
         ]
         Account.objects.bulk_create(accounts)
-
-    def initialize_validator(self):
-        """
-        Process to initialize validator:
-        - delete existing SelfConfiguration and related Validator objects
-        - create SelfConfiguration and related Validator objects
-        - create Account objects based on downloaded root_account_file
-        - rebuild cache
-        """
-
-        # Delete existing SelfConfiguration and related Validator objects
-        SelfConfiguration.objects.all().delete()
-        Validator.objects.filter(ip_address=self.required_input['ip_address']).delete()
-
-        # Create SelfConfiguration and related Validator objects
-        SelfConfiguration.objects.create(
-            **self.required_input,
-            node_type=VALIDATOR
-        )
-        Validator.objects.create(
-            **self.required_input,
-            trust=100
-        )
-        self.initialize_accounts()
-
-        # Rebuild cache
-        rebuild_cache(head_block_hash=self.head_block_hash)
-
-        self.stdout.write(self.style.SUCCESS('Primary validator initialization complete'))

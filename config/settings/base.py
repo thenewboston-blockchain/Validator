@@ -131,3 +131,5 @@ LOGGING = {
     },
     'version': 1,
 }
+
+CONFIRMATION_BLOCK_CHAIN_SEGMENT_LENGTH = 100
