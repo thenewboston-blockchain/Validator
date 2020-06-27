@@ -112,6 +112,7 @@ class Command(ConnectToPrimaryValidator):
 
             while confirmation_block:
                 block_identifier = get_message_hash(message=confirmation_block['message'])
+                print(block_identifier)
                 confirmation_block = self.get_confirmation_block_from_results(
                     block_identifier=block_identifier,
                     results=results
