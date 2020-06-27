@@ -20,7 +20,7 @@ class PrimaryValidatorSerializer(serializers.Serializer):
     registration_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
     root_account_file = serializers.URLField()
     root_account_file_hash = serializers.CharField(max_length=HEAD_HASH_LENGTH)
-    seed_block_hash = serializers.CharField(max_length=HEAD_HASH_LENGTH)
+    seed_block_identifier = serializers.CharField(max_length=HEAD_HASH_LENGTH)
     version = serializers.CharField(max_length=32)
 
     def create(self, validated_data):

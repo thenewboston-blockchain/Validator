@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('registration_fee', models.DecimalField(decimal_places=16, default=1e-16, max_digits=32, validators=[django.core.validators.MinValueValidator(1e-16), thenewboston.utils.validators.validate_is_real_number])),
                 ('root_account_file', models.URLField(max_length=1024)),
                 ('root_account_file_hash', models.CharField(max_length=64)),
-                ('seed_block_hash', models.CharField(max_length=64)),
+                ('seed_block_identifier', models.CharField(max_length=64)),
                 ('node_type', models.CharField(choices=[('VALIDATOR', 'VALIDATOR')], default='VALIDATOR', max_length=9)),
                 ('primary_validator', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='self_configurations', to='validators.Validator')),
             ],
