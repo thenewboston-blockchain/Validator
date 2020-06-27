@@ -1,6 +1,8 @@
 from django.db.models import Q
 from thenewboston.base_classes.connect_to_primary_validator import ConnectToPrimaryValidator
 from thenewboston.utils.fields import standard_field_names
+from thenewboston.utils.format import format_address
+from thenewboston.utils.network import fetch
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
@@ -17,6 +19,33 @@ Running this script will:
 
 class Command(ConnectToPrimaryValidator):
     help = 'Connect to primary validator'
+
+    def get_confirmation_block_chain_segment(self, block_identifier):
+        """
+        Return confirmation block chain segment
+        """
+
+        address = format_address(
+            ip_address=self.required_input['ip_address'],
+            port=self.required_input['port'],
+            protocol=self.required_input['protocol']
+        )
+        url = f'{address}/confirmation_block_chain_segment/{block_identifier}'
+        results = fetch(url=url, headers={})
+        return results
+
+    @staticmethod
+    def get_initial_block_identifier(validator_config):
+        """
+        Return initial block identifier
+
+        If seed_block_identifier, fetch related (seed) block and hash to get initial block identifier
+        """
+
+        seed_block_identifier = validator_config.get('seed_block_identifier')
+
+        if not seed_block_identifier:
+            return validator_config.get('root_account_file_hash')
 
     def set_primary_validator(self, validator_config):
         """
