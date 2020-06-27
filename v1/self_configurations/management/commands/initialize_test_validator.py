@@ -15,7 +15,7 @@ from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_test_validator
+python3 manage.py initialize_test_validator -ip [IP ADDRESS]
 
 Running this script will:
 - delete all Accounts, Banks, SelfConfigurations, Users, and Validators
