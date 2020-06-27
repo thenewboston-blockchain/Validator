@@ -25,11 +25,7 @@ class Command(ConnectToPrimaryValidator):
         Return confirmation block chain segment
         """
 
-        address = format_address(
-            ip_address=self.required_input['ip_address'],
-            port=self.required_input['port'],
-            protocol=self.required_input['protocol']
-        )
+        address = self.get_primary_validator_address()
         url = f'{address}/confirmation_block_chain_segment/{block_identifier}'
         results = fetch(url=url, headers={})
         return results
