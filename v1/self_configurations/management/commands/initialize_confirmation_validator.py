@@ -3,10 +3,10 @@ from json import JSONDecodeError
 from django.db.models import Q
 from thenewboston.base_classes.connect_to_primary_validator import ConnectToPrimaryValidator
 from thenewboston.utils.fields import standard_field_names
+from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.network import fetch
 
 from v1.self_configurations.models.self_configuration import SelfConfiguration
-from v1.tasks.blocks import get_message_hash
 from v1.validators.models.validator import Validator
 
 """

@@ -5,9 +5,9 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from thenewboston.constants.errors import ERROR
 from thenewboston.constants.network import HEAD_HASH_LENGTH
+from thenewboston.utils.messages import get_message_hash
 
 from v1.cache_tools.cache_keys import get_confirmation_block_cache_key
-from v1.tasks.blocks import get_message_hash
 
 
 # confirmation_block_chain_segment/{block_identifier}

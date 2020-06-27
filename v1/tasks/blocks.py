@@ -1,5 +1,4 @@
 from decimal import Decimal
-from hashlib import sha3_256 as sha3
 
 from celery import shared_task
 from celery.utils.log import get_task_logger
@@ -7,9 +6,9 @@ from django.core.cache import cache
 from nacl.encoding import HexEncoder
 from nacl.exceptions import BadSignatureError
 from nacl.signing import SigningKey
-from thenewboston.blocks.balance_lock import generate_balance_lock
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.environment.environment_variables import get_environment_variable
+from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.tools import sort_and_encode
 
@@ -25,14 +24,6 @@ from v1.cache_tools.cache_keys import (
 )
 
 logger = get_task_logger(__name__)
-
-
-def get_message_hash(*, message):
-    """
-    Generate a balance lock from a Tx
-    """
-
-    return sha3(sort_and_encode(message)).digest().hex()
 
 
 def is_block_valid(*, block):
@@ -220,7 +211,7 @@ def process_validated_block(*, validated_block, sender_account_balance):
     total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
 
     # Update sender account
-    new_balance_lock = generate_balance_lock(message=validated_block['message'])
+    new_balance_lock = get_message_hash(message=validated_block['message'])
     cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount, None)
     cache.set(sender_account_balance_lock_cache_key, new_balance_lock, None)
 
