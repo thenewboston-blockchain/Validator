@@ -23,7 +23,7 @@ logger = logging.getLogger('thenewboston')
 def handle_pending_registrations(*, block):
     """
     Check block recipients to see if self was included
-    If so, check if there are pending bank or validator registrations that need processed
+    If so, check if there are pending bank and validator registrations that need processed
     Registrations will then be accepted after a background check
     """
 
@@ -40,7 +40,7 @@ def handle_pending_registrations(*, block):
     validator_registration_pk = cache.get(validator_registration_cache_key)
 
     if validator_registration_pk:
-        print('Accept validator registration')
+        print('Process validator registration')
         return
 
 
