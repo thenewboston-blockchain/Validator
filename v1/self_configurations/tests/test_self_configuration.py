@@ -1,10 +1,10 @@
 from rest_framework import status
 from thenewboston.constants.network import VALIDATOR
 
-from v1.test_tools.test_base import TestBase
+from v1.test_tools.test_primary_validator import TestPrimaryValidator
 
 
-class TestSelfConfiguration(TestBase):
+class TestSelfConfiguration(TestPrimaryValidator):
 
     def test_get(self):
         """
