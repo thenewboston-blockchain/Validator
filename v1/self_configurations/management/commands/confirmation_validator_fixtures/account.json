@@ -1,0 +1,58 @@
+[
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb",
+      "balance": "10000.0000000000000000",
+      "balance_lock": "0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8",
+      "balance": "50.0000000000000000",
+      "balance_lock": "5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314",
+      "balance": "50.0000000000000000",
+      "balance_lock": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc",
+      "balance": "1000.0000000000000000",
+      "balance_lock": "484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "a29baa6ba36f6db707f8f8dacfa82d5e8a28fa616e8cc96cf6d7790f551d79f2",
+      "balance": "1000.0000000000000000",
+      "balance_lock": "a29baa6ba36f6db707f8f8dacfa82d5e8a28fa616e8cc96cf6d7790f551d79f2"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "3214108063cda7b259782c57ff8cec343ad2f1ad35baf38c3503db5cf6f3b2f7",
+      "balance": "1000.0000000000000000",
+      "balance_lock": "3214108063cda7b259782c57ff8cec343ad2f1ad35baf38c3503db5cf6f3b2f7"
+    }
+  },
+  {
+    "model": "accounts.account",
+    "fields": {
+      "account_number": "db1a9ac3c356ab744ab4ad5256bb86c2f6dfaa7c1aece1f026a08dbd8c7178f2",
+      "balance": "1000.0000000000000000",
+      "balance_lock": "db1a9ac3c356ab744ab4ad5256bb86c2f6dfaa7c1aece1f026a08dbd8c7178f2"
+    }
+  }
+]

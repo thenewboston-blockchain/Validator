@@ -1,4 +1,4 @@
-from v1.self_configurations.management.commands.initialize_test_validator import Command
+from v1.self_configurations.management.commands.initialize_test_primary_validator import Command
 from .test_base import TestBase
 
 

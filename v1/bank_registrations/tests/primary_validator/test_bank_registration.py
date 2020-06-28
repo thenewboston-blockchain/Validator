@@ -1,8 +1,8 @@
 from rest_framework import status
 
+from v1.bank_registrations.models.bank_registration import BankRegistration
 from v1.banks.models.bank import Bank
 from v1.test_tools.test_primary_validator import TestPrimaryValidator
-from ..models.bank_registration import BankRegistration
 
 
 class TestBankRegistration(TestPrimaryValidator):

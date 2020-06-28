@@ -15,14 +15,14 @@ from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 
 """
-python3 manage.py initialize_test_validator -ip [IP ADDRESS]
+python3 manage.py initialize_test_confirmation_validator -ip [IP ADDRESS]
 
 Running this script will:
 - delete all Accounts, Banks, SelfConfigurations, Users, and Validators
 - load in fixture data (same models as above)
 - rebuild cache
 
-Fixture data sets self as the primary validator.
+Fixture data sets self as the confirmation validator.
 
 Default superuser is:
 username: bucky
@@ -30,13 +30,13 @@ password: pass1234
 """
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURES_DIR = os.path.join(CURRENT_DIR, 'fixtures')
+FIXTURES_DIR = os.path.join(CURRENT_DIR, 'confirmation_validator_fixtures')
 
 User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'
+    help = 'Delete existing data, load in fixture data, set self as confirmation validator, rebuild cache'
 
     def add_arguments(self, parser):
         """
@@ -84,11 +84,11 @@ class Command(BaseCommand):
         Validator.objects.all().delete()
 
         fixture_files = [
+            'validator.json',
             'account.json',
             'bank.json',
             'self_configuration.json',
-            'user.json',
-            'validator.json'
+            'user.json'
         ]
 
         for fixture_file in fixture_files:
