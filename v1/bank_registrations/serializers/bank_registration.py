@@ -6,7 +6,6 @@ from thenewboston.utils.fields import all_field_names
 
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.tasks.bank_registrations import process_bank_registration
 from ..models.bank_registration import BankRegistration
 
 
@@ -50,11 +49,8 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             pk=str(pk),
             port=port,
             protocol=protocol,
+            registration_block_signature=block['signature'],
             status=PENDING
-        )
-        process_bank_registration.delay(
-            block=block,
-            pk=str(pk)
         )
 
         return bank_registration

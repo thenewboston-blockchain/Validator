@@ -241,6 +241,8 @@ def send_confirmation_block_to_backup_validators(*, confirmation_block):
     """
 
     # TODO: Send confirmed block to backup validators
+    # TODO: This is for PV only
+
     print(confirmation_block)
 
 
