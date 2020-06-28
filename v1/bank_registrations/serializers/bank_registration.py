@@ -87,25 +87,43 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        validator_registration_fee = self_configuration.registration_fee
+
+        primary_validator = self_configuration.primary_validator
+        self_registration_fee = self_configuration.registration_fee
+        is_primary_validator = bool(not primary_validator)
+
         txs = block['message']['txs']
 
         if not txs:
             raise serializers.ValidationError('No Tx')
 
-        if len(txs) > 1:
-            raise serializers.ValidationError('Only 1 Tx required')
-
         validate_transaction_exists(
-            amount=validator_registration_fee,
+            amount=self_registration_fee,
             error=serializers.ValidationError,
             recipient=self_configuration.account_number,
             txs=txs
         )
 
+        if is_primary_validator:
+
+            if len(txs) > 1:
+                raise serializers.ValidationError('Only 1 Tx required when registering with primary validator')
+
+        if not is_primary_validator:
+
+            validate_transaction_exists(
+                amount=primary_validator.registration_fee,
+                error=serializers.ValidationError,
+                recipient=primary_validator.account_number,
+                txs=txs
+            )
+
+            if len(txs) > 2:
+                raise serializers.ValidationError('Only 2 Txs required when registering with confirmation validators')
+
         return {
             'block': block,
-            'validator_registration_fee': validator_registration_fee
+            'validator_registration_fee': self_registration_fee
         }
 
     @staticmethod
