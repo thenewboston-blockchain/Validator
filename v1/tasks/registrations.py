@@ -14,6 +14,9 @@ from v1.cache_tools.cache_keys import (
     get_pending_bank_registration_pk_cache_key,
     get_pending_validator_registration_pk_cache_key
 )
+from v1.validator_registrations.models.validator_registration import ValidatorRegistration
+from v1.validators.models.validator import Validator
+from v1.validators.serializers.validator_configuration import ValidatorConfigurationSerializer
 from .signed_requests import send_signed_patch_request
 
 logger = logging.getLogger('thenewboston')
@@ -40,7 +43,7 @@ def handle_pending_registrations(*, block):
     validator_registration_pk = cache.get(validator_registration_cache_key)
 
     if validator_registration_pk:
-        # TODO: Process validator registration
+        process_validator_registration(validator_registration_pk=validator_registration_pk)
         return
 
 
@@ -100,4 +103,63 @@ def process_bank_registration(*, bank_registration_pk):
         port=bank_registration.port,
         protocol=bank_registration.protocol,
         url_path=f'/bank_registrations/{bank_registration_pk}'
+    )
+
+
+def process_validator_registration(*, validator_registration_pk):
+    """
+    Process validator registration
+    This function is ran after a validators registration block has been confirmed (paid)
+    """
+
+    validator_registration = ValidatorRegistration.objects.get(id=validator_registration_pk)
+
+    try:
+        address = format_address(
+            ip_address=validator_registration.ip_address,
+            port=validator_registration.port,
+            protocol=validator_registration.protocol
+        )
+        config_address = f'{address}/config'
+        results = fetch(url=config_address, headers={})
+    except Exception as e:
+        logger.exception(e)
+        validator_registration.status = DECLINED
+        validator_registration.save()
+        return
+
+    serializer = ValidatorConfigurationSerializer(data=results)
+
+    if serializer.is_valid():
+        excluded = ['trust']
+
+        validator, _ = Validator.objects.update_or_create(
+            ip_address=validator_registration.ip_address,
+            defaults={
+                k: v for k, v in results.items() if k in standard_field_names(Validator) and k not in excluded
+            }
+        )
+
+        Validator.objects.filter(
+            ip_address=validator_registration.ip_address
+        ).exclude(
+            node_identifier=validator_registration.node_identifier
+        ).delete()
+
+        validator_registration.validator = validator
+        validator_registration.status = ACCEPTED
+        validator_registration.save()
+    else:
+        logger.exception(serializer.errors)
+        validator_registration.status = DECLINED
+        validator_registration.save()
+
+    send_signed_patch_request(
+        data={
+            'status': validator_registration.status
+        },
+        ip_address=validator_registration.ip_address,
+        port=validator_registration.port,
+        protocol=validator_registration.protocol,
+        url_path=f'/validator_registrations/{validator_registration_pk}'
     )

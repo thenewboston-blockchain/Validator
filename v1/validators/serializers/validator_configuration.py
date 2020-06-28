@@ -1,12 +1,13 @@
 from rest_framework import serializers
-from thenewboston.constants.network import BANK, HEAD_HASH_LENGTH, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import HEAD_HASH_LENGTH, PROTOCOL_CHOICES, VALIDATOR, VERIFY_KEY_LENGTH
 
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.serializers.self_configuration import SelfConfigurationSerializer
+from .validator import ValidatorSerializer
 
 """
-The BankConfigurationSerializer is used to ensure that a bank is properly configured
-- used during bank registration process by both the primary and confirmation validators
+The ValidatorConfigurationSerializer is used to ensure that the requesting validator is properly configured
+- used during validator registration process by both the primary and confirmation validators
 """
 
 
@@ -31,33 +32,40 @@ class PrimaryValidatorSerializer(serializers.Serializer):
 
     def validate(self, data):
         """
-        Validate that banks primary validator matches self primary validator
+        Validate that requesting validators primary validator matches self primary validator
         - trust excluded
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        self_configuration = SelfConfigurationSerializer(self_configuration).data
+        primary_validator = self_configuration.primary_validator
+        is_primary_validator = bool(not primary_validator)
 
-        for key, value in self_configuration.items():
+        if is_primary_validator:
+            primary_validator_configuration = SelfConfigurationSerializer(self_configuration).data
+        else:
+            primary_validator_configuration = ValidatorSerializer(primary_validator).data
 
-            if key in ['node_type', 'primary_validator']:
+        for key, primary_validator_value in primary_validator_configuration.items():
+
+            if key in ['node_type', 'primary_validator', 'trust']:
                 continue
 
-            bank_value = data.get(key)
+            requesting_validator_value = data.get(key)
 
-            if not bank_value:
-                raise serializers.ValidationError(f'{key} not found on banks primary validator')
+            if not requesting_validator_value:
+                raise serializers.ValidationError(f'{key} not found on requesting validators primary validator')
 
-            if str(bank_value) != str(value):
+            if str(requesting_validator_value) != str(primary_validator_value):
                 raise serializers.ValidationError(
                     f'Inconsistent primary validator settings for {key}. '
-                    f'Bank value of {bank_value} does not match validator value of {value}.'
+                    f'Requesting validator value of {requesting_validator_value} '
+                    f'does not match expected value of {primary_validator_value}.'
                 )
 
         return data
 
 
-class BankConfigurationSerializer(serializers.Serializer):
+class ValidatorConfigurationSerializer(serializers.Serializer):
     primary_validator = PrimaryValidatorSerializer()
     account_number = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     default_transaction_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
@@ -81,7 +89,7 @@ class BankConfigurationSerializer(serializers.Serializer):
         Validate node type
         """
 
-        if node_type != BANK:
+        if node_type != VALIDATOR:
             raise serializers.ValidationError('Incorrect node_type')
 
         return node_type
