@@ -7,9 +7,9 @@ from ..models.bank_registration import BankRegistration
 
 class TestBankRegistration(TestBase):
 
-    def test_post(self):
+    def test_create_bank_registration_with_primary_validator(self):
         """
-        Validate create bank registration
+        Validate creation of bank registration with primary validator
         """
 
         Bank.objects.all().delete()
