@@ -25,3 +25,19 @@ def get_confirmation_block_cache_key(*, block_identifier):
     """
 
     return f'confirmation_block:{block_identifier}'
+
+
+def get_pending_bank_registration_pk_cache_key(*, block_signature):
+    """
+    Return cache key used for storing PK (UUID) of pending bank registrations
+    """
+
+    return f'bank_registration:{block_signature}:pk'
+
+
+def get_pending_validator_registration_pk_cache_key(*, block_signature):
+    """
+    Return cache key used for storing PK (UUID) of pending validator registrations
+    """
+
+    return f'validator_registration:{block_signature}:pk'

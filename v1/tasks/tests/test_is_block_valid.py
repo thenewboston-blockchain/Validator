@@ -1,8 +1,8 @@
 from v1.tasks.blocks import is_block_valid
-from v1.test_tools.test_base import TestBase
+from v1.test_tools.test_primary_validator import TestPrimaryValidator
 
 
-class TestIsBlockValid(TestBase):
+class TestIsBlockValid(TestPrimaryValidator):
 
     def test_incorrect_amount(self):
         """

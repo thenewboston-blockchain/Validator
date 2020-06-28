@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import serializers
 from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
@@ -5,8 +6,8 @@ from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 
 from v1.banks.models.bank import Bank
+from v1.cache_tools.cache_keys import get_pending_bank_registration_pk_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.tasks.bank_registrations import process_bank_registration
 from ..models.bank_registration import BankRegistration
 
 
@@ -50,12 +51,12 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             pk=str(pk),
             port=port,
             protocol=protocol,
+            registration_block_signature=block['signature'],
             status=PENDING
         )
-        process_bank_registration.delay(
-            block=block,
-            pk=str(pk)
-        )
+
+        bank_registration_cache_key = get_pending_bank_registration_pk_cache_key(block_signature=block['signature'])
+        cache.set(bank_registration_cache_key, str(pk), None)
 
         return bank_registration
 
@@ -86,25 +87,43 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        validator_registration_fee = self_configuration.registration_fee
+
+        primary_validator = self_configuration.primary_validator
+        self_registration_fee = self_configuration.registration_fee
+        is_primary_validator = bool(not primary_validator)
+
         txs = block['message']['txs']
 
         if not txs:
             raise serializers.ValidationError('No Tx')
 
-        if len(txs) > 1:
-            raise serializers.ValidationError('Only 1 Tx required')
-
         validate_transaction_exists(
-            amount=validator_registration_fee,
+            amount=self_registration_fee,
             error=serializers.ValidationError,
             recipient=self_configuration.account_number,
             txs=txs
         )
 
+        if is_primary_validator:
+
+            if len(txs) > 1:
+                raise serializers.ValidationError('Only 1 Tx required when registering with primary validator')
+
+        if not is_primary_validator:
+
+            validate_transaction_exists(
+                amount=primary_validator.registration_fee,
+                error=serializers.ValidationError,
+                recipient=primary_validator.account_number,
+                txs=txs
+            )
+
+            if len(txs) > 2:
+                raise serializers.ValidationError('Only 2 Txs required when registering with confirmation validators')
+
         return {
             'block': block,
-            'validator_registration_fee': validator_registration_fee
+            'validator_registration_fee': self_registration_fee
         }
 
     @staticmethod

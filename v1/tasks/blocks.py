@@ -22,6 +22,7 @@ from v1.cache_tools.cache_keys import (
     get_account_balance_lock_cache_key,
     get_confirmation_block_cache_key
 )
+from .registrations import handle_pending_registrations
 
 logger = get_task_logger(__name__)
 
@@ -147,6 +148,7 @@ def process_block_queue():
         if not is_valid:
             continue
 
+        handle_pending_registrations.delay(block=block)
         updated_balances = process_validated_block(
             validated_block=block,
             sender_account_balance=sender_account_balance
@@ -241,6 +243,8 @@ def send_confirmation_block_to_backup_validators(*, confirmation_block):
     """
 
     # TODO: Send confirmed block to backup validators
+    # TODO: This is for PV only
+
     print(confirmation_block)
 
 
