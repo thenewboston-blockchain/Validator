@@ -40,7 +40,7 @@ def handle_pending_registrations(*, block):
     validator_registration_pk = cache.get(validator_registration_cache_key)
 
     if validator_registration_pk:
-        print('Process validator registration')
+        # TODO: Process validator registration
         return
 
 
