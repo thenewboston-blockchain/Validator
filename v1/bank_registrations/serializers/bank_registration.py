@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework import serializers
 from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
@@ -5,6 +6,7 @@ from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 
 from v1.banks.models.bank import Bank
+from v1.cache_tools.cache_keys import get_pending_bank_registration_pk_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from ..models.bank_registration import BankRegistration
 
@@ -52,6 +54,9 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             registration_block_signature=block['signature'],
             status=PENDING
         )
+
+        bank_registration_cache_key = get_pending_bank_registration_pk_cache_key(block_signature=block['signature'])
+        cache.set(bank_registration_cache_key, str(pk), None)
 
         return bank_registration
 
