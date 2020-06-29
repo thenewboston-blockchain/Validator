@@ -8,7 +8,9 @@ from nacl.exceptions import BadSignatureError
 from nacl.signing import SigningKey
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.environment.environment_variables import get_environment_variable
+from thenewboston.utils.format import format_address
 from thenewboston.utils.messages import get_message_hash
+from thenewboston.utils.network import post
 from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.tools import sort_and_encode
 
@@ -22,6 +24,8 @@ from v1.cache_tools.cache_keys import (
     get_account_balance_lock_cache_key,
     get_confirmation_block_cache_key
 )
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.validators.models.validator import Validator
 from .registrations import handle_pending_registrations
 
 logger = get_task_logger(__name__)
@@ -181,8 +185,8 @@ def process_confirmation_block_queue():
     is_valid, sender_account_balance = is_block_valid(block=block)
 
     if not is_valid:
-        # TODO: Change this
-        print('This is not good')
+        # TODO: Switch primary validators
+        print('The primary validator is cheating')
         return
 
     updated_balances = process_validated_block(
@@ -243,9 +247,20 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     - confirmation validators send their confirmation blocks to their banks
     """
 
-    # TODO: Send confirmed block to confirmation validators
+    # TODO: Optimize
+    # TODO: Proper error handling for network requests
 
-    print(confirmation_block)
+    self_configuration = get_self_configuration(exception_class=RuntimeError)
+    confirmation_validators = Validator.objects.exclude(node_identifier=self_configuration.node_identifier)
+
+    for validator in confirmation_validators:
+        address = format_address(
+            ip_address=validator.ip_address,
+            port=validator.port,
+            protocol=validator.protocol
+        )
+        url = f'{address}/confirmation_blocks'
+        post(url=url, body=confirmation_block)
 
 
 def sign_block_to_confirm(*, block, updated_balances):
