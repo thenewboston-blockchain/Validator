@@ -17,7 +17,7 @@ class ValidatorPrimaryValidatorSerializer(PrimaryValidatorSerializer):
 
     def validate(self, data):
         """
-        Validate that requesting validators primary validator matches self primary validator
+        Validate that requesting nodes primary validator matches self primary validator
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
@@ -34,15 +34,15 @@ class ValidatorPrimaryValidatorSerializer(PrimaryValidatorSerializer):
             if key in ['node_type', 'primary_validator', 'trust']:
                 continue
 
-            requesting_validator_value = data.get(key)
+            requesting_node_value = data.get(key)
 
-            if not requesting_validator_value:
+            if not requesting_node_value:
                 raise serializers.ValidationError(f'{key} not found on requesting validators primary validator')
 
-            if str(requesting_validator_value) != str(primary_validator_value):
+            if str(requesting_node_value) != str(primary_validator_value):
                 raise serializers.ValidationError(
                     f'Inconsistent primary validator settings for {key}. '
-                    f'Requesting validator value of {requesting_validator_value} '
+                    f'Requesting nodes value of {requesting_node_value} '
                     f'does not match expected value of {primary_validator_value}.'
                 )
 
