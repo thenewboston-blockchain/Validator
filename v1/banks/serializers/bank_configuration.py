@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from thenewboston.constants.network import BANK, HEAD_HASH_LENGTH, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import BANK
+from thenewboston.serializers.configuration import ConfigurationSerializer
+from thenewboston.serializers.primary_validator import PrimaryValidatorSerializer
 
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.serializers.self_configuration import SelfConfigurationSerializer
@@ -10,29 +12,11 @@ The BankConfigurationSerializer is used to ensure that a bank is properly config
 """
 
 
-class PrimaryValidatorSerializer(serializers.Serializer):
-    account_number = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    default_transaction_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
-    ip_address = serializers.IPAddressField(protocol='both')
-    node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
-    protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
-    registration_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
-    root_account_file = serializers.URLField()
-    root_account_file_hash = serializers.CharField(max_length=HEAD_HASH_LENGTH)
-    seed_block_identifier = serializers.CharField(max_length=HEAD_HASH_LENGTH)
-    version = serializers.CharField(max_length=32)
-
-    def create(self, validated_data):
-        pass
-
-    def update(self, instance, validated_data):
-        pass
+class BankPrimaryValidatorSerializer(PrimaryValidatorSerializer):
 
     def validate(self, data):
         """
         Validate that banks primary validator matches self primary validator
-        - trust excluded
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
@@ -40,7 +24,7 @@ class PrimaryValidatorSerializer(serializers.Serializer):
 
         for key, value in self_configuration.items():
 
-            if key in ['node_type', 'primary_validator']:
+            if key in ['node_type', 'primary_validator', 'trust']:
                 continue
 
             bank_value = data.get(key)
@@ -57,23 +41,8 @@ class PrimaryValidatorSerializer(serializers.Serializer):
         return data
 
 
-class BankConfigurationSerializer(serializers.Serializer):
-    primary_validator = PrimaryValidatorSerializer()
-    account_number = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    default_transaction_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
-    ip_address = serializers.IPAddressField(protocol='both')
-    node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    node_type = serializers.CharField(max_length=4)
-    port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
-    protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
-    registration_fee = serializers.DecimalField(max_digits=32, decimal_places=16)
-    version = serializers.CharField(max_length=32)
-
-    def create(self, validated_data):
-        pass
-
-    def update(self, instance, validated_data):
-        pass
+class BankConfigurationSerializer(ConfigurationSerializer):
+    primary_validator = BankPrimaryValidatorSerializer()
 
     @staticmethod
     def validate_node_type(node_type):
