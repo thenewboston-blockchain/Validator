@@ -154,7 +154,7 @@ def process_block_queue():
             sender_account_balance=sender_account_balance
         )
         confirmation_block = sign_block_to_confirm(block=block, updated_balances=updated_balances)
-        send_confirmation_block_to_backup_validators(confirmation_block=confirmation_block)
+        send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
 
     cache.set(BLOCK_QUEUE, [], None)
 
@@ -178,7 +178,6 @@ def process_confirmation_block_queue():
         return
 
     block = confirmation_block['block']
-
     is_valid, sender_account_balance = is_block_valid(block=block)
 
     if not is_valid:
@@ -237,13 +236,14 @@ def process_validated_block(*, validated_block, sender_account_balance):
     return updated_balances
 
 
-def send_confirmation_block_to_backup_validators(*, confirmation_block):
+def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     """
-    Send confirmed block to backup validators
+    Send confirmed block to confirmation validators
+    This function is called by the primary validator only
+    - confirmation validators send their confirmation blocks to their banks
     """
 
     # TODO: Send confirmed block to backup validators
-    # TODO: This is for PV only
 
     print(confirmation_block)
 
