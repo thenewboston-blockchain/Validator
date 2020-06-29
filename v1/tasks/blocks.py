@@ -163,7 +163,7 @@ def process_block_queue():
 def process_confirmation_block_queue():
     """
     Process confirmation block queue
-    - this is for backup validators only
+    - this is for confirmation validators only
     """
 
     confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
@@ -243,7 +243,7 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     - confirmation validators send their confirmation blocks to their banks
     """
 
-    # TODO: Send confirmed block to backup validators
+    # TODO: Send confirmed block to confirmation validators
 
     print(confirmation_block)
 
