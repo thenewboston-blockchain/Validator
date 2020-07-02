@@ -68,7 +68,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
             queue = [block]
 
         cache.set(BLOCK_QUEUE, queue, None)
-        process_block_queue()
+        process_block_queue.delay()
 
         return bank_registration
 

@@ -7,4 +7,8 @@ from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
 
 @api_view(['GET'])
 def head_block_hash_view(_):
+    """
+    Return the HEAD_BLOCK_HASH
+    """
+
     return Response(cache.get(HEAD_BLOCK_HASH))
