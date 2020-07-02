@@ -1,7 +1,7 @@
+import logging
 from decimal import Decimal
 
 from celery import shared_task
-from celery.utils.log import get_task_logger
 from django.core.cache import cache
 from nacl.encoding import HexEncoder
 from nacl.exceptions import BadSignatureError
@@ -28,7 +28,7 @@ from v1.self_configurations.helpers.self_configuration import get_self_configura
 from v1.validators.models.validator import Validator
 from .registrations import handle_pending_registrations
 
-logger = get_task_logger(__name__)
+logger = logging.getLogger('thenewboston')
 
 
 def is_block_valid(*, block):

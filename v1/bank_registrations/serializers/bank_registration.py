@@ -6,8 +6,9 @@ from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import get_pending_bank_registration_pk_cache_key
+from v1.cache_tools.cache_keys import BLOCK_QUEUE, get_pending_bank_registration_pk_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.tasks.blocks import process_block_queue
 from ..models.bank_registration import BankRegistration
 
 
@@ -58,6 +59,17 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
         bank_registration_cache_key = get_pending_bank_registration_pk_cache_key(block_signature=block['signature'])
         cache.set(bank_registration_cache_key, str(pk), None)
 
+        # TODO: Clean up
+        queue = cache.get(BLOCK_QUEUE)
+
+        if queue:
+            queue.append(block)
+        else:
+            queue = [block]
+
+        cache.set(BLOCK_QUEUE, queue, None)
+        process_block_queue()
+
         return bank_registration
 
     def update(self, instance, validated_data):
@@ -79,8 +91,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
 
         return data
 
-    @staticmethod
-    def validate_block(block):
+    def validate_block(self, block):
         """
         Verify that correct payment exist
         Verify that there are no extra payments
@@ -122,7 +133,7 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
                 raise serializers.ValidationError('Only 2 Txs required when registering with confirmation validators')
 
         return {
-            'block': block,
+            'block': self.initial_data['block'],
             'validator_registration_fee': self_registration_fee
         }
 

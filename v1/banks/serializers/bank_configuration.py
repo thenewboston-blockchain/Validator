@@ -29,7 +29,7 @@ class BankPrimaryValidatorSerializer(PrimaryValidatorSerializer):
 
             bank_value = data.get(key)
 
-            if not bank_value:
+            if bank_value is None:
                 raise serializers.ValidationError(f'{key} not found on banks primary validator')
 
             if str(bank_value) != str(value):
