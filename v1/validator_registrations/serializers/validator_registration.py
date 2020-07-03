@@ -67,27 +67,31 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         Create validator registration
         """
 
-        block_validation_dict = validated_data['block']
-        block = block_validation_dict['block']
-        self_registration_fee = block_validation_dict['self_registration_fee']
-
-        ip_address = validated_data['ip_address']
+        block = self.initial_data['block']
         pk = validated_data['pk']
-        port = validated_data['port']
-        protocol = validated_data['protocol']
+        target_node_identifier = validated_data['target_node_identifier']
+
+        fee = next(
+            (tx['amount'] for tx in block['message']['txs'] if tx['recipient'] == target_node_identifier),
+            None
+        )
 
         try:
             with transaction.atomic():
                 validator_registration = ValidatorRegistration.objects.create(
-                    validator=None,
-                    fee=self_registration_fee,
-                    ip_address=ip_address,
-                    node_identifier=validated_data['node_identifier'],
+                    fee=fee,
                     pk=str(pk),
-                    port=port,
-                    protocol=protocol,
                     registration_block_signature=block['signature'],
-                    status=PENDING
+                    source_ip_address=validated_data['source_ip_address'],
+                    source_node_identifier=validated_data['source_node_identifier'],
+                    source_port=validated_data['source_port'],
+                    source_protocol=validated_data['source_protocol'],
+                    status=PENDING,
+                    target_ip_address=validated_data['target_ip_address'],
+                    target_node_identifier=validated_data['target_node_identifier'],
+                    target_port=validated_data['target_port'],
+                    target_protocol=validated_data['target_protocol'],
+                    validator=None
                 )
         except Exception as e:
             logger.exception(e)
@@ -173,16 +177,40 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
 
         return block
 
-    def validate_node_identifier(self, node_identifier):
+    def validate_source_node_identifier(self, source_node_identifier):
         """
         Check if validator already exists
         Check for existing pending registration
         """
 
-        if Validator.objects.filter(node_identifier=node_identifier).exists():
+        if self.is_source:
+            return source_node_identifier
+
+        if Validator.objects.filter(node_identifier=source_node_identifier).exists():
             raise serializers.ValidationError('Validator with that node identifier already exists')
 
-        if ValidatorRegistration.objects.filter(node_identifier=node_identifier, status=PENDING).exists():
-            raise serializers.ValidationError('Validator with that node identifier already has pending registration')
+        if ValidatorRegistration.objects.filter(source_node_identifier=source_node_identifier, status=PENDING).exists():
+            raise serializers.ValidationError(
+                'Validator with that source_node_identifier already has pending registration'
+            )
 
-        return node_identifier
+        return source_node_identifier
+
+    def validate_target_node_identifier(self, target_node_identifier):
+        """
+        Check if validator already exists
+        Check for existing pending registration
+        """
+
+        if self.is_target:
+            return target_node_identifier
+
+        if Validator.objects.filter(node_identifier=target_node_identifier).exists():
+            raise serializers.ValidationError('Validator with that node identifier already exists')
+
+        if ValidatorRegistration.objects.filter(target_node_identifier=target_node_identifier, status=PENDING).exists():
+            raise serializers.ValidationError(
+                'Validator with that target_node_identifier already has pending registration'
+            )
+
+        return target_node_identifier
