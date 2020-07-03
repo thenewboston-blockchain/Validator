@@ -3,14 +3,21 @@ import logging
 from django.core.cache import cache
 from django.db import transaction
 from rest_framework import serializers
-from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import (
+    CONFIRMATION_VALIDATOR,
+    PENDING,
+    PRIMARY_VALIDATOR,
+    PROTOCOL_CHOICES,
+    VERIFY_KEY_LENGTH
+)
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 from thenewboston.transactions.validation import validate_transaction_exists
 from thenewboston.utils.fields import all_field_names
 
-from v1.cache_tools.cache_keys import get_pending_validator_registration_pk_cache_key
+from v1.cache_tools.cache_keys import BLOCK_QUEUE, get_pending_validator_registration_pk_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from thenewboston.constants.network import PRIMARY_VALIDATOR
+from v1.tasks.blocks import process_block_queue
+from v1.tasks.signed_requests import send_signed_post_request
 from v1.validators.models.validator import Validator
 from ..models.validator_registration import ValidatorRegistration
 
@@ -67,10 +74,18 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
     def create(self, validated_data):
         """
         Create validator registration
+        If source, send to target
+        If target:
+        - if CV, send to PV
+        - if PV, add block to block queue
         """
 
         block = self.initial_data['block']
+
         pk = validated_data['pk']
+        target_ip_address = validated_data['target_ip_address']
+        target_port = validated_data['target_port']
+        target_protocol = validated_data['target_protocol']
 
         try:
             with transaction.atomic():
@@ -82,12 +97,40 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
                     source_port=validated_data['source_port'],
                     source_protocol=validated_data['source_protocol'],
                     status=PENDING,
-                    target_ip_address=validated_data['target_ip_address'],
+                    target_ip_address=target_ip_address,
                     target_node_identifier=validated_data['target_node_identifier'],
-                    target_port=validated_data['target_port'],
-                    target_protocol=validated_data['target_protocol'],
+                    target_port=target_port,
+                    target_protocol=target_protocol,
                     validator=None
                 )
+
+                if self.is_source:
+                    send_signed_post_request.delay(
+                        data=self.context['request'].data,
+                        ip_address=target_ip_address,
+                        port=target_port,
+                        protocol=target_protocol,
+                        url_path='/validator_registrations'
+                    )
+
+                if self.is_target:
+
+                    if self.config.node_type == CONFIRMATION_VALIDATOR:
+                        # TODO: Need to send block through bank
+                        pass
+
+                    if self.config.node_type == PRIMARY_VALIDATOR:
+                        # TODO: Clean up
+                        queue = cache.get(BLOCK_QUEUE)
+
+                        if queue:
+                            queue.append(block)
+                        else:
+                            queue = [block]
+
+                        cache.set(BLOCK_QUEUE, queue, None)
+                        process_block_queue.delay()
+
         except Exception as e:
             logger.exception(e)
             raise serializers.ValidationError(e)
