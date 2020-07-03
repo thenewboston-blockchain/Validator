@@ -260,7 +260,11 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
             protocol=validator.protocol
         )
         url = f'{address}/confirmation_blocks'
-        post(url=url, body=confirmation_block)
+
+        try:
+            post(url=url, body=confirmation_block)
+        except Exception as e:
+            logger.exception(e)
 
 
 def sign_block_to_confirm(*, block, updated_balances):
@@ -289,7 +293,8 @@ def sign_block_to_confirm(*, block, updated_balances):
     cache.set(HEAD_BLOCK_HASH, message_hash, None)
 
     # TODO: Remove these
-    logger.error(confirmation_block_cache_key)
+    logger.warning(confirmation_block_cache_key)
+    logger.warning('*' * 100)
     logger.warning(confirmation_block)
 
     return confirmation_block
