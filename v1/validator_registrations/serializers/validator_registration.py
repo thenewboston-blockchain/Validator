@@ -26,13 +26,41 @@ class ValidatorRegistrationSerializer(serializers.ModelSerializer):
 
 class ValidatorRegistrationSerializerCreate(serializers.Serializer):
     block = NetworkBlockSerializer()
-    ip_address = serializers.IPAddressField(protocol='both')
-    node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
     pk = serializers.UUIDField(format='hex_verbose')
-    port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
-    protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
-    validator_node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    version = serializers.CharField(max_length=32)
+    signing_nid = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+
+    # Source validator
+    source_ip_address = serializers.IPAddressField(protocol='both')
+    source_node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    source_port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
+    source_protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
+
+    # Target validator
+    target_ip_address = serializers.IPAddressField(protocol='both')
+    target_node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    target_port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
+    target_protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
+
+    def __init__(self, **kwargs):
+        """
+        Determine if self is source or target validator
+        Also determines if self is primary validator
+        """
+        
+        self.is_source = bool(kwargs['data']['signing_nid'] == kwargs['data'].get('source_node_identifier'))
+        self.is_target = bool(kwargs['data']['signing_nid'] == kwargs['data'].get('target_node_identifier'))
+
+        if len([i for i in [self.is_source, self.is_target] if i]) != 1:
+            raise serializers.ValidationError('Unable to determine source or target')
+        
+        self.config = get_self_configuration(exception_class=RuntimeError)
+        self.primary_validator = self.config.primary_validator or self.config
+
+        self.is_target_primary_validator = bool(
+            kwargs['data'].get('target_node_identifier') == self.primary_validator.node_identifier
+        )
+
+        super().__init__(**kwargs)
 
     def create(self, validated_data):
         """
@@ -77,11 +105,15 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
 
     def validate(self, data):
         """
-        Validate IP address
+        Check IP address and port to see if validator or pending registration already exists
         """
 
-        ip_address = data['ip_address']
-        port = data['port']
+        if self.is_source:
+            ip_address = data['target_ip_address']
+            port = data['target_port']
+        else:
+            ip_address = data['source_ip_address']
+            port = data['source_port']
 
         if Validator.objects.filter(ip_address=ip_address, port=port).exists():
             raise serializers.ValidationError('Validator at that location already exists')
@@ -91,55 +123,57 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
 
         return data
 
-    @staticmethod
-    def validate_block(block):
+    def validate_block(self, block):
         """
         Verify that correct payment exist
         Verify that there are no extra payments
+
+        If target is primary validator, only one payment should exist:
+        - PV registration fee
+        
+        If target is confirmation validator, two payments should exist:
+        - CV registration fee
+        - PV transaction fee
         """
-
-        self_configuration = get_self_configuration(exception_class=RuntimeError)
-
-        primary_validator = self_configuration.primary_validator
-        self_registration_fee = self_configuration.registration_fee
-        is_primary_validator = bool(not primary_validator)
 
         txs = block['message']['txs']
 
         if not txs:
             raise serializers.ValidationError('No Tx')
 
-        validate_transaction_exists(
-            amount=self_registration_fee,
-            error=serializers.ValidationError,
-            recipient=self_configuration.account_number,
-            txs=txs
-        )
-
-        if is_primary_validator:
+        if self.is_target_primary_validator:
+            validate_transaction_exists(
+                amount=self.primary_validator.registration_fee,
+                error=serializers.ValidationError,
+                recipient=self.primary_validator.account_number,
+                txs=txs
+            )
 
             if len(txs) > 1:
                 raise serializers.ValidationError('Only 1 Tx required when registering with primary validator')
 
-        if not is_primary_validator:
-
+        if not self.is_target_primary_validator:
             validate_transaction_exists(
-                amount=primary_validator.registration_fee,
+                amount=self.primary_validator.default_transaction_fee,
                 error=serializers.ValidationError,
-                recipient=primary_validator.account_number,
+                recipient=self.primary_validator.account_number,
                 txs=txs
             )
+
+            if self.is_target:
+                validate_transaction_exists(
+                    amount=self.config.registration_fee,
+                    error=serializers.ValidationError,
+                    recipient=self.config.account_number,
+                    txs=txs
+                )
 
             if len(txs) > 2:
                 raise serializers.ValidationError('Only 2 Txs required when registering with confirmation validators')
 
-        return {
-            'block': block,
-            'self_registration_fee': self_registration_fee
-        }
+        return block
 
-    @staticmethod
-    def validate_node_identifier(node_identifier):
+    def validate_node_identifier(self, node_identifier):
         """
         Check if validator already exists
         Check for existing pending registration

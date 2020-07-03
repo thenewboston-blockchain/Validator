@@ -29,10 +29,11 @@ class ValidatorRegistrationView(APIView):
         serializer = ValidatorRegistrationSerializerCreate(
             data={
                 **request.data['message'],
-                'node_identifier': request.data['node_identifier']
+                'signing_nid': request.data['node_identifier']
             },
             context={'request': request}
         )
+
         if serializer.is_valid():
             validator_registration = serializer.save()
             return Response(
