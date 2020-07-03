@@ -10,6 +10,7 @@ from thenewboston.utils.fields import all_field_names
 
 from v1.cache_tools.cache_keys import get_pending_validator_registration_pk_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from thenewboston.constants.network import PRIMARY_VALIDATOR
 from v1.validators.models.validator import Validator
 from ..models.validator_registration import ValidatorRegistration
 
@@ -54,7 +55,12 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
             raise serializers.ValidationError('Unable to determine source or target')
         
         self.config = get_self_configuration(exception_class=RuntimeError)
-        self.primary_validator = self.config.primary_validator or self.config
+        self.primary_validator = (
+            self.config if self.config.node_type == PRIMARY_VALIDATOR else self.config.primary_validator
+        )
+
+        print(kwargs['data'].get('target_node_identifier'))
+        print(self.primary_validator.node_identifier)
 
         self.is_target_primary_validator = bool(
             kwargs['data'].get('target_node_identifier') == self.primary_validator.node_identifier

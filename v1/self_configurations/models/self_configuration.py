@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from thenewboston.constants.network import VALIDATOR
 from thenewboston.models.network_validator import NetworkValidator
 from thenewboston.utils.fields import common_field_names
 
@@ -14,7 +13,7 @@ primary_validator - when set to None, validator will accept incoming bank transa
 
 class SelfConfiguration(NetworkValidator):
     primary_validator = models.ForeignKey(Validator, on_delete=models.SET_NULL, blank=True, null=True)
-    node_type = models.CharField(choices=NODE_TYPE_CHOICES, default=VALIDATOR, max_length=9)
+    node_type = models.CharField(choices=NODE_TYPE_CHOICES, max_length=22)
 
     class Meta:
         default_related_name = 'self_configurations'

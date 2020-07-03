@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from thenewboston.constants.network import VALIDATOR
+from thenewboston.constants.network import CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR
 from thenewboston.serializers.configuration import ConfigurationSerializer
 from thenewboston.serializers.primary_validator import PrimaryValidatorSerializer
 
@@ -28,6 +28,9 @@ class ValidatorPrimaryValidatorSerializer(PrimaryValidatorSerializer):
             primary_validator_configuration = SelfConfigurationSerializer(self_configuration).data
         else:
             primary_validator_configuration = ValidatorSerializer(primary_validator).data
+
+        if primary_validator_configuration['node_type'] != PRIMARY_VALIDATOR:
+            raise serializers.ValidationError('Incorrect node_type on primary validator')
 
         for key, primary_validator_value in primary_validator_configuration.items():
 
@@ -58,7 +61,7 @@ class ValidatorConfigurationSerializer(ConfigurationSerializer):
         Validate node type
         """
 
-        if node_type != VALIDATOR:
+        if node_type not in [CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR]:
             raise serializers.ValidationError('Incorrect node_type')
 
         return node_type
