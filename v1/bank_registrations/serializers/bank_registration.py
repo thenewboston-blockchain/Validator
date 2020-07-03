@@ -37,7 +37,6 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
 
         block_validation_dict = validated_data['block']
         block = block_validation_dict['block']
-        validator_registration_fee = block_validation_dict['validator_registration_fee']
 
         ip_address = validated_data['ip_address']
         pk = validated_data['pk']
@@ -46,7 +45,6 @@ class BankRegistrationSerializerCreate(serializers.Serializer):
 
         bank_registration = BankRegistration.objects.create(
             bank=None,
-            fee=validator_registration_fee,
             ip_address=ip_address,
             node_identifier=validated_data['node_identifier'],
             pk=str(pk),

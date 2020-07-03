@@ -57,7 +57,6 @@ Response:
   "id": "16e1323c-b465-4f54-b5a0-a282bf80e756",
   "created_date": "2020-07-03T21:46:46.683627Z",
   "modified_date": "2020-07-03T21:46:46.683658Z",
-  "fee": "1.0000000000000000",
   "registration_block_signature": "219d60986e0e0b2524ff565157c3f9e776af0c2aeaba2c4594c3082d8471c0d3adf15b57cb28e4400e85e3084d23c84db0840e99956e7723b3063d42ff96b80f",
   "status": "PENDING",
   "source_ip_address": "192.168.1.232",

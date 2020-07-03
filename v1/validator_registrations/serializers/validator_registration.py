@@ -75,7 +75,6 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         try:
             with transaction.atomic():
                 validator_registration = ValidatorRegistration.objects.create(
-                    fee=1,
                     pk=str(pk),
                     registration_block_signature=block['signature'],
                     source_ip_address=validated_data['source_ip_address'],

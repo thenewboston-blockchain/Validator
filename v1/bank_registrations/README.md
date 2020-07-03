@@ -61,7 +61,6 @@ Response (Bank > Validator):
   "id":"36f84a29-cdd5-442a-88bc-fbc4107e5207",
   "created_date":"2020-06-20T17:31:38.578363Z",
   "modified_date": "2020-06-21T22:17:56.705678Z",
-  "fee":"8.0000000000000000",
   "status": "ACCEPTED",
   "validator": "a8101b03-15ad-42fc-8e64-2de24b850e0e"
 }
