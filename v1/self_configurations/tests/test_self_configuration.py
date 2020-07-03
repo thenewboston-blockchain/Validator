@@ -1,5 +1,5 @@
 from rest_framework import status
-from thenewboston.constants.network import VALIDATOR
+from thenewboston.constants.network import PRIMARY_VALIDATOR
 
 from v1.test_tools.test_primary_validator import TestPrimaryValidator
 
@@ -18,4 +18,4 @@ class TestSelfConfiguration(TestPrimaryValidator):
         node_type = config['node_type']
 
         self.assertEqual(primary_validator, None)
-        self.assertEqual(node_type, VALIDATOR)
+        self.assertEqual(node_type, PRIMARY_VALIDATOR)

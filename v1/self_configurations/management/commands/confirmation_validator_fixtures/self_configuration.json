@@ -15,7 +15,7 @@
       "root_account_file_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
       "seed_block_identifier": "",
       "primary_validator": "2409c9aa-f9b9-4b58-9c74-66d0112b74ad",
-      "node_type": "VALIDATOR"
+      "node_type": "CONFIRMATION_VALIDATOR"
     }
   }
 ]

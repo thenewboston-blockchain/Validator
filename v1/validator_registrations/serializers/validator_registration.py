@@ -47,13 +47,13 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         Determine if self is source or target validator
         Also determines if self is primary validator
         """
-        
+
         self.is_source = bool(kwargs['data']['signing_nid'] == kwargs['data'].get('source_node_identifier'))
         self.is_target = bool(kwargs['data']['signing_nid'] == kwargs['data'].get('target_node_identifier'))
 
         if len([i for i in [self.is_source, self.is_target] if i]) != 1:
             raise serializers.ValidationError('Unable to determine source or target')
-        
+
         self.config = get_self_configuration(exception_class=RuntimeError)
         self.primary_validator = (
             self.config if self.config.node_type == PRIMARY_VALIDATOR else self.config.primary_validator
@@ -140,7 +140,7 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
 
         If target is primary validator, only one payment should exist:
         - PV registration fee
-        
+
         If target is confirmation validator, two payments should exist:
         - CV registration fee
         - PV transaction fee
