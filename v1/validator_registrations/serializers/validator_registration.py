@@ -58,10 +58,6 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         self.primary_validator = (
             self.config if self.config.node_type == PRIMARY_VALIDATOR else self.config.primary_validator
         )
-
-        print(kwargs['data'].get('target_node_identifier'))
-        print(self.primary_validator.node_identifier)
-
         self.is_target_primary_validator = bool(
             kwargs['data'].get('target_node_identifier') == self.primary_validator.node_identifier
         )
@@ -75,17 +71,11 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
 
         block = self.initial_data['block']
         pk = validated_data['pk']
-        target_node_identifier = validated_data['target_node_identifier']
-
-        fee = next(
-            (tx['amount'] for tx in block['message']['txs'] if tx['recipient'] == target_node_identifier),
-            None
-        )
 
         try:
             with transaction.atomic():
                 validator_registration = ValidatorRegistration.objects.create(
-                    fee=fee,
+                    fee=1,
                     pk=str(pk),
                     registration_block_signature=block['signature'],
                     source_ip_address=validated_data['source_ip_address'],
@@ -121,15 +111,33 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         if self.is_source:
             ip_address = data['target_ip_address']
             port = data['target_port']
+
+            if ValidatorRegistration.objects.filter(
+                target_ip_address=ip_address,
+                target_port=port,
+                status=PENDING
+            ).exists():
+                raise serializers.ValidationError('Validator at that location already has pending registration')
+
         else:
-            ip_address = data['source_ip_address']
-            port = data['source_port']
+            ip_address = data['target_ip_address']
+            port = data['target_port']
 
-        if Validator.objects.filter(ip_address=ip_address, port=port).exists():
+            if ValidatorRegistration.objects.filter(
+                source_ip_address=ip_address,
+                source_port=port,
+                status=PENDING
+            ).exists():
+                raise serializers.ValidationError('Validator at that location already has pending registration')
+
+        if Validator.objects.filter(
+            ip_address=ip_address,
+            port=port
+        ).exclude(
+            self_configurations__primary_validator__ip_address=ip_address,
+            self_configurations__primary_validator__port=port
+        ).exists():
             raise serializers.ValidationError('Validator at that location already exists')
-
-        if ValidatorRegistration.objects.filter(ip_address=ip_address, port=port, status=PENDING).exists():
-            raise serializers.ValidationError('Validator at that location already has pending registration')
 
         return data
 
@@ -211,7 +219,11 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         if self.is_target:
             return target_node_identifier
 
-        if Validator.objects.filter(node_identifier=target_node_identifier).exists():
+        if Validator.objects.filter(
+            node_identifier=target_node_identifier
+        ).exclude(
+            self_configurations__primary_validator__node_identifier=target_node_identifier
+        ).exists():
             raise serializers.ValidationError('Validator with that node identifier already exists')
 
         if ValidatorRegistration.objects.filter(target_node_identifier=target_node_identifier, status=PENDING).exists():

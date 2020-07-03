@@ -16,28 +16,31 @@ class TestValidatorRegistration(TestPrimaryValidator):
         ValidatorRegistration.objects.all().delete()
 
         payload = {
-            'message': {
-                'block': {
-                    'account_number': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8',
-                    'message': {
-                        'balance_key': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8',
-                        'txs': [
+            "message": {
+                "block": {
+                    "account_number": "0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb",
+                    "message": {
+                        "balance_key": "0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb",
+                        "txs": [
                             {
-                                'amount': 8,
-                                'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                                "amount": 8,
+                                "recipient": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314"
                             }
                         ]
                     },
-                    'signature': 'a341eb2d678df410fb110760fd2c77c5969975d4fcba9a3846d9f11dfb43151bc23a157c26dd29163f061697806bc2b75d74a300ed6ba1a504ae2de6013d8c0f'
+                    "signature": "219d60986e0e0b2524ff565157c3f9e776af0c2aeaba2c4594c3082d8471c0d3adf15b57cb28e4400e85e3084d23c84db0840e99956e7723b3063d42ff96b80f"
                 },
-                'ip_address': '192.168.1.232',
-                'pk': '3b4f6ce5-1492-4228-925a-d2abf0361884',
-                'port': 8000,
-                'protocol': 'http',
-                'validator_node_identifier': '3afdf37573f1a511def0bd85553404b7091a76bcd79cdcebba1310527b167521',
-                'version': 'v1.0'
+                "pk": "16e1323c-b465-4f54-b5a0-a282bf80e756",
+                "source_ip_address": "192.168.1.232",
+                "source_node_identifier": "59479a31c3b91d96bb7a0b3e07f18d4bf301f1bb0bde05f8d36d9611dcbe7cbf",
+                "source_port": 8000,
+                "source_protocol": "http",
+                "target_ip_address": "192.168.1.65",
+                "target_node_identifier": "3afdf37573f1a511def0bd85553404b7091a76bcd79cdcebba1310527b167521",
+                "target_port": 8000,
+                "target_protocol": "http"
             },
-            'node_identifier': 'd5356888dc9303e44ce52b1e06c3165a7759b9df1e6a6dfbd33ee1c3df1ab4d1',
-            'signature': '601e227ded908d7decbf1682761bf305f00c504288a6bc53429abc43396f4428406f7fd26ae04e1e5e1238bbc51c759a07c9ccc6683d31b323e72a5310612006'
+            "node_identifier": "59479a31c3b91d96bb7a0b3e07f18d4bf301f1bb0bde05f8d36d9611dcbe7cbf",
+            "signature": "1f901fd3fa3ea47d1f89b5837ee6d67a12e8c6687c65ce9d03b51bd9a2addba53bbd19c5cd831b3eee0cabfd55adbd9a179869baf11c300338ef18d54dd0fa04"
         }
         self.validate_post('/validator_registrations', payload, status.HTTP_201_CREATED)

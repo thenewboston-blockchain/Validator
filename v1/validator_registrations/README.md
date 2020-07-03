@@ -8,6 +8,13 @@ CV <--> CV
 
 Once a confirmation validator is registered with the primary validator it will begin receiving confirmation blocks.
 
+**Note:** The one exception in which a validator object may exist without an accepted registration is when confirmation 
+validators are first connecting to the network. They will create and set a primary validator to ensure that the primary
+validator is able to validate their configuration, however the connection will not exist (PV will not send confirmation 
+blocks to CV) until the registration is accepted. Therefore, in order to check which validators a CV is connected to, 
+you can reference the validator table with the exception of their primary validator in which you also need to check the 
+validator registration table.
+
 ## POST /validator_registrations (Client > Source Validator)
 
 The process will begin with the client sending a request to one of their validators. Their (source) validator will then
@@ -46,7 +53,23 @@ Request:
 
 Response:
 ```json
-{}
+{
+  "id": "16e1323c-b465-4f54-b5a0-a282bf80e756",
+  "created_date": "2020-07-03T21:46:46.683627Z",
+  "modified_date": "2020-07-03T21:46:46.683658Z",
+  "fee": "1.0000000000000000",
+  "registration_block_signature": "219d60986e0e0b2524ff565157c3f9e776af0c2aeaba2c4594c3082d8471c0d3adf15b57cb28e4400e85e3084d23c84db0840e99956e7723b3063d42ff96b80f",
+  "status": "PENDING",
+  "source_ip_address": "192.168.1.232",
+  "source_node_identifier": "59479a31c3b91d96bb7a0b3e07f18d4bf301f1bb0bde05f8d36d9611dcbe7cbf",
+  "source_port": 8000,
+  "source_protocol": "http",
+  "target_ip_address": "192.168.1.65",
+  "target_node_identifier": "3afdf37573f1a511def0bd85553404b7091a76bcd79cdcebba1310527b167521",
+  "target_port": 8000,
+  "target_protocol": "http",
+  "validator": null
+}
 ```
 
 ## POST /validator_registrations (Source Validator > Target Validator)
