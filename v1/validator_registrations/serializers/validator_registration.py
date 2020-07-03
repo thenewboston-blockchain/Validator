@@ -1,4 +1,7 @@
+import logging
+
 from django.core.cache import cache
+from django.db import transaction
 from rest_framework import serializers
 from thenewboston.constants.network import PENDING, PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
@@ -9,6 +12,8 @@ from v1.cache_tools.cache_keys import get_pending_validator_registration_pk_cach
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 from ..models.validator_registration import ValidatorRegistration
+
+logger = logging.getLogger('thenewboston')
 
 
 class ValidatorRegistrationSerializer(serializers.ModelSerializer):
@@ -43,17 +48,22 @@ class ValidatorRegistrationSerializerCreate(serializers.Serializer):
         port = validated_data['port']
         protocol = validated_data['protocol']
 
-        validator_registration = ValidatorRegistration.objects.create(
-            validator=None,
-            fee=self_registration_fee,
-            ip_address=ip_address,
-            node_identifier=validated_data['node_identifier'],
-            pk=str(pk),
-            port=port,
-            protocol=protocol,
-            registration_block_signature=block['signature'],
-            status=PENDING
-        )
+        try:
+            with transaction.atomic():
+                validator_registration = ValidatorRegistration.objects.create(
+                    validator=None,
+                    fee=self_registration_fee,
+                    ip_address=ip_address,
+                    node_identifier=validated_data['node_identifier'],
+                    pk=str(pk),
+                    port=port,
+                    protocol=protocol,
+                    registration_block_signature=block['signature'],
+                    status=PENDING
+                )
+        except Exception as e:
+            logger.exception(e)
+            raise serializers.ValidationError(e)
 
         validator_registration_cache_key = get_pending_validator_registration_pk_cache_key(
             block_signature=block['signature']
