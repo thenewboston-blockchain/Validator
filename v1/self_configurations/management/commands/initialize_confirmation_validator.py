@@ -22,6 +22,7 @@ python3 manage.py initialize_confirmation_validator
 
 Notes:
 - this should be ran after initialize_validator
+- connects to the primary validator
 
 Running this script will:
 - connect to Validator and download config
@@ -31,7 +32,11 @@ Running this script will:
 
 
 class Command(ConnectToPrimaryValidator):
-    help = 'Connect to primary validator'
+    help = 'Initialize a confirmation validator and connect to the primary validator'
+
+    def __init__(self):
+        super().__init__()
+        self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
 
     def get_confirmation_block(self, *, block_identifier):
         """

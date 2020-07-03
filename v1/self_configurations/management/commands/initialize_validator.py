@@ -20,6 +20,11 @@ from v1.validators.models.validator import Validator
 """
 python3 manage.py initialize_validator
 
+Prerequisites:
+- python3 manage.py makemigrations
+- python3 manage.py migrate
+- python3 manage.py createsuperuser (optional)
+
 Running this script will:
 - delete existing SelfConfiguration and related Validator objects
 - create SelfConfiguration and related Validator objects
