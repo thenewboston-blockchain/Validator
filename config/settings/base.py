@@ -26,6 +26,7 @@ INSTALLED_APPS = [
 
     # API (v1)
     'v1.accounts.apps.AccountsConfig',
+    'v1.connection_requests.apps.ConnectionRequestsConfig',
     'v1.self_configurations.apps.SelfConfigurationsConfig',
 
 ]
