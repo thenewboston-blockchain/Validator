@@ -49,6 +49,9 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
         Attempt to connect to node
         """
 
+        # TODO: Also check that no node with duplicate IP and port exists
+        # TODO: Not only need to check Bank and Validators, but also SelfConfig
+
         try:
             address = format_address(
                 ip_address=data['ip_address'],
