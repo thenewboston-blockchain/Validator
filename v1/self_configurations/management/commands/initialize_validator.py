@@ -9,7 +9,12 @@ from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db.models import Q
 from thenewboston.base_classes.initialize_node import InitializeNode
-from thenewboston.constants.network import BLOCK_IDENTIFIER_LENGTH, HEAD_HASH_LENGTH, VALIDATOR
+from thenewboston.constants.network import (
+    BLOCK_IDENTIFIER_LENGTH,
+    CONFIRMATION_VALIDATOR,
+    HEAD_HASH_LENGTH,
+    PRIMARY_VALIDATOR
+)
 from thenewboston.utils.files import get_file_hash, read_json, write_json
 
 from v1.accounts.models.account import Account
@@ -49,9 +54,9 @@ class Command(InitializeNode):
             'head_block_hash': None,
             'ip_address': None,
             'node_identifier': None,
+            'node_type': None,
             'port': None,
             'protocol': None,
-            'registration_fee': None,
             'root_account_file': None,
             'root_account_file_hash': None,
             'seed_block_identifier': None,
@@ -91,6 +96,26 @@ class Command(InitializeNode):
                 continue
 
             self.required_input['head_block_hash'] = head_block_hash
+            valid = True
+
+    def get_node_type(self):
+        """
+        Get node type
+        """
+
+        valid = False
+
+        while not valid:
+            node_type = input('Enter node_type: ')
+
+            if not node_type:
+                break
+
+            if node_type not in [CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR]:
+                self._error(f'node_type must be one of {CONFIRMATION_VALIDATOR} or {PRIMARY_VALIDATOR}')
+                continue
+
+            self.required_input['node_type'] = node_type
             valid = True
 
     def get_root_account_file(self):
@@ -186,10 +211,7 @@ class Command(InitializeNode):
             attribute_name='default_transaction_fee',
             human_readable_name='default transaction fee'
         )
-        self.get_fee(
-            attribute_name='registration_fee',
-            human_readable_name='registration fee'
-        )
+        self.get_node_type()
         self.get_seed_block_identifier()
         self.get_head_block_hash()
         self.get_root_account_file()
@@ -210,6 +232,7 @@ class Command(InitializeNode):
         """
 
         head_block_hash = self.required_input.pop('head_block_hash')
+        node_type = self.required_input.pop('node_type')
 
         # Delete existing SelfConfiguration and related Validator objects
         SelfConfiguration.objects.all().delete()
@@ -221,7 +244,7 @@ class Command(InitializeNode):
         # Create SelfConfiguration and related Validator objects
         SelfConfiguration.objects.create(
             **self.required_input,
-            node_type=VALIDATOR
+            node_type=node_type
         )
         self.update_accounts_table()
 

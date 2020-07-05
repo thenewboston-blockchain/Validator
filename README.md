@@ -16,7 +16,6 @@ pbcopy < ~/.ssh/id_rsa.pub
 
 Add your SSH key to GitHub: https://github.com/settings/keys
 
-
 ## Initial Project Setup
 
 Set required environment variables:
@@ -46,7 +45,6 @@ python3 manage.py migrate
 python3 manage.py initialize_test_validator -ip [IP ADDRESS]
 ```
 
-
 ## Running Application Locally
 
 Run Redis:
@@ -63,7 +61,6 @@ To monitor Celery tasks:
 ```
 celery flower -A config.settings --address=127.0.0.1 --port=5555
 ```
-
 
 ## Developers
 

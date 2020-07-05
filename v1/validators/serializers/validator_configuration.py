@@ -9,7 +9,7 @@ from .validator import ValidatorSerializer
 
 """
 The ValidatorConfigurationSerializer is used to ensure that the requesting validator is properly configured
-- used during validator registration process by both the primary and confirmation validators
+- used during the connection process
 """
 
 

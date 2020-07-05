@@ -8,7 +8,7 @@ from v1.self_configurations.serializers.self_configuration import SelfConfigurat
 
 """
 The BankConfigurationSerializer is used to ensure that a bank is properly configured
-- used during bank registration process by both the primary and confirmation validators
+- used during the connection process
 """
 
 

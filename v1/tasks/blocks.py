@@ -26,7 +26,6 @@ from v1.cache_tools.cache_keys import (
 )
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
-from .registrations import handle_pending_registrations
 
 logger = logging.getLogger('thenewboston')
 
@@ -152,7 +151,6 @@ def process_block_queue():
         if not is_valid:
             continue
 
-        handle_pending_registrations.delay(block=block)
         updated_balances = process_validated_block(
             validated_block=block,
             sender_account_balance=sender_account_balance

@@ -16,11 +16,9 @@ urlpatterns = [
     # API (v1)
     path('', include('v1.accounts.urls')),
     path('', include('v1.bank_blocks.urls')),
-    path('', include('v1.bank_registrations.urls')),
     path('', include('v1.banks.urls')),
     path('', include('v1.confirmation_blocks.urls')),
     path('', include('v1.self_configurations.urls')),
-    path('', include('v1.validator_registrations.urls')),
     path('', include('v1.validators.urls')),
 
 ]
