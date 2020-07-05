@@ -8,6 +8,7 @@ from thenewboston.constants.network import (
     PROTOCOL_CHOICES,
     VERIFY_KEY_LENGTH
 )
+from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
@@ -34,10 +35,22 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
         node = None
 
         if config_data['node_type'] == BANK:
-            node = Bank.objects.create(**config_data)
+            excluded = ['node_type', 'primary_validator', 'trust']
+            fields = standard_field_names(Bank)
+            data = {field: validated_data[field] for field in fields if field not in excluded}
+            node = Bank.objects.create(
+                **data,
+                trust=0
+            )
 
         if config_data['node_type'] == CONFIRMATION_VALIDATOR:
-            node = Validator.objects.create(**config_data)
+            excluded = ['node_type', 'primary_validator', 'trust']
+            fields = standard_field_names(Validator)
+            data = {field: validated_data[field] for field in fields if field not in excluded}
+            node = Validator.objects.create(
+                **data,
+                trust=0
+            )
 
         return node
 
