@@ -13,6 +13,7 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
 from v1.banks.models.bank import Bank
+from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.validators.models.validator import Validator
 from .bank_configuration import BankConfigurationSerializer
 from .validator_configuration import ValidatorConfigurationSerializer
@@ -47,22 +48,21 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
 
         return True
 
-    def update(self, instance, validated_data):
-        raise RuntimeError('Method unavailable')
-
-    def validate(self, data):
+    @staticmethod
+    def get_node_config(data):
         """
         Attempt to connect to node
+        Return nodes config data after validation
         """
 
-        # TODO: Also check that no node with duplicate IP and port exists
-        # TODO: Not only need to check Bank and Validators, but also SelfConfig
+        ip_address = data['ip_address']
+        protocol = data['protocol']
 
         try:
             address = format_address(
-                ip_address=data['ip_address'],
+                ip_address=ip_address,
                 port=data.get('port'),
-                protocol=data['protocol']
+                protocol=protocol
             )
             config_address = f'{address}/config'
             config_data = fetch(url=config_address, headers={})
@@ -84,6 +84,28 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
         else:
             logger.exception(config_serializer.errors)
             raise serializers.ValidationError(config_serializer.errors)
+
+    def update(self, instance, validated_data):
+        raise RuntimeError('Method unavailable')
+
+    def validate(self, data):
+        """
+        Attempt to connect to node
+        """
+
+        ip_address = data['ip_address']
+        protocol = data['protocol']
+
+        if Bank.objects.filter(ip_address=ip_address, protocol=protocol).exists:
+            raise serializers.ValidationError('Already connected')
+
+        if SelfConfiguration.objects.filter(ip_address=ip_address, protocol=protocol).exists:
+            raise serializers.ValidationError('Unable to connect to self')
+
+        if Validator.objects.filter(ip_address=ip_address, protocol=protocol).exists:
+            raise serializers.ValidationError('Already connected')
+
+        return self.get_node_config(data)
 
     @staticmethod
     def validate_node_identifier(node_identifier):
