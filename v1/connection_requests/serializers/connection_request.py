@@ -32,27 +32,20 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
         """
 
         config_data = validated_data
-        node = None
 
         if config_data['node_type'] == BANK:
             excluded = ['node_type', 'primary_validator', 'trust']
             fields = standard_field_names(Bank)
             data = {field: validated_data[field] for field in fields if field not in excluded}
-            node = Bank.objects.create(
-                **data,
-                trust=0
-            )
+            Bank.objects.create(**data, trust=0)
 
         if config_data['node_type'] == CONFIRMATION_VALIDATOR:
             excluded = ['node_type', 'primary_validator', 'trust']
             fields = standard_field_names(Validator)
             data = {field: validated_data[field] for field in fields if field not in excluded}
-            node = Validator.objects.create(
-                **data,
-                trust=0
-            )
+            Validator.objects.create(**data, trust=0)
 
-        return node
+        return True
 
     def update(self, instance, validated_data):
         raise RuntimeError('Method unavailable')
