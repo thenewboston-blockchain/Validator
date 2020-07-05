@@ -97,13 +97,13 @@ class ConnectionRequestSerializerCreate(serializers.Serializer):
         protocol = data['protocol']
 
         if Bank.objects.filter(ip_address=ip_address, protocol=protocol).exists:
-            raise serializers.ValidationError('Already connected')
+            raise serializers.ValidationError('Already connected to bank')
 
         if SelfConfiguration.objects.filter(ip_address=ip_address, protocol=protocol).exists:
             raise serializers.ValidationError('Unable to connect to self')
 
         if Validator.objects.filter(ip_address=ip_address, protocol=protocol).exists:
-            raise serializers.ValidationError('Already connected')
+            raise serializers.ValidationError('Already connected to validator')
 
         return self.get_node_config(data)
 
