@@ -1,39 +1,80 @@
+import logging
+
 from rest_framework import serializers
-from rest_framework.validators import UniqueTogetherValidator
-from thenewboston.constants.network import VERIFY_KEY_LENGTH
-from thenewboston.utils.fields import all_field_names
+from thenewboston.constants.network import (
+    BANK,
+    CONFIRMATION_VALIDATOR,
+    PRIMARY_VALIDATOR,
+    PROTOCOL_CHOICES,
+    VERIFY_KEY_LENGTH
+)
+from thenewboston.utils.format import format_address
+from thenewboston.utils.network import fetch
 
-from ..models.connection_request import ConnectionRequest
+from v1.banks.models.bank import Bank
+from v1.validators.models.validator import Validator
+from .bank_configuration import BankConfigurationSerializer
+from .validator_configuration import ValidatorConfigurationSerializer
+
+logger = logging.getLogger('thenewboston')
 
 
-class ConnectionRequestSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = ConnectionRequest
-        read_only_fields = all_field_names(ConnectionRequest)
-
-
-class ConnectionRequestSerializerCreate(serializers.ModelSerializer):
-
-    class Meta:
-        fields = '__all__'
-        model = ConnectionRequest
-        validators = [
-            UniqueTogetherValidator(
-                queryset=ConnectionRequest.objects.all(),
-                fields=['ip_address', 'port']
-            )
-        ]
+class ConnectionRequestSerializerCreate(serializers.Serializer):
+    ip_address = serializers.IPAddressField(protocol='both')
+    node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
+    port = serializers.IntegerField(max_value=65535, min_value=0, required=False)
+    protocol = serializers.ChoiceField(choices=PROTOCOL_CHOICES)
 
     def create(self, validated_data):
         """
-        Create connection request and add to queue
+        Process validated connection request
         """
 
-        connection_request = ConnectionRequest.objects.create(**validated_data)
+        config_data = validated_data
+        node = None
 
-        return connection_request
+        if config_data['node_type'] == BANK:
+            node = Bank.objects.create(**config_data)
+
+        if config_data['node_type'] == CONFIRMATION_VALIDATOR:
+            node = Validator.objects.create(**config_data)
+
+        return node
+
+    def update(self, instance, validated_data):
+        raise RuntimeError('Method unavailable')
+
+    def validate(self, data):
+        """
+        Attempt to connect to node
+        """
+
+        try:
+            address = format_address(
+                ip_address=data['ip_address'],
+                port=data.get('port'),
+                protocol=data['protocol']
+            )
+            config_address = f'{address}/config'
+            config_data = fetch(url=config_address, headers={})
+
+            if config_data['node_type'] == BANK:
+                config_serializer = BankConfigurationSerializer(data=config_data)
+            elif config_data['node_type'] == CONFIRMATION_VALIDATOR:
+                config_serializer = ValidatorConfigurationSerializer(data=config_data)
+            elif config_data['node_type'] == PRIMARY_VALIDATOR:
+                raise serializers.ValidationError('Unable to accept connection requests from primary validators')
+            else:
+                raise serializers.ValidationError('Invalid node_type')
+        except Exception as e:
+            logger.exception(e)
+            raise serializers.ValidationError(e)
+
+        if config_serializer.is_valid():
+            return config_data
+        else:
+            logger.exception(config_serializer.errors)
+            raise serializers.ValidationError(config_serializer.errors)
 
     @staticmethod
     def validate_node_identifier(node_identifier):
@@ -43,5 +84,11 @@ class ConnectionRequestSerializerCreate(serializers.ModelSerializer):
 
         if len(node_identifier) != VERIFY_KEY_LENGTH:
             raise serializers.ValidationError(f'node_identifier must be {VERIFY_KEY_LENGTH} characters long')
+
+        if Bank.objects.filter(node_identifier=node_identifier).exists():
+            raise serializers.ValidationError('Bank with that node identifier already exists')
+
+        if Validator.objects.filter(node_identifier=node_identifier).exists():
+            raise serializers.ValidationError('Validator with that node identifier already exists')
 
         return node_identifier

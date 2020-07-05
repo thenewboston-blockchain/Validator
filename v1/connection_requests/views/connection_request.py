@@ -2,30 +2,25 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from ..models.connection_request import ConnectionRequest
-from ..serializers.connection_request import ConnectionRequestSerializer, ConnectionRequestSerializerCreate
+from v1.decorators.nodes import is_signed_message
+from ..serializers.connection_request import ConnectionRequestSerializerCreate
 
 
 # connection_requests
 class ConnectionRequestView(APIView):
 
     @staticmethod
-    def get(request):
-        """
-        description: List connection requests
-        """
-
-        connection_requests = ConnectionRequest.objects.all()
-        return Response(ConnectionRequestSerializer(connection_requests, many=True).data)
-
-    @staticmethod
+    @is_signed_message
     def post(request):
         """
         description: Create connection request
         """
 
-        serializer = ConnectionRequestSerializerCreate(data=request.data, context={'request': request})
+        serializer = ConnectionRequestSerializerCreate(
+            data=request.data['message'],
+            context={'request': request}
+        )
         if serializer.is_valid():
-            connection_request = serializer.save()
-            return Response(ConnectionRequestSerializer(connection_request).data, status=status.HTTP_201_CREATED)
+            results = serializer.save()
+            return Response(results, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
