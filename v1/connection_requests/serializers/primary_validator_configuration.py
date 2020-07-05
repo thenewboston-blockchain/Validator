@@ -35,7 +35,7 @@ class PrimaryValidatorConfigurationSerializer(PrimaryValidatorSerializer):
 
             requesting_node_value = requesting_node_primary_validator_configuration.get(key)
 
-            if not requesting_node_value:
+            if requesting_node_value is None:
                 raise serializers.ValidationError(f'{key} not found on requesting nodes primary validator')
 
             if str(requesting_node_value) != str(self_primary_validator_value):
