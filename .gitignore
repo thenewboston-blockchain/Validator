@@ -1,0 +1,15 @@
+.DS_Store
+.env
+.idea
+.vscode
+db.sqlite3
+dump.rdb
+venv
+
+# Temporary files
+tmp/*
+!tmp/.gitkeep
+
+# Log files
+logs/*
+!logs/.gitkeep
