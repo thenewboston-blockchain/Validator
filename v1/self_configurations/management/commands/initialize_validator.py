@@ -106,10 +106,10 @@ class Command(InitializeNode):
         valid = False
 
         while not valid:
-            node_type = input('Enter node_type: ')
+            node_type = input('Enter node_type (required): ')
 
             if not node_type:
-                break
+                continue
 
             if node_type not in [CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR]:
                 self._error(f'node_type must be one of {CONFIRMATION_VALIDATOR} or {PRIMARY_VALIDATOR}')
