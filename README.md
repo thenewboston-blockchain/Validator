@@ -1,5 +1,7 @@
 ## Project Setup
 
+[thenewboston Slack](https://join.slack.com/t/thenewboston/shared_invite/zt-g31r9hm8-gqVQmhwhhoriEhZQJTsdkQ)
+
 Set required environment variables:
 ```
 # Valid values are development, local, postgres_local, production, or staging
