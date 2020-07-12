@@ -27,7 +27,7 @@ python3 manage.py migrate
 python3 manage.py initialize_test_validator -ip [IP ADDRESS]
 ```
 
-## Running Application Locally
+## Local Development
 
 Run Redis:
 ```
