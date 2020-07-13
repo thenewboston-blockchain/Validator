@@ -1,4 +1,5 @@
 import logging
+from operator import itemgetter
 
 from celery import shared_task
 from django.core.cache import cache
@@ -13,7 +14,7 @@ from thenewboston.utils.signed_requests import generate_signed_request
 from v1.cache_tools.cache_keys import BLOCK_QUEUE, HEAD_BLOCK_HASH, get_confirmation_block_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
-from .helpers import get_updated_accounts, is_block_valid, process_validated_block
+from .helpers import get_updated_accounts, is_block_valid, update_accounts_cache, update_accounts_table
 
 logger = logging.getLogger('thenewboston')
 
@@ -32,18 +33,23 @@ def process_block_queue():
         if not is_valid:
             continue
 
-        updated_accounts = get_updated_accounts(
+        existing_accounts, new_accounts = get_updated_accounts(
             sender_account_balance=sender_account_balance,
             validated_block=block
         )
-
-        print(updated_accounts)
-
-        updated_balances = process_validated_block(
-            validated_block=block,
-            sender_account_balance=sender_account_balance
+        update_accounts_cache(
+            existing_accounts=existing_accounts,
+            new_accounts=new_accounts
         )
-        confirmation_block = sign_block_to_confirm(block=block, updated_balances=updated_balances)
+        update_accounts_table(
+            existing_accounts=existing_accounts,
+            new_accounts=new_accounts
+        )
+        confirmation_block = sign_block_to_confirm(
+            block=block,
+            existing_accounts=existing_accounts,
+            new_accounts=new_accounts
+        )
         send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
 
     cache.set(BLOCK_QUEUE, [], None)
@@ -74,7 +80,7 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
             logger.exception(e)
 
 
-def sign_block_to_confirm(*, block, updated_balances):
+def sign_block_to_confirm(*, block, existing_accounts, new_accounts):
     """
     Sign block to confirm validity
     Update HEAD_BLOCK_HASH
@@ -83,6 +89,9 @@ def sign_block_to_confirm(*, block, updated_balances):
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
+
+    updated_balances = existing_accounts + new_accounts
+    updated_balances = sorted(updated_balances, key=itemgetter('account_number'))
 
     message = {
         'block': block,
