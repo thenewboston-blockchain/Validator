@@ -18,6 +18,7 @@ logger = logging.getLogger('thenewboston')
 def process_block_queue():
     """
     Process block queue
+    - this is for primary validators only
     """
 
     block_queue = cache.get(BLOCK_QUEUE)

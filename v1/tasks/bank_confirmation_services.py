@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from .signed_requests import send_signed_post_request
 
 
 def create_confirmation_service(*, bank, confirmation_service_amount):
@@ -16,9 +17,9 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
     now = timezone.now()
 
     if not current_confirmation_expiration:
-        base_confirmation_expiration = now
+        start = now
     else:
-        base_confirmation_expiration = max([current_confirmation_expiration, now])
+        start = max([current_confirmation_expiration, now])
 
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     daily_confirmation_rate = self_configuration.daily_confirmation_rate
@@ -28,11 +29,20 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
     seconds_purchased = days_purchased * 86400
     seconds_purchased = int(seconds_purchased)
 
-    bank.confirmation_expiration = base_confirmation_expiration + relativedelta(seconds=seconds_purchased)
+    end = start + relativedelta(seconds=seconds_purchased)
+    bank.confirmation_expiration = end
     bank.save()
 
-    # TODO: Send POST /validator_confirmation_services to bank
-    # TODO: Stick this on delay
+    send_signed_post_request.delay(
+        data={
+            'end': str(end),
+            'start': str(start)
+        },
+        ip_address=bank.ip_address,
+        port=bank.port,
+        protocol=bank.protocol,
+        url_path='/validator_confirmation_services'
+    )
 
     return seconds_purchased
 
