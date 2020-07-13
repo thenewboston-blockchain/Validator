@@ -5,7 +5,7 @@ from rest_framework.views import APIView
 
 from v1.cache_tools.cache_keys import BLOCK_QUEUE
 from v1.decorators.nodes import is_signed_bank_block
-from v1.tasks.blocks import process_block_queue
+from v1.tasks.block_queue import process_block_queue
 
 
 # bank_blocks
