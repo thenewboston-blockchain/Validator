@@ -1,5 +1,5 @@
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.tasks.confirmation_blocks import handle_bank_confirmation_services
+from v1.tasks.confirmation_block_queue import handle_bank_confirmation_services
 from v1.test_tools.test_confirmation_validator import TestConfirmationValidator
 
 
