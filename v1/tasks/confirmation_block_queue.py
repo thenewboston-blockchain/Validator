@@ -50,7 +50,7 @@ def process_confirmation_block_queue():
     # TODO: Run as task
     handle_bank_confirmation_services(
         block=block,
-        self_configuration=self_configuration
+        self_account_number=self_configuration.account_number
     )
 
     # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue

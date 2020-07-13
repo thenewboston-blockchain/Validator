@@ -40,5 +40,8 @@ class TestHandleConfirmationServices(TestConfirmationValidator):
                 'signature': 'ceb184bc5678b57d82bf6a56df09dd50ed2a26a0e3037b7c0ec43aa07863786e564ebdc155ab3b083f580abc6538a24dcb4278dae22fbb8055e38c9941b85901'
             }
 
-            seconds_purchased = handle_bank_confirmation_services(block=block, self_configuration=self_configuration)
+            seconds_purchased = handle_bank_confirmation_services(
+                block=block,
+                self_account_number=self_configuration.account_number
+            )
             self.assertEqual(seconds_purchased, expected_result)
