@@ -1,5 +1,4 @@
 import logging
-from operator import itemgetter
 
 from celery import shared_task
 from django.core.cache import cache
@@ -14,7 +13,13 @@ from thenewboston.utils.signed_requests import generate_signed_request
 from v1.cache_tools.cache_keys import BLOCK_QUEUE, HEAD_BLOCK_HASH, get_confirmation_block_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
-from .helpers import get_updated_accounts, is_block_valid, update_accounts_cache, update_accounts_table
+from .helpers import (
+    format_updated_balances,
+    get_updated_accounts,
+    is_block_valid,
+    update_accounts_cache,
+    update_accounts_table
+)
 
 logger = logging.getLogger('thenewboston')
 
@@ -90,13 +95,10 @@ def sign_block_to_confirm(*, block, existing_accounts, new_accounts):
     network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
     signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
 
-    updated_balances = existing_accounts + new_accounts
-    updated_balances = sorted(updated_balances, key=itemgetter('account_number'))
-
     message = {
         'block': block,
         'block_identifier': head_block_hash,
-        'updated_balances': updated_balances
+        'updated_balances': format_updated_balances(existing_accounts, new_accounts)
     }
     confirmation_block = generate_signed_request(
         data=message,

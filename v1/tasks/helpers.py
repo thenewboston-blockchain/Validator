@@ -1,5 +1,6 @@
 import logging
 from decimal import Decimal
+from operator import itemgetter
 
 from django.core.cache import cache
 from nacl.exceptions import BadSignatureError
@@ -14,51 +15,13 @@ from v1.cache_tools.cache_keys import get_account_balance_cache_key, get_account
 logger = logging.getLogger('thenewboston')
 
 
-def update_accounts_cache(*, existing_accounts, new_accounts):
+def format_updated_balances(existing_accounts, new_accounts):
     """
-    Update accounts cache
-    """
-
-    for account in existing_accounts:
-        account_number = account['account_number']
-        balance = account['balance']
-        balance_lock = account.get('balance_lock')
-
-        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
-        cache.set(account_balance_cache_key, balance, None)
-
-        if balance_lock:
-            account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
-            cache.set(account_balance_lock_cache_key, balance_lock, None)
-
-    for account in new_accounts:
-        account_number = account['account_number']
-        balance = account['balance']
-        balance_lock = account_number
-
-        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
-        account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
-        cache.set(account_balance_cache_key, balance, None)
-        cache.set(account_balance_lock_cache_key, balance_lock, None)
-
-
-def update_accounts_table(*, existing_accounts, new_accounts):
-    """
-    Update or create accounts in the accounts table
+    Standardize shape of updated balances
     """
 
-    for account in existing_accounts:
-        account_number = account.pop('account_number')
-        Account.objects.filter(account_number=account_number).update(**account)
-
-    for account in new_accounts:
-        account_number = account['account_number']
-
-        Account.objects.create(
-            account_number=account_number,
-            balance=account['balance'],
-            balance_lock=account_number
-        )
+    updated_balances = existing_accounts + new_accounts
+    return sorted(updated_balances, key=itemgetter('account_number'))
 
 
 def get_updated_accounts(*, sender_account_balance, validated_block):
@@ -166,3 +129,50 @@ def is_total_amount_valid(*, block, account_balance):
         return False, error
 
     return True, None
+
+
+def update_accounts_cache(*, existing_accounts, new_accounts):
+    """
+    Update accounts cache
+    """
+
+    for account in existing_accounts:
+        account_number = account['account_number']
+        balance = account['balance']
+        balance_lock = account.get('balance_lock')
+
+        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
+        cache.set(account_balance_cache_key, balance, None)
+
+        if balance_lock:
+            account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
+            cache.set(account_balance_lock_cache_key, balance_lock, None)
+
+    for account in new_accounts:
+        account_number = account['account_number']
+        balance = account['balance']
+        balance_lock = account_number
+
+        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
+        account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
+        cache.set(account_balance_cache_key, balance, None)
+        cache.set(account_balance_lock_cache_key, balance_lock, None)
+
+
+def update_accounts_table(*, existing_accounts, new_accounts):
+    """
+    Update or create accounts in the accounts table
+    """
+
+    for account in existing_accounts:
+        account_number = account.pop('account_number')
+        Account.objects.filter(account_number=account_number).update(**account)
+
+    for account in new_accounts:
+        account_number = account['account_number']
+
+        Account.objects.create(
+            account_number=account_number,
+            balance=account['balance'],
+            balance_lock=account_number
+        )

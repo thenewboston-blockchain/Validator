@@ -9,7 +9,7 @@ from django.utils import timezone
 from v1.banks.models.bank import Bank
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from .helpers import is_block_valid, process_validated_block
+from .helpers import format_updated_balances, get_updated_accounts, is_block_valid
 
 logger = logging.getLogger('thenewboston')
 
@@ -88,19 +88,21 @@ def process_confirmation_block_queue():
         print('The primary validator is cheating')
         return
 
+    existing_accounts, new_accounts = get_updated_accounts(
+        sender_account_balance=sender_account_balance,
+        validated_block=block
+    )
+
+    updated_balances = format_updated_balances(existing_accounts, new_accounts)
+
+    # TODO: Compare updated balances
+    print(updated_balances)
+    print(confirmation_block['updated_balances'])
+
     # TODO: Run as task
     handle_bank_confirmation_services(
         block=block,
         self_configuration=self_configuration
     )
-
-    updated_balances = process_validated_block(
-        validated_block=block,
-        sender_account_balance=sender_account_balance
-    )
-
-    # TODO: Compare updated balances
-    print(updated_balances)
-    print(confirmation_block['updated_balances'])
 
     # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
