@@ -14,6 +14,44 @@ from v1.cache_tools.cache_keys import get_account_balance_cache_key, get_account
 logger = logging.getLogger('thenewboston')
 
 
+def get_updated_accounts(*, sender_account_balance, validated_block):
+    """
+    Return the updated balances of all accounts involved
+    """
+
+    existing_accounts = []
+    new_accounts = []
+
+    message = validated_block['message']
+    txs = message['txs']
+    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
+
+    existing_accounts.append({
+        'account_number': validated_block['account_number'],
+        'balance': Decimal(sender_account_balance) - total_amount,
+        'balance_lock': get_message_hash(message=message)
+    })
+
+    for tx in txs:
+        amount = Decimal(str(tx['amount']))
+        recipient = tx['recipient']
+        recipient_account_balance = get_account_balance(account_number=recipient)
+
+        if recipient_account_balance is None:
+            new_accounts.append({
+                'account_number': recipient,
+                'balance': amount,
+                'balance_lock': recipient
+            })
+        else:
+            existing_accounts.append({
+                'account_number': recipient,
+                'balance': recipient_account_balance + amount
+            })
+
+    return existing_accounts, new_accounts
+
+
 def is_block_valid(*, block):
     """
     For given block verify:

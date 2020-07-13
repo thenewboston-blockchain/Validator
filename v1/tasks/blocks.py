@@ -13,7 +13,7 @@ from thenewboston.utils.signed_requests import generate_signed_request
 from v1.cache_tools.cache_keys import BLOCK_QUEUE, HEAD_BLOCK_HASH, get_confirmation_block_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
-from .helpers import is_block_valid, process_validated_block
+from .helpers import get_updated_accounts, is_block_valid, process_validated_block
 
 logger = logging.getLogger('thenewboston')
 
@@ -31,6 +31,13 @@ def process_block_queue():
 
         if not is_valid:
             continue
+
+        updated_accounts = get_updated_accounts(
+            sender_account_balance=sender_account_balance,
+            validated_block=block
+        )
+
+        print(updated_accounts)
 
         updated_balances = process_validated_block(
             validated_block=block,
