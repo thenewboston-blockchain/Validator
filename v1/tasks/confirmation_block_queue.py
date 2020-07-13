@@ -1,3 +1,5 @@
+import json
+
 from celery import shared_task
 from django.core.cache import cache
 
@@ -37,11 +39,13 @@ def process_confirmation_block_queue():
         validated_block=block
     )
 
-    updated_balances = format_updated_balances(existing_accounts, new_accounts)
-
-    # TODO: Compare updated balances
-    print(updated_balances)
-    print(confirmation_block['updated_balances'])
+    if not updated_balances_match(
+        confirmation_block['updated_balances'],
+        format_updated_balances(existing_accounts, new_accounts)
+    ):
+        # TODO: Switch primary validators (to self of next trusted)
+        print('The primary validator is cheating')
+        return
 
     # TODO: Run as task
     handle_bank_confirmation_services(
@@ -50,3 +54,11 @@ def process_confirmation_block_queue():
     )
 
     # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
+
+
+def updated_balances_match(a, b):
+    """
+    Compare two lists of dicts to determine if they are identical
+    """
+
+    return json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)
