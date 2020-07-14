@@ -1,106 +1,37 @@
-import logging
-from decimal import Decimal
-
-from celery import shared_task
-from dateutil.relativedelta import relativedelta
 from django.core.cache import cache
-from django.utils import timezone
+from nacl.encoding import HexEncoder
+from nacl.signing import SigningKey
+from thenewboston.environment.environment_variables import get_environment_variable
+from thenewboston.utils.messages import get_message_hash
+from thenewboston.utils.signed_requests import generate_signed_request
 
-from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
-from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from .helpers import is_block_valid, process_validated_block
-
-logger = logging.getLogger('thenewboston')
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH, get_confirmation_block_cache_key
+from .helpers import format_updated_balances
 
 
-def handle_bank_confirmation_services(*, block, self_configuration):
+def sign_block_to_confirm(*, block, existing_accounts, new_accounts):
     """
-    Check validated block to see if there are any payments to self from banks
-    If so, convert to confirmation service time
-    """
-
-    sender_account_number = block['account_number']
-    message = block['message']
-    txs = message['txs']
-
-    self_account_number = self_configuration.account_number
-    self_daily_confirmation_rate = self_configuration.daily_confirmation_rate
-
-    confirmation_service_amount = next(
-        (tx['amount'] for tx in txs if tx['recipient'] == self_account_number),
-        None
-    )
-
-    if not confirmation_service_amount:
-        return
-
-    bank = Bank.objects.filter(account_number=sender_account_number).first()
-
-    if not bank:
-        return
-
-    # TODO: Can probably split this up into another function
-
-    current_confirmation_expiration = bank.confirmation_expiration
-    now = timezone.now()
-
-    if not current_confirmation_expiration:
-        base_confirmation_expiration = now
-    else:
-        base_confirmation_expiration = max([current_confirmation_expiration, now])
-
-    confirmation_service_amount = Decimal(str(confirmation_service_amount))
-    days_purchased = confirmation_service_amount / self_daily_confirmation_rate
-    seconds_purchased = days_purchased * 86400
-    seconds_purchased = int(seconds_purchased)
-
-    bank.confirmation_expiration = base_confirmation_expiration + relativedelta(seconds=seconds_purchased)
-    bank.save()
-
-    # TODO: Send POST /validator_confirmation_services to bank
-
-    return seconds_purchased
-
-
-@shared_task
-def process_confirmation_block_queue():
-    """
-    Process confirmation block queue
-    - this is for confirmation validators only
+    Sign block to confirm validity
+    Update HEAD_BLOCK_HASH
     """
 
-    # TODO: Optimize
-    self_configuration = get_self_configuration(exception_class=RuntimeError)
-    confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
+    network_signing_key = get_environment_variable('NETWORK_SIGNING_KEY')
+    signing_key = SigningKey(network_signing_key, encoder=HexEncoder)
 
-    confirmation_block = next((i for i in confirmation_block_queue if i['block_identifier'] == head_block_hash), None)
-
-    if not confirmation_block:
-        return
-
-    block = confirmation_block['block']
-    is_valid, sender_account_balance = is_block_valid(block=block)
-
-    if not is_valid:
-        # TODO: Switch primary validators (to self of next trusted)
-        print('The primary validator is cheating')
-        return
-
-    # TODO: Run as task
-    handle_bank_confirmation_services(
-        block=block,
-        self_configuration=self_configuration
+    message = {
+        'block': block,
+        'block_identifier': head_block_hash,
+        'updated_balances': format_updated_balances(existing_accounts, new_accounts)
+    }
+    confirmation_block = generate_signed_request(
+        data=message,
+        nid_signing_key=signing_key
     )
 
-    updated_balances = process_validated_block(
-        validated_block=block,
-        sender_account_balance=sender_account_balance
-    )
+    message_hash = get_message_hash(message=message)
+    confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=head_block_hash)
+    cache.set(confirmation_block_cache_key, confirmation_block, None)
+    cache.set(HEAD_BLOCK_HASH, message_hash, None)
 
-    # TODO: Compare updated balances
-    print(updated_balances)
-    print(confirmation_block['updated_balances'])
-
-    # TODO: Remove only this confirmation block from the CONFIRMATION_BLOCK_QUEUE, do not empty the entire queue
+    return confirmation_block

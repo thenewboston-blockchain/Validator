@@ -14,7 +14,7 @@ from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
 from v1.confirmation_blocks.serializers.confirmation_block import ConfirmationBlockSerializerCreate
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
-from v1.tasks.confirmation_blocks import process_confirmation_block_queue
+from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
 from v1.validators.models.validator import Validator
 
 """

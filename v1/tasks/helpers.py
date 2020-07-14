@@ -1,5 +1,6 @@
 import logging
 from decimal import Decimal
+from operator import itemgetter
 
 from django.core.cache import cache
 from nacl.exceptions import BadSignatureError
@@ -12,6 +13,57 @@ from v1.cache_tools.accounts import get_account_balance, get_account_balance_loc
 from v1.cache_tools.cache_keys import get_account_balance_cache_key, get_account_balance_lock_cache_key
 
 logger = logging.getLogger('thenewboston')
+
+
+def format_updated_balances(existing_accounts, new_accounts):
+    """
+    Standardize shape of updated balances
+    Convert balance to string to ensure it is JSON serializable
+    """
+
+    updated_balances = existing_accounts + new_accounts
+
+    for i in updated_balances:
+        i['balance'] = str(i['balance'])
+
+    return sorted(updated_balances, key=itemgetter('account_number'))
+
+
+def get_updated_accounts(*, sender_account_balance, validated_block):
+    """
+    Return the updated balances of all accounts involved
+    """
+
+    existing_accounts = []
+    new_accounts = []
+
+    message = validated_block['message']
+    txs = message['txs']
+    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
+
+    existing_accounts.append({
+        'account_number': validated_block['account_number'],
+        'balance': Decimal(sender_account_balance) - total_amount,
+        'balance_lock': get_message_hash(message=message)
+    })
+
+    for tx in txs:
+        amount = Decimal(str(tx['amount']))
+        recipient = tx['recipient']
+        recipient_account_balance = get_account_balance(account_number=recipient)
+
+        if recipient_account_balance is None:
+            new_accounts.append({
+                'account_number': recipient,
+                'balance': amount
+            })
+        else:
+            existing_accounts.append({
+                'account_number': recipient,
+                'balance': recipient_account_balance + amount
+            })
+
+    return existing_accounts, new_accounts
 
 
 def is_block_valid(*, block):
@@ -84,83 +136,51 @@ def is_total_amount_valid(*, block, account_balance):
     return True, None
 
 
-def process_validated_block(*, validated_block, sender_account_balance):
+def update_accounts_cache(*, existing_accounts, new_accounts):
     """
-    Update sender account
-    Update recipient accounts
-    """
-
-    sender_account_number = validated_block['account_number']
-    sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
-    sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
-
-    message = validated_block['message']
-    txs = message['txs']
-    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
-
-    # Update sender account
-    new_balance_lock = get_message_hash(message=validated_block['message'])
-    cache.set(sender_account_balance_cache_key, Decimal(sender_account_balance) - total_amount, None)
-    cache.set(sender_account_balance_lock_cache_key, new_balance_lock, None)
-
-    # Update recipient accounts
-    for tx in txs:
-        amount = Decimal(str(tx['amount']))
-        recipient = tx['recipient']
-        recipient_account_balance_cache_key = get_account_balance_cache_key(account_number=recipient)
-        recipient_account_balance = get_account_balance(account_number=recipient)
-
-        # TODO: Optimize
-        if recipient_account_balance is None:
-            cache.set(recipient_account_balance_cache_key, amount, None)
-            Account.objects.create(
-                account_number=recipient,
-                balance=amount,
-                balance_lock=recipient
-            )
-        else:
-            cache.set(recipient_account_balance_cache_key, recipient_account_balance + amount, None)
-
-    updated_balances = update_accounts_table(
-        sender_account_number=sender_account_number,
-        recipient_account_numbers=[tx['recipient'] for tx in txs]
-    )
-
-    return updated_balances
-
-
-def update_accounts_table(*, sender_account_number, recipient_account_numbers):
-    """
-    Update the accounts table in the database
-    Return updated balances
+    Update accounts cache
     """
 
-    results = []
+    for account in existing_accounts:
+        account_number = account['account_number']
+        balance = account['balance']
+        balance_lock = account.get('balance_lock')
 
-    sender_account_balance_cache_key = get_account_balance_cache_key(account_number=sender_account_number)
-    sender_account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=sender_account_number)
-    sender_account_balance = cache.get(sender_account_balance_cache_key)
-    sender_account_balance_lock = cache.get(sender_account_balance_lock_cache_key)
+        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
+        cache.set(account_balance_cache_key, balance, None)
 
-    Account.objects.filter(account_number=sender_account_number).update(
-        balance=sender_account_balance,
-        balance_lock=sender_account_balance_lock
-    )
+        if balance_lock:
+            account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
+            cache.set(account_balance_lock_cache_key, balance_lock, None)
 
-    results.append({
-        'account_number': sender_account_number,
-        'balance': str(sender_account_balance),
-        'balance_lock': sender_account_balance_lock
-    })
+    for account in new_accounts:
+        account_number = account['account_number']
+        balance = account['balance']
+        balance_lock = account_number
 
-    for recipient in recipient_account_numbers:
-        recipient_account_balance_cache_key = get_account_balance_cache_key(account_number=recipient)
-        recipient_account_balance = cache.get(recipient_account_balance_cache_key)
-        Account.objects.filter(account_number=recipient).update(balance=recipient_account_balance)
+        account_balance_cache_key = get_account_balance_cache_key(account_number=account_number)
+        account_balance_lock_cache_key = get_account_balance_lock_cache_key(account_number=account_number)
+        cache.set(account_balance_cache_key, balance, None)
+        cache.set(account_balance_lock_cache_key, balance_lock, None)
 
-        results.append({
-            'account_number': recipient,
-            'balance': str(recipient_account_balance)
-        })
 
-    return results
+def update_accounts_table(*, existing_accounts, new_accounts):
+    """
+    Update or create accounts in the accounts table
+    """
+
+    for account in existing_accounts:
+        Account.objects.filter(
+            account_number=account['account_number']
+        ).update(
+            **{k: v for k, v in account.items() if k != 'account_number'}
+        )
+
+    for account in new_accounts:
+        account_number = account['account_number']
+
+        Account.objects.create(
+            account_number=account_number,
+            balance=account['balance'],
+            balance_lock=account_number
+        )

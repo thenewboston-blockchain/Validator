@@ -4,7 +4,7 @@ from thenewboston.constants.network import BALANCE_LOCK_LENGTH, VERIFY_KEY_LENGT
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
-from v1.tasks.confirmation_blocks import process_confirmation_block_queue
+from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
 
 
 class UpdatedBalanceSerializer(serializers.Serializer):
