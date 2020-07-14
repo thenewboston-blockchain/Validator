@@ -18,9 +18,14 @@ logger = logging.getLogger('thenewboston')
 def format_updated_balances(existing_accounts, new_accounts):
     """
     Standardize shape of updated balances
+    Convert balance to string to ensure it is JSON serializable
     """
 
     updated_balances = existing_accounts + new_accounts
+
+    for i in updated_balances:
+        i['balance'] = str(i['balance'])
+
     return sorted(updated_balances, key=itemgetter('account_number'))
 
 
@@ -165,8 +170,11 @@ def update_accounts_table(*, existing_accounts, new_accounts):
     """
 
     for account in existing_accounts:
-        account_number = account.pop('account_number')
-        Account.objects.filter(account_number=account_number).update(**account)
+        Account.objects.filter(
+            account_number=account['account_number']
+        ).update(
+            **{k: v for k, v in account.items() if k != 'account_number'}
+        )
 
     for account in new_accounts:
         account_number = account['account_number']
