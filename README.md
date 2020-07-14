@@ -1,6 +1,24 @@
-## Project Setup
+# Project Setup
 
-[thenewboston Slack](https://join.slack.com/t/thenewboston/shared_invite/zt-g31r9hm8-gqVQmhwhhoriEhZQJTsdkQ)
+You can join in the discussion over at [TheNewBoston Slack](https://join.slack.com/t/thenewboston/shared_invite/zt-g31r9hm8-gqVQmhwhhoriEhZQJTsdkQ)
+
+## Windows
+This guide targets a unix environment however it is possible to perform this setup on Windows by installing Cygwin [here](https://cygwin.com/install.html).
+When installing Cygwin ensure you add the following packages in the setup wizard choosing the most up-to-date version for each:
+* python3
+* python3-devel
+* pip3
+* gcc-core
+* libffi-devel
+* make
+* python38-wheel
+* libintl-devel
+  
+Once installed use Cygwin for all your command-line operations.
+
+*This is because one of the dependencies, uWSGI, does not provide Windows support directly.*
+
+## Steps
 
 Set required environment variables:
 ```
