@@ -14,7 +14,7 @@ cffi==1.14.0              # via pynacl
 chardet==3.0.4            # via requests
 django-debug-toolbar==2.2  # via -r requirements/base.in
 django-redis==4.11.0      # via -r requirements/base.in
-django==3.0.6             # via django-debug-toolbar, django-redis, djangorestframework, thenewboston
+django==3.0.7             # via django-debug-toolbar, django-redis, djangorestframework, thenewboston
 djangorestframework==3.11.0  # via thenewboston
 faker==4.1.0              # via -r requirements/base.in
 flower==0.9.4             # via -r requirements/base.in
