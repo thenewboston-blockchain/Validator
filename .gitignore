@@ -13,3 +13,13 @@ tmp/*
 # Log files
 logs/*
 !logs/.gitkeep
+
+#Python specific
+__pycache__/*
+*.pyc
+
+#Git dependencies
+src/*
+
+#Compiled dependencies
+requirements/*.txt
