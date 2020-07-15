@@ -1,10 +1,14 @@
 # Project Setup
 
-You can join in the discussion over at [TheNewBoston Slack](https://join.slack.com/t/thenewboston/shared_invite/zt-g31r9hm8-gqVQmhwhhoriEhZQJTsdkQ)
+You can join in the discussion over at [thenewboston Slack](https://thenewboston.slack.com/join/shared_invite/zt-fmj4j8af-reXJKdQADo7QIvAp92Ro5w?fbclid=IwAR1AKKWJ_ljPi8SpfEuQW2oCcZ8r_ho9ebanqH0fDvuppQKxSiN-k5VY4jk#/)
 
 ## Windows
-This guide targets a unix environment however it is possible to perform this setup on Windows by installing Cygwin [here](https://cygwin.com/install.html).
+
+This guide targets a unix environment however it is possible to perform this setup on Windows by installing Cygwin 
+[here](https://cygwin.com/install.html).
+
 When installing Cygwin ensure you add the following packages in the setup wizard choosing the most up-to-date version for each:
+
 * python3
 * python3-devel
 * pip3
@@ -23,10 +27,10 @@ Once installed use Cygwin for all your command-line operations.
 Set required environment variables:
 ```
 # Valid values are development, local, postgres_local, production, or staging
-DJANGO_APPLICATION_ENVIRONMENT='local'
+export DJANGO_APPLICATION_ENVIRONMENT='local'
 
 # 64 character signing key used to authenticate network requests
-NETWORK_SIGNING_KEY='6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81'
+export NETWORK_SIGNING_KEY='6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81'
 ```
 
 Install Redis:
