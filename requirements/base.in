@@ -1,4 +1,3 @@
--e git+ssh://git@github.com/thenewboston-developers/thenewboston-python.git#egg=thenewboston
 Faker==4.1.0
 celery==4.4.2
 django-debug-toolbar==2.2

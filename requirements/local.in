@@ -1,1 +1,2 @@
 -r base.in
+-e git+ssh://git@github.com/thenewboston-developers/thenewboston-python.git#egg=thenewboston
