@@ -4,7 +4,7 @@
 #
 #    pip-compile --output-file=requirements/local.txt requirements/local.in
 #
--e git+ssh://git@github.com/thenewboston-developers/thenewboston-python.git#egg=thenewboston  # via -r requirements/local.in
+-e git+https://github.com/thenewboston-developers/thenewboston-python.git#egg=thenewboston  # via -r requirements/local.in
 amqp==2.6.0               # via kombu
 asgiref==3.2.10           # via django
 billiard==3.6.3.0         # via celery
