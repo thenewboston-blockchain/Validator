@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Requirements
+    'corsheaders',
     'rest_framework',
 
     # API (v1) network nodes
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -132,5 +134,7 @@ LOGGING = {
     },
     'version': 1,
 }
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 CONFIRMATION_BLOCK_CHAIN_SEGMENT_LENGTH = 100
