@@ -3,7 +3,7 @@
 .vscode
 dump.rdb
 # ignore all txt file from requirements/
-/requirements/*.txt
+requirements/*.txt
 
 # Log files
 !logs/.gitkeep
