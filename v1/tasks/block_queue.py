@@ -48,6 +48,7 @@ def process_block_queue():
         )
         send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
 
+    logger.error('clearing BLOCK_QUEUE')
     cache.set(BLOCK_QUEUE, [], None)
 
 
