@@ -30,24 +30,30 @@ def process_block_queue():
             logger.error('not valid')
             continue
 
+        logger.error('1')
         existing_accounts, new_accounts = get_updated_accounts(
             sender_account_balance=sender_account_balance,
             validated_block=block
         )
+        logger.error('2')
         update_accounts_cache(
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
+        logger.error('3')
         update_accounts_table(
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
+        logger.error('4')
         confirmation_block = sign_block_to_confirm(
             block=block,
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
+        logger.error('5')
         send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
+        logger.error('6')
 
     logger.error('clearing BLOCK_QUEUE')
     cache.set(BLOCK_QUEUE, [], None)
