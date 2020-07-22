@@ -41,5 +41,4 @@ def sign_block_to_confirm(*, block, existing_accounts, new_accounts):
 
         return confirmation_block
     except Exception as e:
-        logger.error(e)
         logger.exception(e)
