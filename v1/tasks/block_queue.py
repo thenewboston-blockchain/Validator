@@ -58,6 +58,8 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     - confirmation validators send their confirmation blocks to their banks
     """
 
+    logger.error('ok')
+
     # TODO: Optimize
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     confirmation_validators = Validator.objects.exclude(node_identifier=self_configuration.node_identifier)
@@ -73,4 +75,5 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
         try:
             post(url=url, body=confirmation_block)
         except Exception as e:
+            logger.error(e)
             logger.exception(e)
