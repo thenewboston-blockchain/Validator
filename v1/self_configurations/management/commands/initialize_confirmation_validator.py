@@ -10,7 +10,7 @@ from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.network import fetch
 from thenewboston.utils.tools import sort_and_encode
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.confirmation_blocks.serializers.confirmation_block import ConfirmationBlockSerializerCreate
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
@@ -129,10 +129,13 @@ class Command(ConnectToPrimaryValidator):
         Sync with primary validator
         """
 
+        initial_block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
+
         cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+        cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
         error = False
 
-        block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
+        block_identifier = initial_block_identifier
         results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
         self.stdout.write(self.style.SUCCESS('Adding blocks to CONFIRMATION_BLOCK_QUEUE...'))
@@ -179,4 +182,4 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        process_confirmation_block_queue.delay()
+        process_confirmation_block_queue.delay(head_block_hash=initial_block_identifier)
