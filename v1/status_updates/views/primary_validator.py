@@ -13,6 +13,10 @@ class PrimaryValidatorView(APIView):
         bank_node_identifier = node_data['node_identifier']
         is_trusted = is_most_trusted_bank(node_identifier=bank_node_identifier)
 
+        # ----------
+        # TODO upgrade as primary validator
+        # ----------
+
         if is_trusted:
             return Response(status=status.HTTP_200_OK)
         else:
