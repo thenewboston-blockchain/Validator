@@ -22,8 +22,7 @@ def block_chain_view(_):
 
     while confirmation_block:
         block_chain[i] = confirmation_block
-        block = confirmation_block['message']['block']
-        block_identifier = get_message_hash(message=block['message'])
+        block_identifier = get_message_hash(message=confirmation_block['message'])
         confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=block_identifier)
         confirmation_block = cache.get(confirmation_block_cache_key)
 
