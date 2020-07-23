@@ -10,7 +10,7 @@ from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.network import fetch
 from thenewboston.utils.tools import sort_and_encode
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.confirmation_blocks.serializers.confirmation_block import ConfirmationBlockSerializerCreate
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
@@ -179,4 +179,5 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        process_confirmation_block_queue.delay()
+        head_block_hash = cache.get(HEAD_BLOCK_HASH)
+        process_confirmation_block_queue.delay(head_block_hash=head_block_hash)

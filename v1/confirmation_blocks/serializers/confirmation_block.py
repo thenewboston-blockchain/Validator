@@ -3,7 +3,7 @@ from rest_framework import serializers
 from thenewboston.constants.network import BALANCE_LOCK_LENGTH, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
 
 
@@ -30,7 +30,9 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         """
 
         initial_data = self.initial_data
+
         queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
+        head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
         if queue:
             queue.append(initial_data)
@@ -38,7 +40,9 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
             queue = [initial_data]
 
         cache.set(CONFIRMATION_BLOCK_QUEUE, queue, None)
-        process_confirmation_block_queue.delay()
+
+        if initial_data['block_identifier'] == head_block_hash:
+            process_confirmation_block_queue.delay(head_block_hash=head_block_hash)
 
         return validated_data
 
