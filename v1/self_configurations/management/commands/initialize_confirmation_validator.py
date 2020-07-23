@@ -129,10 +129,13 @@ class Command(ConnectToPrimaryValidator):
         Sync with primary validator
         """
 
+        initial_block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
+
         cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+        cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
         error = False
 
-        block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
+        block_identifier = initial_block_identifier
         results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
         self.stdout.write(self.style.SUCCESS('Adding blocks to CONFIRMATION_BLOCK_QUEUE...'))
@@ -179,5 +182,4 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        head_block_hash = cache.get(HEAD_BLOCK_HASH)
-        process_confirmation_block_queue.delay(head_block_hash=head_block_hash)
+        process_confirmation_block_queue.delay(head_block_hash=initial_block_identifier)
