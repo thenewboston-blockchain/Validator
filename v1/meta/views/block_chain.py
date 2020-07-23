@@ -26,6 +26,7 @@ def block_chain_view(_):
         block_identifier = get_message_hash(message=confirmation_block['message'])
         confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=block_identifier)
         confirmation_block = cache.get(confirmation_block_cache_key)
+        i += 1
 
     return Response({
         'block_chain': block_chain,
