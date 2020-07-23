@@ -29,6 +29,6 @@ def block_chain_view(_):
         i += 1
 
     return Response({
-        'block_chain': block_chain,
-        'initial_block_identifier': initial_block_identifier
+        'initial_block_identifier': initial_block_identifier,
+        'block_chain': block_chain
     })
