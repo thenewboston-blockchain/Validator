@@ -10,7 +10,7 @@ class StatusUpdateView(APIView):
     @is_signed_message
     def post(self, request):
         node_data = request.data
-        bank_node_identifier = node_data['node_identifier']
+        bank_node_identifier = node_data.get('node_identifier')
         is_trusted = is_most_trusted_bank(node_identifier=bank_node_identifier)
 
         if is_trusted:
