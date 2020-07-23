@@ -6,7 +6,7 @@ from v1.decorators.nodes import is_signed_message
 from v1.status_updates.management.check_bank import is_most_trusted_bank
 
 
-class PrimaryValidatorView(APIView):
+class StatusUpdateView(APIView):
     @is_signed_message
     def post(self, request):
         node_data = request.data

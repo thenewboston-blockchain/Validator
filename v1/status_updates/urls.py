@@ -1,8 +1,8 @@
 from django.urls import path
 
-from v1.status_updates.views.primary_validator import PrimaryValidatorView
+from v1.status_updates.views.status_update import StatusUpdateView
 
 urlpatterns = [
     # Validators
-    path('primary_validator_upgrade_request', PrimaryValidatorView.as_view())
+    path('primary_validator_upgrade_request', StatusUpdateView.as_view())
 ]
