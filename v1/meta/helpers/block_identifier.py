@@ -19,6 +19,7 @@ def get_initial_block_identifier():
     if seed_block_identifier:
         confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=seed_block_identifier)
         confirmation_block = cache.get(confirmation_block_cache_key)
-        return get_message_hash(message=confirmation_block['message'])
+        block = confirmation_block['message']['block']
+        return get_message_hash(message=block['message'])
 
     return self_configuration.root_account_file_hash
