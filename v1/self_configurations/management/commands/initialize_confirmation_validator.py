@@ -167,8 +167,8 @@ class Command(ConnectToPrimaryValidator):
                 serializer = ConfirmationBlockSerializerCreate(data=message)
 
                 if serializer.is_valid():
-                    block_identifier = serializer.save()
-                    print(block_identifier)
+                    _bid = serializer.save()
+                    print(_bid)
                 else:
                     print(1)
                     self._error(serializer.errors)
