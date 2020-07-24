@@ -66,10 +66,13 @@ class Command(ConnectToPrimaryValidator):
 
         try:
             results = fetch(url=url, headers={})
+            print(results)
             return results
         except JSONDecodeError:
+            print('a')
             return []
         except Exception as e:
+            print('b')
             print(e)
 
     def get_initial_block_identifier(self, primary_validator_config):
