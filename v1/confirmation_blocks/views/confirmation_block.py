@@ -5,8 +5,9 @@ from rest_framework.views import APIView
 from thenewboston.constants.errors import ERROR
 from thenewboston.constants.network import HEAD_HASH_LENGTH
 
-from v1.cache_tools.cache_keys import get_confirmation_block_cache_key
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH, get_confirmation_block_cache_key
 from v1.decorators.nodes import is_signed_by_primary_validator
+from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
 from ..serializers.confirmation_block import ConfirmationBlockSerializerCreate
 
 
@@ -22,8 +23,13 @@ class ConfirmationBlockView(APIView):
 
         serializer = ConfirmationBlockSerializerCreate(data=request.data['message'])
         if serializer.is_valid():
-            confirmation_block_message = serializer.save()
-            return Response(confirmation_block_message, status=status.HTTP_201_CREATED)
+            block_identifier = serializer.save()
+            head_block_hash = cache.get(HEAD_BLOCK_HASH)
+
+            if block_identifier == head_block_hash:
+                process_confirmation_block_queue.delay()
+
+            return Response({}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 

@@ -131,7 +131,7 @@ class Command(ConnectToPrimaryValidator):
 
         initial_block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
 
-        cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+        cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
         cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
         error = False
 
@@ -182,4 +182,4 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        process_confirmation_block_queue.delay(head_block_hash=initial_block_identifier)
+        process_confirmation_block_queue.delay()

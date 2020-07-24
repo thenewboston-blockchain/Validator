@@ -17,7 +17,7 @@ def rebuild_cache(*, head_block_hash):
 
     cache.clear()
     cache.set(BLOCK_QUEUE, [], None)
-    cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+    cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
     cache.set(HEAD_BLOCK_HASH, head_block_hash, None)
 
     accounts = Account.objects.all()
