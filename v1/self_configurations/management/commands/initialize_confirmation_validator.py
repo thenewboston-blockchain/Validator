@@ -66,14 +66,12 @@ class Command(ConnectToPrimaryValidator):
 
         try:
             results = fetch(url=url, headers={})
-            print(results)
             return results
         except JSONDecodeError:
-            print('a')
             return []
         except Exception as e:
-            print('b')
             print(e)
+            return []
 
     def get_initial_block_identifier(self, primary_validator_config):
         """
@@ -173,26 +171,19 @@ class Command(ConnectToPrimaryValidator):
                     _bid = serializer.save()
                     print(_bid)
                 else:
-                    print(1)
                     self._error(serializer.errors)
                     error = True
                     break
 
                 block_identifier = get_message_hash(message=message)
-                print(f'inbid | {block_identifier}')
                 confirmation_block = self.get_confirmation_block_from_results(
                     block_identifier=block_identifier,
                     results=results
                 )
 
-            print(2)
-
             if error:
                 break
 
-            print(error)
-            print(f'ebid | {block_identifier}')
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        print(3)
         process_confirmation_block_queue.delay()
