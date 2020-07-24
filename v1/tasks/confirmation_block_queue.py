@@ -14,6 +14,10 @@ def process_confirmation_block_queue():
     """
     Process confirmation block queue
     - this is for confirmation validators only
+
+    Ran after:
+    - initial sync with primary validator
+    - receiving confirmation block from the primary validator
     """
 
     self_configuration = get_self_configuration(exception_class=RuntimeError)
