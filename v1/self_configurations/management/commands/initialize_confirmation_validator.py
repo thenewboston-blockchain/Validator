@@ -176,6 +176,7 @@ class Command(ConnectToPrimaryValidator):
                     break
 
                 block_identifier = get_message_hash(message=message)
+                print(f'inbid | {block_identifier}')
                 confirmation_block = self.get_confirmation_block_from_results(
                     block_identifier=block_identifier,
                     results=results
@@ -187,6 +188,7 @@ class Command(ConnectToPrimaryValidator):
                 break
 
             print(error)
+            print(f'ebid | {block_identifier}')
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
         print(3)
