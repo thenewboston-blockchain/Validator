@@ -45,6 +45,7 @@ def process_confirmation_block_queue():
 
         if not is_valid:
             # TODO: Handle this
+            print(is_valid, sender_account_balance)
             print('The primary validator is cheating')
             return
 
@@ -58,6 +59,8 @@ def process_confirmation_block_queue():
             format_updated_balances(existing_accounts, new_accounts)
         ):
             # TODO: Handle this
+            print(confirmation_block['updated_balances'])
+            print(format_updated_balances(existing_accounts, new_accounts))
             print('The primary validator is cheating')
             return
 
