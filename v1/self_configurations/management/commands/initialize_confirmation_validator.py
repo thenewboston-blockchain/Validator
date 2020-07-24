@@ -170,6 +170,7 @@ class Command(ConnectToPrimaryValidator):
                     block_identifier = serializer.save()
                     print(block_identifier)
                 else:
+                    print(1)
                     self._error(serializer.errors)
                     error = True
                     break
@@ -180,6 +181,8 @@ class Command(ConnectToPrimaryValidator):
                     results=results
                 )
 
+            print(2)
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
+        print(3)
         process_confirmation_block_queue.delay()
