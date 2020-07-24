@@ -2,8 +2,6 @@
 .idea
 .vscode
 dump.rdb
-# ignore all txt file from requirements/
-requirements/*.txt
 
 # Log files
 !logs/.gitkeep
