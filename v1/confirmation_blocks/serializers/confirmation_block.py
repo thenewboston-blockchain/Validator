@@ -28,17 +28,12 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         Add a confirmation block to the queue
         """
 
-        initial_data = self.initial_data
-        queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
+        block_identifier = validated_data['block_identifier']
+        confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
+        confirmation_block_queue[block_identifier] = self.initial_data
+        cache.set(CONFIRMATION_BLOCK_QUEUE, confirmation_block_queue, None)
 
-        if queue:
-            queue.append(initial_data)
-        else:
-            queue = [initial_data]
-
-        cache.set(CONFIRMATION_BLOCK_QUEUE, queue, None)
-
-        return validated_data
+        return block_identifier
 
     def update(self, instance, validated_data):
         pass
@@ -51,15 +46,8 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         block_identifier = data['block_identifier']
         confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
 
-        if confirmation_block_queue:
-            existing_block_identifiers = {i['block_identifier'] for i in confirmation_block_queue}
-            existing_confirmation_block = next(
-                (i for i in confirmation_block_queue if block_identifier in existing_block_identifiers),
-                None
-            )
-
-            if existing_confirmation_block:
-                raise serializers.ValidationError('Confirmation block with that block_identifier already exists')
+        if confirmation_block_queue.get(block_identifier):
+            raise serializers.ValidationError('Confirmation block with that block_identifier already exists')
 
         return data
 

@@ -23,13 +23,13 @@ class ConfirmationBlockView(APIView):
 
         serializer = ConfirmationBlockSerializerCreate(data=request.data['message'])
         if serializer.is_valid():
-            confirmation_block_message = serializer.save()
+            block_identifier = serializer.save()
             head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
-            if confirmation_block_message['block_identifier'] == head_block_hash:
+            if block_identifier == head_block_hash:
                 process_confirmation_block_queue.delay()
 
-            return Response(confirmation_block_message, status=status.HTTP_201_CREATED)
+            return Response({}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
