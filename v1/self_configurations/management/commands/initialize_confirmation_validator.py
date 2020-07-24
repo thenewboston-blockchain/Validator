@@ -182,4 +182,4 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        process_confirmation_block_queue.delay(head_block_hash=initial_block_identifier)
+        process_confirmation_block_queue.delay()
