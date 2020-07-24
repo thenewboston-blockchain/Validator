@@ -48,14 +48,6 @@ class Command(ConnectToPrimaryValidator):
         results = fetch(url=url, headers={})
         return results
 
-    @staticmethod
-    def get_confirmation_block_from_results(*, block_identifier, results):
-        """
-        Return the confirmation block from results list
-        """
-
-        return next((i for i in results if i['message']['block_identifier'] == block_identifier), None)
-
     def get_confirmation_block_chain_segment(self, *, block_identifier):
         """
         Return confirmation block chain segment
@@ -72,6 +64,14 @@ class Command(ConnectToPrimaryValidator):
         except Exception as e:
             print(e)
             return []
+
+    @staticmethod
+    def get_confirmation_block_from_results(*, block_identifier, results):
+        """
+        Return the confirmation block from results list
+        """
+
+        return next((i for i in results if i['message']['block_identifier'] == block_identifier), None)
 
     def get_initial_block_identifier(self, primary_validator_config):
         """
