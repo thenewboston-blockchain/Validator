@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 
 from v1.decorators.nodes import is_signed_message
 from v1.status_updates.management.check_bank import is_most_trusted_bank
+from v1.status_updates.management.promote_validator import promote_confirmation_validator
 
 
 class StatusUpdateView(APIView):
@@ -14,10 +15,7 @@ class StatusUpdateView(APIView):
         is_trusted = is_most_trusted_bank(node_identifier=bank_node_identifier)
 
         if is_trusted:
-            # ----------
-            # TODO upgrade as primary validator
-            # ----------
-
+            promote_confirmation_validator()
             return Response(status=status.HTTP_200_OK)
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST)
