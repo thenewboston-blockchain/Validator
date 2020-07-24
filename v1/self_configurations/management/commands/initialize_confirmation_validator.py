@@ -186,5 +186,4 @@ class Command(ConnectToPrimaryValidator):
 
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        # TODO: Add back in delay
-        process_confirmation_block_queue()
+        process_confirmation_block_queue.deploy()
