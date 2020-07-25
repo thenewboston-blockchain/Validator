@@ -1,8 +1,10 @@
 from django.urls import path
 
-from v1.status_updates.views.status_update import StatusUpdateView
+from .views.upgrade_request import UpgradeRequestView
 
 urlpatterns = [
-    # Validators
-    path('primary_validator_upgrade_request', StatusUpdateView.as_view())
+
+    # Upgrade request (from bank)
+    path('upgrade_request', UpgradeRequestView.as_view())
+
 ]

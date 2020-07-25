@@ -22,6 +22,7 @@ urlpatterns = [
     path('', include('v1.connection_requests.urls')),
     path('', include('v1.meta.urls')),
     path('', include('v1.self_configurations.urls')),
+    path('', include('v1.status_updates.urls')),
     path('', include('v1.validators.urls')),
 
 ]

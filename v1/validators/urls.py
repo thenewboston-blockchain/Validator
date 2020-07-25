@@ -6,4 +6,5 @@ urlpatterns = [
 
     # Validators
     path('validators', ValidatorView.as_view())
+
 ]
