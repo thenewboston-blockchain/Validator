@@ -48,14 +48,6 @@ class Command(ConnectToPrimaryValidator):
         results = fetch(url=url, headers={})
         return results
 
-    @staticmethod
-    def get_confirmation_block_from_results(*, block_identifier, results):
-        """
-        Return the confirmation block from results list
-        """
-
-        return next((i for i in results if i['message']['block_identifier'] == block_identifier), None)
-
     def get_confirmation_block_chain_segment(self, *, block_identifier):
         """
         Return confirmation block chain segment
@@ -71,6 +63,15 @@ class Command(ConnectToPrimaryValidator):
             return []
         except Exception as e:
             print(e)
+            return []
+
+    @staticmethod
+    def get_confirmation_block_from_results(*, block_identifier, results):
+        """
+        Return the confirmation block from results list
+        """
+
+        return next((i for i in results if i['message']['block_identifier'] == block_identifier), None)
 
     def get_initial_block_identifier(self, primary_validator_config):
         """
@@ -131,7 +132,7 @@ class Command(ConnectToPrimaryValidator):
 
         initial_block_identifier = self.get_initial_block_identifier(primary_validator_config=primary_validator_config)
 
-        cache.set(CONFIRMATION_BLOCK_QUEUE, [], None)
+        cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
         cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
         error = False
 
@@ -167,8 +168,8 @@ class Command(ConnectToPrimaryValidator):
                 serializer = ConfirmationBlockSerializerCreate(data=message)
 
                 if serializer.is_valid():
-                    confirmation_block_message = serializer.save()
-                    print(confirmation_block_message['block_identifier'])
+                    _bid = serializer.save()
+                    print(_bid)
                 else:
                     self._error(serializer.errors)
                     error = True
@@ -180,6 +181,9 @@ class Command(ConnectToPrimaryValidator):
                     results=results
                 )
 
+            if error:
+                break
+
             results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
-        process_confirmation_block_queue.delay(head_block_hash=initial_block_identifier)
+        process_confirmation_block_queue()
