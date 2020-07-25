@@ -14,18 +14,25 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """
-        Upgrade self to primary validator
-        Clear block queues
+        Accept the banks primary validator upgrade request
+
+        If self is currently set as confirmation validator:
+        - upgrade self to primary validator
+        - clear block queues
+
+        If self is currently set as primary validator, no action is required
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        self_configuration.node_type = PRIMARY_VALIDATOR
-        self_configuration.save()
 
-        cache.set(BLOCK_QUEUE, [], None)
-        cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
+        if self_configuration.node_type == CONFIRMATION_VALIDATOR:
+            self_configuration.node_type = PRIMARY_VALIDATOR
+            self_configuration.save()
+            cache.set(BLOCK_QUEUE, [], None)
+            cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
 
         # TODO: Send notice to all connected banks
+        # TODO: If they trust you more than their current PVs, they will switch to you as well
 
         return self_configuration
 
@@ -34,14 +41,11 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
     def validate(self, data):
         """
-        Check that node_type is set to CONFIRMATION_VALIDATOR
+        Check that self_node_identifier matches validator_node_identifier
+        - this ensures that the request was intended for self
         """
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-
-        if self_configuration.node_type != CONFIRMATION_VALIDATOR:
-            raise serializers.ValidationError(f'node_type is not {CONFIRMATION_VALIDATOR}')
-
         self_node_identifier = self_configuration.node_identifier
         validator_node_identifier = data['validator_node_identifier']
 
