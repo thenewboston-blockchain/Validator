@@ -1,8 +1,14 @@
 from rest_framework import serializers
-from thenewboston.constants.network import PROTOCOL_CHOICES, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import (
+    CONFIRMATION_VALIDATOR,
+    PRIMARY_VALIDATOR,
+    PROTOCOL_CHOICES,
+    VERIFY_KEY_LENGTH
+)
 
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 
 
 class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
@@ -13,7 +19,9 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         """
-        Sync to the new primary validator
+        Handle banks primary validator updated notice
+        A response of True indicates to the requesting bank that self (this validator) will remain on the same network
+        Delete banks switching to different networks
         """
 
         bank = validated_data['node_identifier']
@@ -21,14 +29,40 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
         port = validated_data['port']
         protocol = validated_data['protocol']
 
+        if self.primary_validator_synchronized(ip_address=ip_address):
+            return True
+
         if bank == get_most_trusted_bank():
             # TODO: Sync to the new primary validator
             print(ip_address, port, protocol)
-        else:
-            bank.delete()
-            raise serializers.ValidationError('Bank is not the most trusted')
+            return True
 
-        return True
+        bank.delete()
+        raise serializers.ValidationError('Networks out of sync')
+
+    @staticmethod
+    def primary_validator_synchronized(ip_address):
+        """
+        Return boolean indicating if self primary validator is set to given IP address
+        """
+
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        if self_configuration.node_type == CONFIRMATION_VALIDATOR:
+            primary_validator = self_configuration.primary_validator
+
+            if not primary_validator:
+                return True
+
+            if primary_validator.ip_address == ip_address:
+                return True
+
+        if self_configuration.node_type == PRIMARY_VALIDATOR:
+
+            if self_configuration.ip_address == ip_address:
+                return True
+
+        return False
 
     def update(self, instance, validated_data):
         pass
