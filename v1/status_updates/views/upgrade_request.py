@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from v1.decorators.nodes import is_signed_message
+from v1.self_configurations.serializers.self_configuration import SelfConfigurationSerializer
 from ..serializers.upgrade_request import UpgradeRequestSerializer
 
 
@@ -24,6 +25,9 @@ class UpgradeRequestView(APIView):
             context={'request': request}
         )
         if serializer.is_valid():
-            serializer.save()
-            return Response({}, status=status.HTTP_200_OK)
+            self_configuration = serializer.save()
+            return Response(
+                SelfConfigurationSerializer(self_configuration).data,
+                status=status.HTTP_200_OK
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

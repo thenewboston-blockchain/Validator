@@ -20,13 +20,14 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         self_configuration.node_type = PRIMARY_VALIDATOR
+        self_configuration.save()
 
         cache.set(BLOCK_QUEUE, [], None)
         cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
 
         # TODO: Send notice to all connected banks
 
-        return True
+        return self_configuration
 
     def update(self, instance, validated_data):
         pass
