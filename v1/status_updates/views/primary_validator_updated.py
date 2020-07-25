@@ -3,20 +3,20 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from v1.decorators.nodes import is_signed_message
-from ..serializers.upgrade_request import UpgradeRequestSerializer
+from ..serializers.primary_validator_updated import PrimaryValidatorUpdatedSerializer
 
 
-# upgrade_request
-class UpgradeRequestView(APIView):
+# primary_validator_updated
+class PrimaryValidatorUpdatedView(APIView):
 
     @staticmethod
     @is_signed_message
     def post(request):
         """
-        description: Bank asking a confirmation validator to upgrade to a primary validator
+        description: Primary validator updated notice from bank
         """
 
-        serializer = UpgradeRequestSerializer(
+        serializer = PrimaryValidatorUpdatedSerializer(
             data={
                 **request.data['message'],
                 'node_identifier': request.data['node_identifier']
