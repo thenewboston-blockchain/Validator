@@ -1,8 +1,10 @@
+from django.core.cache import cache
 from rest_framework import serializers
-from thenewboston.constants.network import CONFIRMATION_VALIDATOR, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR, VERIFY_KEY_LENGTH
 
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
+from v1.cache_tools.cache_keys import BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 
 
@@ -13,10 +15,16 @@ class UpgradeRequestSerializer(serializers.Serializer):
     def create(self, validated_data):
         """
         Upgrade self to primary validator
+        Clear block queues
         """
 
-        # TODO: Upgrade self to primary validator (celery task)
-        # TODO: Send notice to bank once complete
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+        self_configuration.node_type = PRIMARY_VALIDATOR
+
+        cache.set(BLOCK_QUEUE, [], None)
+        cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
+
+        # TODO: Send notice to all connected banks
 
         return True
 
