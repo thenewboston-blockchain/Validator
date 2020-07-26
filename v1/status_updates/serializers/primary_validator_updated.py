@@ -9,6 +9,7 @@ from thenewboston.constants.network import (
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.tasks.sync import sync_to_new_primary_validator
 
 
 class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
@@ -33,8 +34,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
             return True
 
         if bank == get_most_trusted_bank():
-            # TODO: Sync to the new primary validator
-            print(ip_address, port, protocol)
+            sync_to_new_primary_validator(ip_address=ip_address, port=port, protocol=protocol)
             return True
 
         bank.delete()

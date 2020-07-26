@@ -1,20 +1,14 @@
-from json import JSONDecodeError
-
 from django.core.cache import cache
 from django.db.models import Q
-from nacl.exceptions import BadSignatureError
 from thenewboston.base_classes.connect_to_primary_validator import ConnectToPrimaryValidator
-from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.messages import get_message_hash
-from thenewboston.utils.network import fetch
-from thenewboston.utils.tools import sort_and_encode
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
-from v1.confirmation_blocks.serializers.confirmation_block import ConfirmationBlockSerializerCreate
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
+from v1.tasks.sync import get_confirmation_block, populate_confirmation_block_queue
 from v1.validators.models.validator import Validator
 
 """
@@ -37,41 +31,6 @@ class Command(ConnectToPrimaryValidator):
     def __init__(self):
         super().__init__()
         self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
-
-    def get_confirmation_block(self, *, block_identifier):
-        """
-        Return confirmation block chain segment
-        """
-
-        address = self.get_primary_validator_address()
-        url = f'{address}/confirmation_blocks/{block_identifier}'
-        results = fetch(url=url, headers={})
-        return results
-
-    def get_confirmation_block_chain_segment(self, *, block_identifier):
-        """
-        Return confirmation block chain segment
-        """
-
-        address = self.get_primary_validator_address()
-        url = f'{address}/confirmation_block_chain_segment/{block_identifier}'
-
-        try:
-            results = fetch(url=url, headers={})
-            return results
-        except JSONDecodeError:
-            return []
-        except Exception as e:
-            print(e)
-            return []
-
-    @staticmethod
-    def get_confirmation_block_from_results(*, block_identifier, results):
-        """
-        Return the confirmation block from results list
-        """
-
-        return next((i for i in results if i['message']['block_identifier'] == block_identifier), None)
 
     def get_initial_block_identifier(self, primary_validator_config):
         """
@@ -98,7 +57,8 @@ class Command(ConnectToPrimaryValidator):
 
             return root_account_file_hash
 
-        confirmation_block = self.get_confirmation_block(block_identifier=seed_block_identifier)
+        address = self.get_primary_validator_address()
+        confirmation_block = get_confirmation_block(address=address, block_identifier=seed_block_identifier)
 
         return get_message_hash(message=confirmation_block['message'])
 
@@ -134,56 +94,12 @@ class Command(ConnectToPrimaryValidator):
 
         cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
         cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
-        error = False
-
-        block_identifier = initial_block_identifier
-        results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
 
         self.stdout.write(self.style.SUCCESS('Adding blocks to CONFIRMATION_BLOCK_QUEUE...'))
 
-        while results and not error:
-            confirmation_block = self.get_confirmation_block_from_results(
-                block_identifier=block_identifier,
-                results=results
-            )
-
-            while confirmation_block:
-                message = confirmation_block['message']
-
-                try:
-                    verify_signature(
-                        message=sort_and_encode(message),
-                        signature=confirmation_block['signature'],
-                        verify_key=confirmation_block['node_identifier']
-                    )
-                except BadSignatureError as e:
-                    self._error(e)
-                    error = True
-                    break
-                except Exception as e:
-                    self._error(e)
-                    error = True
-                    break
-
-                serializer = ConfirmationBlockSerializerCreate(data=message)
-
-                if serializer.is_valid():
-                    _bid = serializer.save()
-                    print(_bid)
-                else:
-                    self._error(serializer.errors)
-                    error = True
-                    break
-
-                block_identifier = get_message_hash(message=message)
-                confirmation_block = self.get_confirmation_block_from_results(
-                    block_identifier=block_identifier,
-                    results=results
-                )
-
-            if error:
-                break
-
-            results = self.get_confirmation_block_chain_segment(block_identifier=block_identifier)
-
+        populate_confirmation_block_queue(
+            address=self.get_primary_validator_address(),
+            error_handler=self._error,
+            initial_block_identifier=initial_block_identifier
+        )
         process_confirmation_block_queue()

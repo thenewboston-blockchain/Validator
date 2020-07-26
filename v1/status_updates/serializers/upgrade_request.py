@@ -6,7 +6,7 @@ from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
 from v1.cache_tools.cache_keys import BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.tasks.sync import send_upgrade_notices
+from v1.tasks.upgrade_notices import send_upgrade_notices
 
 
 class UpgradeRequestSerializer(serializers.Serializer):
