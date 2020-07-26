@@ -9,9 +9,32 @@ from thenewboston.constants.errors import BAD_SIGNATURE, ERROR, UNKNOWN
 from thenewboston.utils.tools import sort_and_encode
 
 from v1.banks.models.bank import Bank
-from v1.self_configurations.helpers.self_configuration import get_primary_validator
+from v1.self_configurations.helpers.self_configuration import get_primary_validator, get_self_configuration
 
 logger = logging.getLogger('thenewboston')
+
+
+def is_self_signed_message(func):
+    """
+    Verify that the client making the request is self
+    """
+
+    @wraps(func)
+    def inner(request, *args, **kwargs):
+        request, error = verify_request_signature(request=request, signed_data_key='message')
+
+        if error:
+            return Response(error, status=status.HTTP_401_UNAUTHORIZED)
+
+        node_identifier = request.data['node_identifier']
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        if node_identifier != self_configuration.node_identifier:
+            return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+        return func(request, *args, **kwargs)
+
+    return inner
 
 
 def is_signed_bank_block(func):
