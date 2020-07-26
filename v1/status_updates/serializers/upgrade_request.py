@@ -6,6 +6,7 @@ from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
 from v1.cache_tools.cache_keys import BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.tasks.sync import send_upgrade_notices
 
 
 class UpgradeRequestSerializer(serializers.Serializer):
@@ -30,9 +31,7 @@ class UpgradeRequestSerializer(serializers.Serializer):
             self_configuration.save()
             cache.set(BLOCK_QUEUE, [], None)
             cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
-
-        # TODO: Send notice to all connected banks
-        # TODO: If they trust you more than their current PVs, they will switch to you as well
+            send_upgrade_notices.delay(requesting_banks_node_identifier=validated_data['node_identifier'])
 
         return self_configuration
 
@@ -41,7 +40,7 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
     def validate(self, data):
         """
-        Check that self_node_identifier matches validator_node_identifier
+        Check that self node_identifier matches validator_node_identifier
         - this ensures that the request was intended for self
         """
 
