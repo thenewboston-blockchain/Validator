@@ -48,7 +48,7 @@ pip3 install -r requirements/local.txt
 To initialize the project:
 ```
 python3 manage.py migrate
-python3 manage.py initialize_test_validator -ip [IP ADDRESS]
+python3 manage.py initialize_test_primary_validator -ip [IP ADDRESS]
 ```
 
 ## Local Development
