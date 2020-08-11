@@ -39,7 +39,7 @@ class TestIsBlockValid(TestPrimaryValidator):
                         }
                     ]
                 },
-                'signature': 'ac701d66f5063ea4fab9f8850270461267316f28b4fbf153af8bc3aaf9c3dc42088669501fde3815800de606462657d1c93f688fbb331070bc035019cba55d09'
+                'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
             }
             is_valid, account_balance = is_block_valid(block=block)
             self.assertEqual(is_valid, expected_result)
@@ -76,7 +76,7 @@ class TestIsBlockValid(TestPrimaryValidator):
                         }
                     ]
                 },
-                'signature': 'ac701d66f5063ea4fab9f8850270461267316f28b4fbf153af8bc3aaf9c3dc42088669501fde3815800de606462657d1c93f688fbb331070bc035019cba55d09'
+                'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
             }
             is_valid, account_balance = is_block_valid(block=block)
             self.assertEqual(is_valid, expected_result)
@@ -100,7 +100,7 @@ class TestIsBlockValid(TestPrimaryValidator):
                 False
             ),
             (
-                'ac701d66f5063ea4fab9f8850270461267316f28b4fbf153af8bc3aaf9c3dc42088669501fde3815800de606462657d1c93f688fbb331070bc035019cba55d09',
+                'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d',
                 True
             ),
         ]
@@ -180,7 +180,7 @@ class TestIsBlockValid(TestPrimaryValidator):
                     }
                 ]
             },
-            'signature': 'ac701d66f5063ea4fab9f8850270461267316f28b4fbf153af8bc3aaf9c3dc42088669501fde3815800de606462657d1c93f688fbb331070bc035019cba55d09'
+            'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
         }
         is_valid, account_balance = is_block_valid(block=block)
         self.assertFalse(is_valid)
@@ -209,7 +209,7 @@ class TestIsBlockValid(TestPrimaryValidator):
                     }
                 ]
             },
-            'signature': 'ac701d66f5063ea4fab9f8850270461267316f28b4fbf153af8bc3aaf9c3dc42088669501fde3815800de606462657d1c93f688fbb331070bc035019cba55d09'
+            'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
         }
         is_valid, account_balance = is_block_valid(block=block)
         self.assertTrue(is_valid)
