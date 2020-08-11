@@ -75,9 +75,9 @@ To watch log files:
 tail -f logs/warning.log -n 10
 ```
 
-To run all tests in parallel:
+To run all tests:
 ```
-python3 manage.py test --parallel
+pytest
 ```
 
 When adding a package, add to `requirements/base.in` and then :
