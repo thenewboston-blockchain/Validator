@@ -2,6 +2,9 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from rest_framework.routers import DefaultRouter
+
+from v1.accounts.urls import router as accounts_router
 
 admin.site.index_title = 'Admin'
 admin.site.site_header = 'Validator'
@@ -14,7 +17,6 @@ urlpatterns = [
     path('api-auth/', include('rest_framework.urls')),
 
     # API (v1)
-    path('', include('v1.accounts.urls')),
     path('', include('v1.bank_blocks.urls')),
     path('', include('v1.bank_confirmation_services.urls')),
     path('', include('v1.banks.urls')),
@@ -27,6 +29,11 @@ urlpatterns = [
 
 ]
 
+router = DefaultRouter(trailing_slash=False)
+
+router.registry.extend(accounts_router.registry)
+
+urlpatterns += router.urls
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
