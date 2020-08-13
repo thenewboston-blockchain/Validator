@@ -1,10 +1,6 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views.bank_confirmation_service import BankConfirmationServiceView
+from .views.bank_confirmation_service import BankConfirmationServiceViewSet
 
-urlpatterns = [
-
-    # Bank confirmation services
-    path('bank_confirmation_services', BankConfirmationServiceView.as_view()),
-
-]
+router = SimpleRouter(trailing_slash=False)
+router.register('bank_confirmation_services', BankConfirmationServiceViewSet)

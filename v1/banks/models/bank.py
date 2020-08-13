@@ -1,12 +1,9 @@
-from uuid import uuid4
-
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from thenewboston.models.network_node import NetworkNode
 
 
 class Bank(NetworkNode):
-    id = models.UUIDField(default=uuid4, editable=False, primary_key=True)
     confirmation_expiration = models.DateTimeField(blank=True, null=True)
     trust = models.DecimalField(
         decimal_places=2,

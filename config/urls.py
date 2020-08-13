@@ -5,6 +5,7 @@ from django.urls import include, path
 from rest_framework.routers import DefaultRouter
 
 from v1.accounts.urls import router as accounts_router
+from v1.bank_confirmation_services.urls import router as bank_confirmation_services_router
 
 admin.site.index_title = 'Admin'
 admin.site.site_header = 'Validator'
@@ -18,7 +19,6 @@ urlpatterns = [
 
     # API (v1)
     path('', include('v1.bank_blocks.urls')),
-    path('', include('v1.bank_confirmation_services.urls')),
     path('', include('v1.banks.urls')),
     path('', include('v1.confirmation_blocks.urls')),
     path('', include('v1.connection_requests.urls')),
@@ -32,6 +32,7 @@ urlpatterns = [
 router = DefaultRouter(trailing_slash=False)
 
 router.registry.extend(accounts_router.registry)
+router.registry.extend(bank_confirmation_services_router.registry)
 
 urlpatterns += router.urls
 urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
