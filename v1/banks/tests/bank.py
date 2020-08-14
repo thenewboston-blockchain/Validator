@@ -1,4 +1,3 @@
-import pytest
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK
 from thenewboston.utils.signed_requests import generate_signed_request
@@ -18,12 +17,10 @@ def test_banks_list(client, banks, django_assert_max_num_queries):
     assert response
 
 
-@pytest.mark.skip()
-def test_banks_patch(client, self_configuration, bank, bank_fake_data):
-
+def test_banks_patch(client, confirmation_validator_configuration, bank, bank_fake_data):
     response = client.patch_json(
         reverse(
-           'bank-detail',
+            'bank-detail',
             args=[bank.node_identifier]
         ),
         generate_signed_request(
