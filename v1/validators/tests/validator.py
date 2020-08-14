@@ -17,7 +17,7 @@ def test_validator_list(client, validators, django_assert_max_num_queries):
     assert response
 
 
-def test_validator_patch(client, confirmation_validator_configuration, validator, validator_fake_data):
+def test_validator_patch(client, primary_validator_configuration, validator, validator_fake_data):
     response = client.patch_json(
         reverse(
             'validator-detail',

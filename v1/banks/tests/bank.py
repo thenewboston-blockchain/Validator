@@ -17,7 +17,7 @@ def test_banks_list(client, banks, django_assert_max_num_queries):
     assert response
 
 
-def test_banks_patch(client, confirmation_validator_configuration, bank, bank_fake_data):
+def test_banks_patch(client, primary_validator_configuration, bank, bank_fake_data):
     response = client.patch_json(
         reverse(
             'bank-detail',

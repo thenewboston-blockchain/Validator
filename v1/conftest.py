@@ -27,7 +27,7 @@ def client():
 @pytest.fixture
 def confirmation_validator_configuration():
     call_command(
-        'initialize_test_primary_validator',
+        'initialize_test_confirmation_validator',
         ip='127.0.0.1'
     )
     yield get_self_configuration(exception_class=RuntimeError)
@@ -41,6 +41,15 @@ def enable_db_access_for_all_tests(db):
 @pytest.fixture
 def encoded_account_number(account_number):
     yield encode_verify_key(verify_key=account_number)
+
+
+@pytest.fixture
+def primary_validator_configuration():
+    call_command(
+        'initialize_test_primary_validator',
+        ip='127.0.0.1'
+    )
+    yield get_self_configuration(exception_class=RuntimeError)
 
 
 @pytest.fixture
