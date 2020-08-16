@@ -1,3 +1,5 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models.bank_confirmation_service import BankConfirmationService
+
+admin.site.register(BankConfirmationService)

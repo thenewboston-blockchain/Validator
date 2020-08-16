@@ -1,18 +1,20 @@
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.mixins import ListModelMixin
+from rest_framework.viewsets import GenericViewSet
 
 from ..models.bank_confirmation_service import BankConfirmationService
 from ..serializers.bank_confirmation_service import BankConfirmationServiceSerializer
 
 
-# bank_confirmation_services
-class BankConfirmationServiceView(APIView):
+class BankConfirmationServiceViewSet(
+    ListModelMixin,
+    GenericViewSet,
+):
+    """
+    Bank confirmation services
+    ---
+    list:
+      description: List bank confirmation services
+    """
 
-    @staticmethod
-    def get(request):
-        """
-        description: List bank confirmation services
-        """
-
-        bank_confirmation_services = BankConfirmationService.objects.all()
-        return Response(BankConfirmationServiceSerializer(bank_confirmation_services, many=True).data)
+    queryset = BankConfirmationService.objects.all()
+    serializer_class = BankConfirmationServiceSerializer

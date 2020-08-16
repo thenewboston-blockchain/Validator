@@ -1,11 +1,6 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views.bank import BankDetail, BankView
+from .views.bank import BankViewSet
 
-urlpatterns = [
-
-    # Banks
-    path('banks', BankView.as_view()),
-    path('banks/<str:node_identifier>', BankDetail.as_view()),
-
-]
+router = SimpleRouter(trailing_slash=False)
+router.register('banks', BankViewSet)
