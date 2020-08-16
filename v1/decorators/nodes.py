@@ -20,7 +20,7 @@ def is_self_signed_message(func):
     """
 
     @wraps(func)
-    def inner(object, request, *args, **kwargs):
+    def inner(obj, request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='message')
 
         if error:
@@ -32,7 +32,7 @@ def is_self_signed_message(func):
         if node_identifier != self_configuration.node_identifier:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
 
-        return func(object, request, *args, **kwargs)
+        return func(obj, request, *args, **kwargs)
 
     return inner
 
