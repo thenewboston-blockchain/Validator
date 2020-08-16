@@ -1,7 +1,7 @@
 import pytz
 from factory import Faker
+from thenewboston.factories.network_node import NetworkNodeFactory
 
-from v1.third_party.thenewboston.factories.network_node import NetworkNodeFactory
 from ..models.bank import Bank
 
 

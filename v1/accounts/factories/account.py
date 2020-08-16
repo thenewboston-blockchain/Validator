@@ -1,4 +1,5 @@
-from factory import DjangoModelFactory, Faker
+from factory import Faker
+from factory.django import DjangoModelFactory
 from thenewboston.constants.network import BALANCE_LOCK_LENGTH, VERIFY_KEY_LENGTH
 
 from ..models.account import Account

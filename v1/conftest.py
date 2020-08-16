@@ -1,10 +1,10 @@
 import pytest
 from django.core.management import call_command
 from thenewboston.accounts.manage import create_account
+from thenewboston.third_party.pytest.client import UserWrapper
 from thenewboston.verify_keys.verify_key import encode_verify_key
 
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.third_party.pytest.client import UserWrapper
 from v1.validators.factories.validator import ValidatorFactory
 
 

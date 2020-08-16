@@ -1,6 +1,6 @@
 from factory import Faker
+from thenewboston.factories.network_validator import NetworkValidatorFactory
 
-from v1.third_party.thenewboston.factories.network_validator import NetworkValidatorFactory
 from ..models.validator import Validator
 
 

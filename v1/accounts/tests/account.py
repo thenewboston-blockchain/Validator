@@ -1,8 +1,7 @@
 import pytest
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK
-
-from v1.third_party.pytest.asserts import assert_objects_vs_dicts
+from thenewboston.third_party.pytest.asserts import assert_objects_vs_dicts
 
 
 def test_accounts_list(client, accounts, django_assert_max_num_queries):
