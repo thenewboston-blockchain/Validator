@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
@@ -24,7 +22,7 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     daily_confirmation_rate = self_configuration.daily_confirmation_rate
 
-    confirmation_service_amount = Decimal(str(confirmation_service_amount))
+    confirmation_service_amount = int(confirmation_service_amount)
     days_purchased = confirmation_service_amount / daily_confirmation_rate
     seconds_purchased = days_purchased * 86400
     seconds_purchased = int(seconds_purchased)

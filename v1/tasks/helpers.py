@@ -1,5 +1,4 @@
 import logging
-from decimal import Decimal
 from operator import itemgetter
 
 from django.core.cache import cache
@@ -39,16 +38,16 @@ def get_updated_accounts(*, sender_account_balance, validated_block):
 
     message = validated_block['message']
     txs = message['txs']
-    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
+    total_amount = sum([int(tx['amount']) for tx in txs])
 
     existing_accounts.append({
         'account_number': validated_block['account_number'],
-        'balance': Decimal(sender_account_balance) - total_amount,
+        'balance': int(sender_account_balance) - total_amount,
         'balance_lock': get_message_hash(message=message)
     })
 
     for tx in txs:
-        amount = Decimal(str(tx['amount']))
+        amount = int(str(tx['amount']))
         recipient = tx['recipient']
         recipient_account_balance = get_account_balance(account_number=recipient)
 
@@ -127,7 +126,7 @@ def is_total_amount_valid(*, block, account_balance):
     message = block['message']
     txs = message['txs']
 
-    total_amount = sum([Decimal(str(tx['amount'])) for tx in txs])
+    total_amount = sum([int(tx['amount']) for tx in txs])
 
     if total_amount > account_balance:
         error = f'Transaction total of {total_amount} is greater than account balance of {account_balance}'
