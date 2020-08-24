@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from rest_framework import serializers
-from thenewboston.constants.network import BALANCE_LOCK_LENGTH, VERIFY_KEY_LENGTH
+from thenewboston.constants.network import BALANCE_LOCK_LENGTH, MAX_POINT_VALUE, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
@@ -8,7 +8,7 @@ from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
 
 class UpdatedBalanceSerializer(serializers.Serializer):
     account_number = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
-    balance = serializers.DecimalField(max_digits=32, decimal_places=16)
+    balance = serializers.IntegerField(min_value=0, max_value=MAX_POINT_VALUE)
     balance_lock = serializers.CharField(max_length=BALANCE_LOCK_LENGTH, required=False)
 
     def create(self, validated_data):

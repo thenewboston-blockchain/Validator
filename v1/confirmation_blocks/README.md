@@ -31,20 +31,20 @@ confirmed.
     "updated_balances": [
       {
         "account_number": "0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb",
-        "balance": "9994.0000000000000000",
+        "balance": "9994",
         "balance_lock": "b2cab62f3432553d2f0b765b7f1d67ea8d2a9b02948d0912ac8c8317553bbe28"
       },
       {
         "account_number": "484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc",
-        "balance": "1001.0000000000000000"
+        "balance": "1001"
       },
       {
         "account_number": "5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8",
-        "balance": "51.0000000000000000"
+        "balance": "51"
       },
       {
         "account_number": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314",
-        "balance": "54.0000000000000000"
+        "balance": "54"
       }
     ]
   },

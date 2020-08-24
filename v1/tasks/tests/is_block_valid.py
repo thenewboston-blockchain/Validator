@@ -11,16 +11,15 @@ def primary_validator(primary_validator_configuration):
 def test_incorrect_amount():
     """
     Block with incorrect amount(s) is not valid
-    - amount of 4.26 was changed from 4.25
+    - amount of 426 was changed from 425
     """
-
     data = [
-        (-.23, False),
-        (0.00, False),
-        (4.24, False),
-        (4.25, True),
-        (4.26, False),
-        (9.99, False),
+        (23, False),
+        (0, False),
+        (424, False),
+        (425, True),
+        (426, False),
+        (999, False),
     ]
 
     for amount, expected_result in data:
@@ -43,8 +42,9 @@ def test_incorrect_amount():
                     }
                 ]
             },
-            'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
+            'signature': '72457709aca384c0a8659112d26773b5c32468fad4dd1329c88445979f2896d05ce52bc1d3990cd6dbec65f0fdb378b7685515f865e304f97b2a3ef9ab19a20d'
         }
+
         is_valid, account_balance = is_block_valid(block=block)
         assert is_valid == expected_result
 
@@ -68,7 +68,7 @@ def test_incorrect_balance_key():
                 'balance_key': balance_key,
                 'txs': [
                     {
-                        'amount': 4.25,
+                        'amount': 4,
                         'recipient': '484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc'
                     },
                     {
@@ -81,7 +81,7 @@ def test_incorrect_balance_key():
                     }
                 ]
             },
-            'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
+            'signature': '9c95931ff252b24d53ea899c0766f313675d05e0a522c81ef860415e7ebae88098f6f120ffb7dbe8f6acb3969aaab39be9bbb3eb6445f5f8d99b84a162107a0a'
         }
         is_valid, account_balance = is_block_valid(block=block)
         assert is_valid == expected_result
@@ -205,7 +205,7 @@ def test_valid_block():
             'balance_key': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
             'txs': [
                 {
-                    'amount': 4.25,
+                    'amount': 4,
                     'recipient': '484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc'
                 },
                 {
@@ -218,7 +218,7 @@ def test_valid_block():
                 }
             ]
         },
-        'signature': 'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d'
+        'signature': '9c95931ff252b24d53ea899c0766f313675d05e0a522c81ef860415e7ebae88098f6f120ffb7dbe8f6acb3969aaab39be9bbb3eb6445f5f8d99b84a162107a0a'
     }
     is_valid, account_balance = is_block_valid(block=block)
     assert is_valid

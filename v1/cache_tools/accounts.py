@@ -1,5 +1,3 @@
-from decimal import Decimal
-
 from django.core.cache import cache
 
 from v1.accounts.models.account import Account
@@ -20,7 +18,7 @@ def get_account_balance(*, account_number):
         if account:
             return account.balance
 
-    return Decimal(account_balance) if account_balance else None
+    return int(account_balance) if account_balance else None
 
 
 def get_account_balance_lock(*, account_number):
