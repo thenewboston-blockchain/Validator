@@ -9,7 +9,6 @@ from ..serializers.connection_request import ConnectionRequestSerializerCreate
 # connection_requests
 class ConnectionRequestView(APIView):
 
-    @staticmethod
     @is_signed_message
     def post(request):
         """

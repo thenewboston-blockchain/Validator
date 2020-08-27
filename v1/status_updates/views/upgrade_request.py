@@ -1,33 +1,35 @@
-from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.status import HTTP_200_OK
+from rest_framework.viewsets import ViewSet
 
 from v1.decorators.nodes import is_signed_message
 from v1.self_configurations.serializers.self_configuration import SelfConfigurationSerializer
 from ..serializers.upgrade_request import UpgradeRequestSerializer
 
 
-# upgrade_request
-class UpgradeRequestView(APIView):
+class UpgradeRequestViewSet(ViewSet):
+    """
+    Upgrade request
+    ---
+    create:
+      description: Bank asking a confirmation validator to upgrade to a primary validator
+    """
 
-    @staticmethod
+    serializer_class = UpgradeRequestSerializer
+
     @is_signed_message
-    def post(request):
-        """
-        description: Bank asking a confirmation validator to upgrade to a primary validator
-        """
-
-        serializer = UpgradeRequestSerializer(
+    def create(self, request):
+        serializer = self.serializer_class(
             data={
                 **request.data['message'],
                 'node_identifier': request.data['node_identifier']
             },
             context={'request': request}
         )
-        if serializer.is_valid():
-            self_configuration = serializer.save()
-            return Response(
-                SelfConfigurationSerializer(self_configuration).data,
-                status=status.HTTP_200_OK
-            )
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        self_configuration = serializer.save()
+
+        return Response(
+            SelfConfigurationSerializer(self_configuration).data,
+            status=HTTP_200_OK
+        )

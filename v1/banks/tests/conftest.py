@@ -5,11 +5,6 @@ from ..factories.bank import BankFactory
 
 
 @pytest.fixture
-def bank(encoded_account_number):
-    yield BankFactory(node_identifier=encoded_account_number)
-
-
-@pytest.fixture
 def bank_fake_data():
     data = build_json(BankFactory)
     data['confirmation_expiration'] = str(data['confirmation_expiration'])
