@@ -6,11 +6,15 @@ from thenewboston.accounts.manage import create_account
 from thenewboston.third_party.pytest.client import UserWrapper
 from thenewboston.verify_keys.verify_key import encode_verify_key
 
-from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.self_configurations.management.commands.initialize_test_confirmation_validator import FIXTURES_DIR as CONFIRMATION_VALIDATOR_FIXTURES_DIR
-from v1.self_configurations.management.commands.initialize_test_primary_validator import FIXTURES_DIR as PRIMARY_VALIDATOR_FIXTURES_DIR
-from v1.validators.factories.validator import ValidatorFactory
 from v1.banks.factories.bank import BankFactory
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.self_configurations.management.commands.initialize_test_confirmation_validator import (
+    FIXTURES_DIR as CONFIRMATION_VALIDATOR_FIXTURES_DIR
+)
+from v1.self_configurations.management.commands.initialize_test_primary_validator import (
+    FIXTURES_DIR as PRIMARY_VALIDATOR_FIXTURES_DIR
+)
+from v1.validators.factories.validator import ValidatorFactory
 
 
 @pytest.fixture
