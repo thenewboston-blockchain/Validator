@@ -10,7 +10,7 @@ from ..serializers.connection_request import ConnectionRequestSerializerCreate
 class ConnectionRequestView(APIView):
 
     @is_signed_message
-    def post(request):
+    def post(self, request):
         """
         description: Create connection request
         """

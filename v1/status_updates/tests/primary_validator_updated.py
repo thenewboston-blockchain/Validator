@@ -42,7 +42,13 @@ def test_primary_validator_updated_200(client, signing_key, bank, confirmation_v
     # assert confirmation_validator_configuration.primary_validator == primary_validator
 
 
-def test_primary_validator_updated_400_low_trust(client, signing_key, bank, confirmation_validator_configuration, validator):
+def test_primary_validator_updated_400_low_trust(
+    client,
+    signing_key,
+    bank,
+    confirmation_validator_configuration,
+    validator
+):
     primary_validator = validator
 
     bank.trust = get_most_trusted_bank().trust - 1
