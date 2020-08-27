@@ -1,29 +1,31 @@
-from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.status import HTTP_200_OK
+from rest_framework.viewsets import ViewSet
 
 from v1.decorators.nodes import is_signed_message
 from ..serializers.primary_validator_updated import PrimaryValidatorUpdatedSerializer
 
 
-# primary_validator_updated
-class PrimaryValidatorUpdatedView(APIView):
+class PrimaryValidatorUpdatedViewSet(ViewSet):
+    """
+    Primary validator updated
+    ---
+    create:
+      description: Primary validator updated notice from bank
+    """
 
-    @staticmethod
+    serializer_class = PrimaryValidatorUpdatedSerializer
+
     @is_signed_message
-    def post(request):
-        """
-        description: Primary validator updated notice from bank
-        """
-
-        serializer = PrimaryValidatorUpdatedSerializer(
+    def create(self, request):
+        serializer = self.serializer_class(
             data={
                 **request.data['message'],
                 'node_identifier': request.data['node_identifier']
             },
             context={'request': request}
         )
-        if serializer.is_valid():
-            serializer.save()
-            return Response({}, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response({}, status=HTTP_200_OK)

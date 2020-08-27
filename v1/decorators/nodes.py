@@ -112,13 +112,13 @@ def is_signed_message(func):
     """
 
     @wraps(func)
-    def inner(request, *args, **kwargs):
+    def inner(obj, request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='message')
 
         if error:
             return Response(error, status=status.HTTP_401_UNAUTHORIZED)
 
-        return func(request, *args, **kwargs)
+        return func(obj, request, *args, **kwargs)
 
     return inner
 

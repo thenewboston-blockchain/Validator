@@ -1,14 +1,8 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views.primary_validator_updated import PrimaryValidatorUpdatedView
-from .views.upgrade_request import UpgradeRequestView
+from .views.primary_validator_updated import PrimaryValidatorUpdatedViewSet
+from .views.upgrade_request import UpgradeRequestViewSet
 
-urlpatterns = [
-
-    # Primary validator updated (from bank)
-    path('primary_validator_updated', PrimaryValidatorUpdatedView.as_view()),
-
-    # Upgrade request (from bank)
-    path('upgrade_request', UpgradeRequestView.as_view())
-
-]
+router = SimpleRouter(trailing_slash=False)
+router.register('primary_validator_updated', PrimaryValidatorUpdatedViewSet, basename='primary_validator_updated')
+router.register('upgrade_request', UpgradeRequestViewSet, basename='upgrade_request')
