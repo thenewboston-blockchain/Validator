@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from django.db.models import Q
-from thenewboston.base_classes.connect_to_primary_validator import ConnectToPrimaryValidator
+from thenewboston.base_classes.fetch_primary_validator_config import FetchPrimaryValidatorConfig
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.messages import get_message_hash
 
@@ -16,17 +16,16 @@ python3 manage.py initialize_confirmation_validator
 
 Notes:
 - this should be ran after initialize_validator
-- connects to the primary validator
 
 Running this script will:
-- connect to Validator and download config
-- create a Validator object using config data
+- fetch config data from primary validator
+- create a Validator instance using config data
 - set that Validator as the primary validator
 """
 
 
-class Command(ConnectToPrimaryValidator):
-    help = 'Initialize a confirmation validator and connect to the primary validator'
+class Command(FetchPrimaryValidatorConfig):
+    help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
 
     def __init__(self):
         super().__init__()
@@ -62,7 +61,7 @@ class Command(ConnectToPrimaryValidator):
 
         return get_message_hash(message=confirmation_block['message'])
 
-    def set_primary_validator(self, primary_validator_config):
+    def handle_primary_validator_config(self, primary_validator_config):
         """
         Set primary validator
         """
@@ -97,6 +96,7 @@ class Command(ConnectToPrimaryValidator):
 
         self.stdout.write(self.style.SUCCESS('Adding blocks to CONFIRMATION_BLOCK_QUEUE...'))
 
+        # TODO: Update this logic with the new sync process
         populate_confirmation_block_queue(
             address=self.get_primary_validator_address(),
             error_handler=self._error,
