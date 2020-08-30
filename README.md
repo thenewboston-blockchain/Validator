@@ -1,5 +1,5 @@
 # Project Setup
-X
+
 You can join in the discussion over at [thenewboston Slack](https://thenewboston.slack.com/join/shared_invite/zt-fmj4j8af-reXJKdQADo7QIvAp92Ro5w?fbclid=IwAR1AKKWJ_ljPi8SpfEuQW2oCcZ8r_ho9ebanqH0fDvuppQKxSiN-k5VY4jk#/)
 
 ## Windows
