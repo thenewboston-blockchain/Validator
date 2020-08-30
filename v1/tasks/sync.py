@@ -121,6 +121,9 @@ def populate_confirmation_block_queue(*, address, error_handler, initial_block_i
 def sync_to_new_primary_validator(*, ip_address, port, protocol):
     """
     Sync to new primary validator (as directed by most trusted bank)
+    - ensure Validator object exists
+    - connect to the primary validator
+    - send a request to the primary validator for any missing historical confirmation blocks
     """
 
     address = format_address(

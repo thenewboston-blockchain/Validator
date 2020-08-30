@@ -52,7 +52,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
             primary_validator = self_configuration.primary_validator
 
             if not primary_validator:
-                return True
+                return False
 
             if primary_validator.ip_address == ip_address:
                 return True
