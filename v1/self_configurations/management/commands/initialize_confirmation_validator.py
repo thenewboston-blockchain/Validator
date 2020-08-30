@@ -5,10 +5,10 @@ from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.messages import get_message_hash
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
+from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.models.self_configuration import SelfConfiguration
-from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
-from v1.tasks.sync import get_confirmation_block, populate_confirmation_block_queue
+from v1.tasks.sync import get_confirmation_block
 from v1.validators.models.validator import Validator
 
 """
@@ -74,14 +74,22 @@ class Command(FetchPrimaryValidatorConfig):
             Q(node_identifier=validator_data.get('node_identifier'))
         ).delete()
 
-        validator = Validator.objects.create(
+        primary_validator = Validator.objects.create(
             **validator_data,
             trust=self.required_input['trust']
         )
         self_configuration = SelfConfiguration.objects.first()
-        self_configuration.primary_validator = validator
+        self_configuration.primary_validator = primary_validator
         self_configuration.save()
 
+        try:
+            self.stdout.write(self.style.SUCCESS('Connecting to primary validator...'))
+            connect_to_primary_validator(primary_validator=primary_validator)
+        except Exception as e:
+            self._error(f'Connection failed: {e}')
+            return
+
+        self.stdout.write(self.style.SUCCESS('Syncing with primary validator...'))
         self.sync(primary_validator_config=primary_validator_config)
 
     def sync(self, *, primary_validator_config):
@@ -94,12 +102,11 @@ class Command(FetchPrimaryValidatorConfig):
         cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
         cache.set(HEAD_BLOCK_HASH, initial_block_identifier, None)
 
-        self.stdout.write(self.style.SUCCESS('Adding blocks to CONFIRMATION_BLOCK_QUEUE...'))
-
         # TODO: Update this logic with the new sync process
-        populate_confirmation_block_queue(
-            address=self.get_primary_validator_address(),
-            error_handler=self._error,
-            initial_block_identifier=initial_block_identifier
-        )
-        process_confirmation_block_queue()
+        # TODO: Clean up dead code
+        # populate_confirmation_block_queue(
+        #     address=self.get_primary_validator_address(),
+        #     error_handler=self._error,
+        #     initial_block_identifier=initial_block_identifier
+        # )
+        # process_confirmation_block_queue()
