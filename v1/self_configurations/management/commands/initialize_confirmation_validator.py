@@ -20,7 +20,9 @@ Notes:
 Running this script will:
 - fetch config data from primary validator
 - create a Validator instance using config data
-- set that Validator as the primary validator
+- set that Validator as this nodes primary validator
+- connect to the primary validator
+- send a request to the primary validator for any missing historical confirmation blocks
 """
 
 
@@ -63,7 +65,10 @@ class Command(FetchPrimaryValidatorConfig):
 
     def handle_primary_validator_config(self, primary_validator_config):
         """
-        Set primary validator
+        Create a Validator instance using the primary_validator_config
+        Set that Validator as this nodes primary validator
+        Connect to the primary validator
+        Send a request to the primary validator for any missing historical confirmation blocks
         """
 
         validator_field_names = standard_field_names(Validator)
