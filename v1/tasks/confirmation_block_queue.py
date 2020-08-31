@@ -75,7 +75,7 @@ def process_confirmation_block_queue():
             new_accounts=new_accounts
         )
 
-        delete_queued_confirmation_block(block_identifier=confirmation_block['block_identifier'])
+        delete_queued_confirmation_block(block_identifier=confirmation_block['message']['block_identifier'])
         add_valid_confirmation_block(confirmation_block=confirmation_block)
 
         # TODO: Run as task
