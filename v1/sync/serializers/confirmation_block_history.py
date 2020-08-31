@@ -27,6 +27,8 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
             protocol=validator.protocol
         )
 
+        return validated_data
+
     def update(self, instance, validated_data):
         pass
 
