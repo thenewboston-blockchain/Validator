@@ -25,6 +25,9 @@ Logic handles:
 """
 
 
+# TODO: Remove this entire file
+
+
 def get_confirmation_block(*, address, block_identifier):
     """
     Return confirmation block chain segment
