@@ -145,7 +145,7 @@ def sync_blockchains(*, primary_validator):
     if head_block_hash:
         confirmation_block = fetch_confirmation_block(
             primary_validator=primary_validator,
-            block_identifier=HEAD_BLOCK_HASH
+            block_identifier=head_block_hash
         )
 
         if confirmation_block:
