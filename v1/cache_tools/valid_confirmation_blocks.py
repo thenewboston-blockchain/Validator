@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-from .constants import VALID_CONFIRMATION_BLOCK
+from .cache_keys import VALID_CONFIRMATION_BLOCK, get_valid_confirmation_block_cache_key
 
 
 def add_valid_confirmation_block(*, confirmation_block):
@@ -31,9 +31,10 @@ def get_all_valid_confirmation_blocks():
     return cache.get_many(keys)
 
 
-def get_valid_confirmation_block_cache_key(*, block_identifier):
+def get_valid_confirmation_block(*, block_identifier):
     """
-    Return cache key used for storing valid confirmation blocks
+    Return valid confirmation block or None
     """
 
-    return f'{VALID_CONFIRMATION_BLOCK}:{block_identifier}'
+    key = get_valid_confirmation_block_cache_key(block_identifier=block_identifier)
+    return cache.get(key)

@@ -1,12 +1,11 @@
 import logging
 
 from celery import shared_task
-from django.core.cache import cache
 from thenewboston.utils.format import format_address
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.network import post
 
-from v1.cache_tools.cache_keys import get_confirmation_block_cache_key
+from v1.cache_tools.valid_confirmation_blocks import get_valid_confirmation_block
 
 logger = logging.getLogger('thenewboston')
 
@@ -24,16 +23,14 @@ def send_confirmation_block_history(*, block_identifier, ip_address, port, proto
     )
     url = f'{address}/confirmation_blocks'
 
-    confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=block_identifier)
-    confirmation_block = cache.get(confirmation_block_cache_key)
+    valid_confirmation_block = get_valid_confirmation_block(block_identifier=block_identifier)
 
-    while confirmation_block:
+    while valid_confirmation_block:
 
         try:
-            post(url=url, body=confirmation_block)
+            post(url=url, body=valid_confirmation_block)
         except Exception as e:
             logger.exception(e)
 
-        block_identifier = get_message_hash(message=confirmation_block['message'])
-        confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=block_identifier)
-        confirmation_block = cache.get(confirmation_block_cache_key)
+        block_identifier = get_message_hash(message=valid_confirmation_block['message'])
+        valid_confirmation_block = get_valid_confirmation_block(block_identifier=block_identifier)

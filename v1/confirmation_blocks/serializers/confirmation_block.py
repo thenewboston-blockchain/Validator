@@ -3,11 +3,8 @@ from rest_framework import serializers
 from thenewboston.constants.network import BALANCE_LOCK_LENGTH, MAX_POINT_VALUE, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
-from v1.cache_tools.queued_confirmation_blocks import (
-    add_queued_confirmation_block,
-    get_queued_confirmation_block_cache_key
-)
-from v1.cache_tools.valid_confirmation_blocks import get_valid_confirmation_block_cache_key
+from v1.cache_tools.cache_keys import get_queued_confirmation_block_cache_key, get_valid_confirmation_block_cache_key
+from v1.cache_tools.queued_confirmation_blocks import add_queued_confirmation_block
 
 
 class UpdatedBalanceSerializer(serializers.Serializer):

@@ -1,8 +1,7 @@
-from django.core.cache import cache
 from rest_framework import serializers
 from thenewboston.constants.network import PRIMARY_VALIDATOR, VERIFY_KEY_LENGTH
 
-from v1.cache_tools.cache_keys import get_confirmation_block_cache_key
+from v1.cache_tools.valid_confirmation_blocks import get_valid_confirmation_block
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.confirmation_block_history import send_confirmation_block_history
 from v1.validators.models.validator import Validator
@@ -50,10 +49,9 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
         Validate confirmation block matching block_identifier exists
         """
 
-        confirmation_block_cache_key = get_confirmation_block_cache_key(block_identifier=block_identifier)
-        confirmation_block = cache.get(confirmation_block_cache_key)
+        valid_confirmation_block = get_valid_confirmation_block(block_identifier=block_identifier)
 
-        if not confirmation_block:
+        if not valid_confirmation_block:
             raise serializers.ValidationError('Confirmation block with that block identifier does not exists')
 
         return block_identifier

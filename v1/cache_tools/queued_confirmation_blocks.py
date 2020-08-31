@@ -1,6 +1,6 @@
 from django.core.cache import cache
 
-from .constants import QUEUED_CONFIRMATION_BLOCK
+from .cache_keys import QUEUED_CONFIRMATION_BLOCK, get_queued_confirmation_block_cache_key
 
 
 def add_queued_confirmation_block(*, confirmation_block):
@@ -47,11 +47,3 @@ def get_queued_confirmation_block(*, block_identifier):
 
     key = get_queued_confirmation_block_cache_key(block_identifier=block_identifier)
     return cache.get(key)
-
-
-def get_queued_confirmation_block_cache_key(*, block_identifier):
-    """
-    Return cache key used for storing queued confirmation blocks
-    """
-
-    return f'{QUEUED_CONFIRMATION_BLOCK}:{block_identifier}'
