@@ -9,7 +9,7 @@ from thenewboston.constants.network import (
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.tasks.sync import sync_to_new_primary_validator
+from v1.sync.manager import sync_with_primary_validator
 
 
 class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
@@ -30,23 +30,29 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
         port = validated_data['port']
         protocol = validated_data['protocol']
 
-        if self.primary_validator_synchronized(ip_address=ip_address):
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        if self.primary_validator_synchronized(
+            ip_address=ip_address,
+            self_configuration=self_configuration
+        ):
             return True
 
-        if bank == get_most_trusted_bank():
-            sync_to_new_primary_validator(ip_address=ip_address, port=port, protocol=protocol)
+        if (
+            self_configuration.node_type == CONFIRMATION_VALIDATOR and
+            bank == get_most_trusted_bank()
+        ):
+            sync_with_primary_validator(ip_address=ip_address, port=port, protocol=protocol)
             return True
 
         bank.delete()
         raise serializers.ValidationError('Networks out of sync')
 
     @staticmethod
-    def primary_validator_synchronized(ip_address):
+    def primary_validator_synchronized(ip_address, self_configuration):
         """
         Return boolean indicating if self primary validator is set to given IP address
         """
-
-        self_configuration = get_self_configuration(exception_class=RuntimeError)
 
         if self_configuration.node_type == CONFIRMATION_VALIDATOR:
             primary_validator = self_configuration.primary_validator

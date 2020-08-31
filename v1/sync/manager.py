@@ -3,6 +3,7 @@ import logging
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
@@ -185,6 +186,7 @@ def sync_with_primary_validator(*, ip_address, port, protocol, trust=None):
         port=port,
         protocol=protocol
     )
+    config = {k: v for k, v in config.items() if k in standard_field_names(Validator)}
 
     if trust is None:
         trust = get_trust(config=config)
