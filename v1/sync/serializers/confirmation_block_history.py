@@ -4,6 +4,7 @@ from thenewboston.constants.network import PRIMARY_VALIDATOR, VERIFY_KEY_LENGTH
 
 from v1.cache_tools.cache_keys import get_confirmation_block_cache_key
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.tasks.confirmation_block_history import send_confirmation_block_history
 from v1.validators.models.validator import Validator
 
 
@@ -19,8 +20,12 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
         block_identifier = validated_data['block_identifier']
         validator = validated_data['node_identifier']
 
-        # TODO: Stream down blocks
-        print(block_identifier, validator)
+        send_confirmation_block_history.delay(
+            block_identifier=block_identifier,
+            ip_address=validator.ip_address,
+            port=validator.port,
+            protocol=validator.protocol
+        )
 
     def update(self, instance, validated_data):
         pass
