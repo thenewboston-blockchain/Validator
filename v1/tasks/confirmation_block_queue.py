@@ -8,11 +8,13 @@ from thenewboston.utils.network import post
 from thenewboston.utils.signed_requests import generate_signed_request
 
 from v1.banks.helpers.confirmation_services import get_banks_with_active_confirmation_services
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
+from v1.cache_tools.queued_confirmation_blocks import delete_queued_confirmation_block, get_queued_confirmation_block
+from v1.cache_tools.valid_confirmation_blocks import add_valid_confirmation_block
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.helpers.signing_key import get_signing_key
 from .bank_confirmation_services import handle_bank_confirmation_services
-from .confirmation_blocks import sign_block_to_confirm
+from .confirmation_blocks import sign_block_to_confirm_and_update_head_block_hash
 from .helpers import (
     format_updated_balances,
     get_updated_accounts,
@@ -36,9 +38,8 @@ def process_confirmation_block_queue():
     """
 
     self_configuration = get_self_configuration(exception_class=RuntimeError)
-    queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
-    confirmation_block = queue.pop(head_block_hash, None)
+    confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
 
     while confirmation_block:
         block = confirmation_block['block']
@@ -68,11 +69,14 @@ def process_confirmation_block_queue():
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
-        confirmation_block = sign_block_to_confirm(
+        confirmation_block, head_block_hash = sign_block_to_confirm_and_update_head_block_hash(
             block=block,
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
+
+        delete_queued_confirmation_block(block_identifier=confirmation_block['block_identifier'])
+        add_valid_confirmation_block(confirmation_block=confirmation_block)
 
         # TODO: Run as task
         handle_bank_confirmation_services(
@@ -80,11 +84,7 @@ def process_confirmation_block_queue():
             self_account_number=self_configuration.account_number
         )
         send_confirmation_block_to_banks(confirmation_block=confirmation_block)
-
-        head_block_hash = cache.get(HEAD_BLOCK_HASH)
-        confirmation_block = queue.pop(head_block_hash, None)
-
-    cache.set(CONFIRMATION_BLOCK_QUEUE, queue, None)
+        confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
 
 
 def send_confirmation_block_to_banks(*, confirmation_block):

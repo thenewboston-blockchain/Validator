@@ -8,7 +8,7 @@ from thenewboston.utils.network import post
 from v1.cache_tools.cache_keys import BLOCK_QUEUE
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
-from .confirmation_blocks import sign_block_to_confirm
+from .confirmation_blocks import sign_block_to_confirm_and_update_head_block_hash
 from .helpers import get_updated_accounts, is_block_valid, update_accounts_cache, update_accounts_table
 
 logger = logging.getLogger('thenewboston')
@@ -41,7 +41,7 @@ def process_block_queue():
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
-        confirmation_block = sign_block_to_confirm(
+        confirmation_block, head_block_hash = sign_block_to_confirm_and_update_head_block_hash(
             block=block,
             existing_accounts=existing_accounts,
             new_accounts=new_accounts

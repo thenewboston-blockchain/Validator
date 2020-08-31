@@ -9,8 +9,9 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch, post
 from thenewboston.utils.signed_requests import generate_signed_request
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
 from v1.cache_tools.helpers import rebuild_cache
+from v1.cache_tools.queued_confirmation_blocks import delete_all_queued_confirmation_blocks
 from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.helpers.signing_key import get_signing_key
@@ -132,7 +133,7 @@ def set_primary_validator(*, validator):
 def sync_blockchains(*, primary_validator):
     """
     Sync blockchains with the primary validator
-    - clear CONFIRMATION_BLOCK_QUEUE
+    - delete all queued confirmation blocks
     - determine the starting block to sync from
     - send a request for any missing blocks
 
@@ -147,7 +148,7 @@ def sync_blockchains(*, primary_validator):
     brand new network and we therefore must sync from the root_account_file_hash
     """
 
-    cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
+    delete_all_queued_confirmation_blocks()
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
     if head_block_hash:

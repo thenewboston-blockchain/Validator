@@ -1,5 +1,4 @@
 BLOCK_QUEUE = 'block-queue'
-CONFIRMATION_BLOCK_QUEUE = 'confirmation-block-queue'
 HEAD_BLOCK_HASH = 'head-block-hash'
 
 

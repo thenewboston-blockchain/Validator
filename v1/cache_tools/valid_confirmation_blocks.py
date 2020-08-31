@@ -8,10 +8,10 @@ def add_valid_confirmation_block(*, confirmation_block):
     Add valid confirmation block to the cache
     """
 
-    cache_key = get_valid_confirmation_block_cache_key(
+    key = get_valid_confirmation_block_cache_key(
         block_identifier=confirmation_block['block_identifier']
     )
-    cache.set(cache_key, confirmation_block, None)
+    cache.set(key, confirmation_block, None)
 
 
 def delete_all_valid_confirmation_blocks():
@@ -27,7 +27,7 @@ def get_all_valid_confirmation_blocks():
     Return a set of all valid confirmation blocks
     """
 
-    keys = cache.iter_keys(f'{VALID_CONFIRMATION_BLOCK}:*')
+    keys = cache.keys(f'{VALID_CONFIRMATION_BLOCK}:*')
     return cache.get_many(keys)
 
 
