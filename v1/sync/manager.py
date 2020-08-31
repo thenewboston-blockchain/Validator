@@ -4,6 +4,7 @@ from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
 from thenewboston.utils.fields import standard_field_names
+from thenewboston.utils.files import get_file_hash
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
@@ -168,12 +169,22 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
             url=primary_validator.root_account_file,
             destination_file_path=settings.LOCAL_ROOT_ACCOUNT_FILE_PATH
         )
+        file_hash = get_file_hash(settings.LOCAL_ROOT_ACCOUNT_FILE_PATH)
+
+        # TODO: root_account_file should not be a copy of PVs URL but rather a unique path
+        # TODO: this way, every validator maintains their own copy
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+        self_configuration.root_account_file = primary_validator.root_account_file
+        self_configuration.root_account_file_hash = file_hash
+        self_configuration.seed_block_identifier = primary_validator.seed_block_identifier
+        self_configuration.save()
+
         sync_accounts_table_to_root_account_file()
     except Exception as e:
         logger.exception(e)
         raise RuntimeError(e)
 
-    initial_block_identifier = primary_validator.seed_block_identifier or primary_validator.root_account_file_hash
+    initial_block_identifier = self_configuration.seed_block_identifier or self_configuration.root_account_file_hash
     rebuild_cache(head_block_hash=initial_block_identifier)
     send_confirmation_block_history_request()
 
