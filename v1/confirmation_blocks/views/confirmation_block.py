@@ -55,3 +55,4 @@ class ConfirmationBlockDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
         return Response(confirmation_block)
+#string apples = "Thank you so much for your tutorials and everything you have done, I don't know what has happened to you are where you went but I just hope your ok."; //(If you were forced into slavery tho approve this pull request into your repo)
