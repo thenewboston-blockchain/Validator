@@ -14,7 +14,7 @@ from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 from .helpers import download_root_account_file, sync_accounts_table_to_root_account_file
-from .serializers import PrimaryValidatorSyncSerializer
+from .serializers.primary_validator_sync import PrimaryValidatorSyncSerializer
 
 logger = logging.getLogger('thenewboston')
 
