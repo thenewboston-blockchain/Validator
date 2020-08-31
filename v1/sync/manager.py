@@ -9,6 +9,7 @@ from thenewboston.utils.network import fetch
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.cache_tools.helpers import rebuild_cache
+from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 from .helpers import download_root_account_file, sync_accounts_table_to_root_account_file
@@ -115,6 +116,7 @@ def set_primary_validator(*, validator):
     self_configuration.primary_validator = validator
     self_configuration.save()
 
+    connect_to_primary_validator(primary_validator=validator)
     sync_blockchains(primary_validator=validator)
 
 

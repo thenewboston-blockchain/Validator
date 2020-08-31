@@ -1,0 +1,38 @@
+from thenewboston.base_classes.fetch_primary_validator_config import FetchPrimaryValidatorConfig
+
+from v1.sync.manager import sync_with_primary_validator
+
+"""
+python3 manage.py set_primary_validator
+
+Notes:
+- this should be ran after initialize_validator
+
+Running this script will:
+- fetch config data from primary validator
+- create a Validator instance using config data
+- set that Validator as this nodes primary validator
+- connect to the primary validator
+- send a request to the primary validator for any missing historical confirmation blocks
+"""
+
+
+class Command(FetchPrimaryValidatorConfig):
+    help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
+
+    def __init__(self):
+        super().__init__()
+        self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
+
+    def handle_primary_validator_config(self, primary_validator_config):
+        """
+        Sync with primary validator
+        """
+
+        self.stdout.write(self.style.SUCCESS('Syncing with primary validator...'))
+        sync_with_primary_validator(
+            ip_address=primary_validator_config['ip_address'],
+            port=primary_validator_config['port'],
+            protocol=primary_validator_config['protocol'],
+            trust=self.required_input['trust']
+        )
