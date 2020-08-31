@@ -6,6 +6,7 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 
 from v1.cache_tools.cache_keys import BLOCK_QUEUE
+from v1.cache_tools.valid_confirmation_blocks import add_valid_confirmation_block
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
 from .confirmation_blocks import sign_block_to_confirm_and_update_head_block_hash
@@ -21,7 +22,9 @@ def process_block_queue():
     - this is for primary validators only
     """
 
+    # TODO: Lock or pop (must be atomic) since new blocks may be added between the time it's read and cleared
     block_queue = cache.get(BLOCK_QUEUE)
+    cache.set(BLOCK_QUEUE, [], None)
 
     for block in block_queue:
         is_valid, sender_account_balance = is_block_valid(block=block)
@@ -46,10 +49,10 @@ def process_block_queue():
             existing_accounts=existing_accounts,
             new_accounts=new_accounts
         )
-        send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
+        add_valid_confirmation_block(confirmation_block=confirmation_block)
 
-    logger.error('clearing BLOCK_QUEUE')
-    cache.set(BLOCK_QUEUE, [], None)
+        # TODO: Run as task
+        send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
 
 
 def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
