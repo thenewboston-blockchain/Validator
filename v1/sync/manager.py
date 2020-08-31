@@ -6,12 +6,14 @@ from django.db.models import Q
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.files import get_file_hash
 from thenewboston.utils.format import format_address
-from thenewboston.utils.network import fetch
+from thenewboston.utils.network import fetch, post
+from thenewboston.utils.signed_requests import generate_signed_request
 
 from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
 from v1.cache_tools.helpers import rebuild_cache
 from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.self_configurations.helpers.signing_key import get_signing_key
 from v1.validators.models.validator import Validator
 from .helpers import download_root_account_file, sync_accounts_table_to_root_account_file
 from .serializers.primary_validator_sync import PrimaryValidatorSyncSerializer
@@ -99,11 +101,17 @@ def send_confirmation_block_history_request():
         port=primary_validator.port,
         protocol=primary_validator.protocol
     )
-    url = f'{address}/confirmation_block_history/{head_block_hash}'
+    url = f'{address}/confirmation_block_history'
+
+    signed_request = generate_signed_request(
+        data={
+            'block_identifier': head_block_hash
+        },
+        nid_signing_key=get_signing_key()
+    )
 
     try:
-        results = fetch(url=url, headers={})
-        return results
+        post(url=url, body=signed_request)
     except Exception as e:
         logger.exception(e)
 
