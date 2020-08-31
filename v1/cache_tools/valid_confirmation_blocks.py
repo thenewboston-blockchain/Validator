@@ -9,7 +9,7 @@ def add_valid_confirmation_block(*, confirmation_block):
     """
 
     key = get_valid_confirmation_block_cache_key(
-        block_identifier=confirmation_block['block_identifier']
+        block_identifier=confirmation_block['message']['block_identifier']
     )
     cache.set(key, confirmation_block, None)
 
