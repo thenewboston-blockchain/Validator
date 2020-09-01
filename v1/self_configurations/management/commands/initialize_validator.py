@@ -15,6 +15,7 @@ from thenewboston.constants.network import (
 from thenewboston.utils.files import get_file_hash
 
 from v1.cache_tools.helpers import rebuild_cache
+from v1.cache_tools.valid_confirmation_blocks import delete_all_valid_confirmation_blocks
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.sync.helpers import download_root_account_file, sync_accounts_table_to_root_account_file
 from v1.validators.models.validator import Validator
@@ -233,5 +234,6 @@ class Command(InitializeNode):
 
         # Rebuild cache
         rebuild_cache(head_block_hash=head_block_hash)
+        delete_all_valid_confirmation_blocks()
 
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))

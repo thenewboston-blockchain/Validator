@@ -9,9 +9,11 @@ from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch, post
 from thenewboston.utils.signed_requests import generate_signed_request
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE, HEAD_BLOCK_HASH
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
 from v1.cache_tools.helpers import rebuild_cache
+from v1.cache_tools.queued_confirmation_blocks import delete_all_queued_confirmation_blocks
 from v1.connection_requests.helpers.connect import connect_to_primary_validator
+from v1.meta.helpers.block_identifier import get_initial_block_identifier
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.helpers.signing_key import get_signing_key
 from v1.validators.models.validator import Validator
@@ -41,9 +43,9 @@ def fetch_config(*, ip_address, port, protocol):
         raise RuntimeError(e)
 
 
-def fetch_confirmation_block(*, primary_validator, block_identifier):
+def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
     """
-    Return confirmation block
+    Return valid confirmation block
     """
 
     address = format_address(
@@ -51,7 +53,7 @@ def fetch_confirmation_block(*, primary_validator, block_identifier):
         port=primary_validator.port,
         protocol=primary_validator.protocol
     )
-    url = f'{address}/confirmation_blocks/{block_identifier}'
+    url = f'{address}/valid_confirmation_blocks/{block_identifier}'
 
     try:
         results = fetch(url=url, headers={})
@@ -92,7 +94,6 @@ def send_confirmation_block_history_request():
     Request missing blocks from the primary validator
     """
 
-    head_block_hash = cache.get(HEAD_BLOCK_HASH)
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     primary_validator = self_configuration.primary_validator
 
@@ -105,7 +106,7 @@ def send_confirmation_block_history_request():
 
     signed_request = generate_signed_request(
         data={
-            'block_identifier': head_block_hash
+            'block_identifier': cache.get(HEAD_BLOCK_HASH)
         },
         nid_signing_key=get_signing_key()
     )
@@ -132,7 +133,7 @@ def set_primary_validator(*, validator):
 def sync_blockchains(*, primary_validator):
     """
     Sync blockchains with the primary validator
-    - clear CONFIRMATION_BLOCK_QUEUE
+    - delete all queued confirmation blocks
     - determine the starting block to sync from
     - send a request for any missing blocks
 
@@ -147,16 +148,16 @@ def sync_blockchains(*, primary_validator):
     brand new network and we therefore must sync from the root_account_file_hash
     """
 
-    cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
+    delete_all_queued_confirmation_blocks()
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
     if head_block_hash:
-        confirmation_block = fetch_confirmation_block(
+        valid_confirmation_block = fetch_valid_confirmation_block(
             primary_validator=primary_validator,
             block_identifier=head_block_hash
         )
 
-        if confirmation_block:
+        if valid_confirmation_block:
             send_confirmation_block_history_request()
             return
 
@@ -192,8 +193,7 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
         logger.exception(e)
         raise RuntimeError(e)
 
-    initial_block_identifier = self_configuration.seed_block_identifier or self_configuration.root_account_file_hash
-    rebuild_cache(head_block_hash=initial_block_identifier)
+    rebuild_cache(head_block_hash=get_initial_block_identifier())
     send_confirmation_block_history_request()
 
 
