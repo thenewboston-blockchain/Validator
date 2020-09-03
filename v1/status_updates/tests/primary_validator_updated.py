@@ -28,18 +28,17 @@ def test_primary_validator_updated_200_not_changed(client, signing_key, bank, co
     assert confirmation_validator_configuration.primary_validator == primary_validator
 
 
-def test_primary_validator_updated_200(client, signing_key, bank, confirmation_validator_configuration, validator):
+def test_primary_validator_updated_200_not_available(
+    client, signing_key, bank, confirmation_validator_configuration, validator
+):
     primary_validator = validator
     primary_validator.ip_address = '127.0.0.1'
 
     bank.trust = get_most_trusted_bank().trust + 1
     bank.save()
 
-    primary_validator_updated(client, signing_key, primary_validator, HTTP_200_OK)
-
-    confirmation_validator_configuration.refresh_from_db()
-    # TODO: fix endpoint logic to update primary validator in self configuration, and enable this assert
-    # assert confirmation_validator_configuration.primary_validator == primary_validator
+    result = primary_validator_updated(client, signing_key, primary_validator, HTTP_400_BAD_REQUEST)
+    assert result == ['Networks out of sync']
 
 
 def test_primary_validator_updated_400_low_trust(

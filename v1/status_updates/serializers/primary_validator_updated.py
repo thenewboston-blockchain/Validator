@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework import serializers
 from thenewboston.constants.network import (
     CONFIRMATION_VALIDATOR,
@@ -5,11 +7,15 @@ from thenewboston.constants.network import (
     PROTOCOL_CHOICES,
     VERIFY_KEY_LENGTH
 )
+from thenewboston.utils.format import format_address
+from thenewboston.utils.network import fetch
 
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
-from v1.sync.manager import sync_with_primary_validator
+from v1.tasks.sync_with_primary_validator import sync_with_primary_validator
+
+logger = logging.getLogger('thenewboston')
 
 
 class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
@@ -42,8 +48,18 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
             self_configuration.node_type == CONFIRMATION_VALIDATOR and
             bank == get_most_trusted_bank()
         ):
-            sync_with_primary_validator(ip_address=ip_address, port=port, protocol=protocol)
-            return True
+            address = format_address(
+                ip_address=ip_address,
+                port=port,
+                protocol=protocol
+            )
+            try:
+                config = fetch(url=f'{address}/config', headers={})
+            except Exception as e:
+                logger.exception(e)
+            else:
+                sync_with_primary_validator.delay(config=config)
+                return True
 
         bank.delete()
         raise serializers.ValidationError('Networks out of sync')

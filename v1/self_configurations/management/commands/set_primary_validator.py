@@ -1,6 +1,6 @@
 from thenewboston.base_classes.fetch_primary_validator_config import FetchPrimaryValidatorConfig
 
-from v1.sync.manager import sync_with_primary_validator
+from v1.tasks.sync_with_primary_validator import sync_with_primary_validator
 
 """
 python3 manage.py set_primary_validator
@@ -31,8 +31,6 @@ class Command(FetchPrimaryValidatorConfig):
 
         self.stdout.write(self.style.SUCCESS('Syncing with primary validator...'))
         sync_with_primary_validator(
-            ip_address=primary_validator_config['ip_address'],
-            port=primary_validator_config['port'],
-            protocol=primary_validator_config['protocol'],
+            config=primary_validator_config,
             trust=self.required_input['trust']
         )

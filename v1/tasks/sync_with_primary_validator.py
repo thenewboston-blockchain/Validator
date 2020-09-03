@@ -1,5 +1,6 @@
 import logging
 
+from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
@@ -16,31 +17,11 @@ from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.meta.helpers.block_identifier import get_initial_block_identifier
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.helpers.signing_key import get_signing_key
+from v1.sync.helpers import download_root_account_file, sync_accounts_table_to_root_account_file
+from v1.sync.serializers.primary_validator_sync import PrimaryValidatorSyncSerializer
 from v1.validators.models.validator import Validator
-from .helpers import download_root_account_file, sync_accounts_table_to_root_account_file
-from .serializers.primary_validator_sync import PrimaryValidatorSyncSerializer
 
 logger = logging.getLogger('thenewboston')
-
-
-def fetch_config(*, ip_address, port, protocol):
-    """
-    Return config
-    """
-
-    address = format_address(
-        ip_address=ip_address,
-        port=port,
-        protocol=protocol
-    )
-    url = f'{address}/config'
-
-    try:
-        results = fetch(url=url, headers={})
-        return results
-    except Exception as e:
-        logger.exception(e)
-        raise RuntimeError(e)
 
 
 def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
@@ -197,16 +178,12 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
     send_confirmation_block_history_request()
 
 
-def sync_with_primary_validator(*, ip_address, port, protocol, trust=None):
+@shared_task
+def sync_with_primary_validator(*, config, trust=None):
     """
     Sync with primary validator
     """
 
-    config = fetch_config(
-        ip_address=ip_address,
-        port=port,
-        protocol=protocol
-    )
     config = {k: v for k, v in config.items() if k in standard_field_names(Validator)}
 
     if trust is None:
