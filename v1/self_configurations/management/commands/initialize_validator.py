@@ -1,8 +1,5 @@
-import json
 import logging
-import os
 from pathlib import Path
-from urllib.request import Request, urlopen
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
@@ -15,11 +12,12 @@ from thenewboston.constants.network import (
     HEAD_HASH_LENGTH,
     PRIMARY_VALIDATOR
 )
-from thenewboston.utils.files import get_file_hash, read_json, write_json
+from thenewboston.utils.files import get_file_hash
 
-from v1.accounts.models.account import Account
 from v1.cache_tools.helpers import rebuild_cache
+from v1.cache_tools.valid_confirmation_blocks import delete_all_valid_confirmation_blocks
 from v1.self_configurations.models.self_configuration import SelfConfiguration
+from v1.sync.helpers import download_root_account_file, sync_accounts_table_to_root_account_file
 from v1.validators.models.validator import Validator
 
 """
@@ -36,8 +34,6 @@ Running this script will:
 - create Account objects based on downloaded root_account_file
 - rebuild cache
 """
-
-LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(settings.TMP_DIR, 'root_account_file.json')
 
 logger = logging.getLogger('thenewboston')
 
@@ -62,18 +58,6 @@ class Command(InitializeNode):
             'seed_block_identifier': None,
             'version': None
         }
-
-    @staticmethod
-    def download_root_account_file(*, url, destination_file_path):
-        """
-        Download root account JSON file and save
-        """
-
-        print('Downloading file...')
-        request = Request(url)
-        response = urlopen(request)
-        results = json.loads(response.read())
-        write_json(destination_file_path, results)
 
     def get_head_block_hash(self):
         """
@@ -144,16 +128,16 @@ class Command(InitializeNode):
                 continue
 
             try:
-                self.download_root_account_file(
+                download_root_account_file(
                     url=root_account_file,
-                    destination_file_path=LOCAL_ROOT_ACCOUNT_FILE_PATH
+                    destination_file_path=settings.LOCAL_ROOT_ACCOUNT_FILE_PATH
                 )
             except Exception as e:
                 logger.exception(e)
                 self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
                 self.stdout.write(self.style.ERROR(e))
 
-            file_hash = get_file_hash(LOCAL_ROOT_ACCOUNT_FILE_PATH)
+            file_hash = get_file_hash(settings.LOCAL_ROOT_ACCOUNT_FILE_PATH)
 
             if not self.required_input['head_block_hash']:
                 self.required_input['head_block_hash'] = file_hash
@@ -246,26 +230,10 @@ class Command(InitializeNode):
             **self.required_input,
             node_type=node_type
         )
-        self.update_accounts_table()
+        sync_accounts_table_to_root_account_file()
 
         # Rebuild cache
         rebuild_cache(head_block_hash=head_block_hash)
+        delete_all_valid_confirmation_blocks()
 
         self.stdout.write(self.style.SUCCESS('Validator initialization complete'))
-
-    @staticmethod
-    def update_accounts_table():
-        """
-        Create Account objects
-        """
-
-        Account.objects.all().delete()
-        account_data = read_json(LOCAL_ROOT_ACCOUNT_FILE_PATH)
-        accounts = [
-            Account(
-                account_number=k,
-                balance=v['balance'],
-                balance_lock=v['balance_lock']
-            ) for k, v in account_data.items()
-        ]
-        Account.objects.bulk_create(accounts)

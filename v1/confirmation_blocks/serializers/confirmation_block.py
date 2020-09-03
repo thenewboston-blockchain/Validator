@@ -3,7 +3,8 @@ from rest_framework import serializers
 from thenewboston.constants.network import BALANCE_LOCK_LENGTH, MAX_POINT_VALUE, VERIFY_KEY_LENGTH
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
-from v1.cache_tools.cache_keys import CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import get_queued_confirmation_block_cache_key, get_valid_confirmation_block_cache_key
+from v1.cache_tools.queued_confirmation_blocks import add_queued_confirmation_block
 
 
 class UpdatedBalanceSerializer(serializers.Serializer):
@@ -28,12 +29,8 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         Add a confirmation block to the queue
         """
 
-        block_identifier = validated_data['block_identifier']
-        confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
-        confirmation_block_queue[block_identifier] = self.initial_data
-        cache.set(CONFIRMATION_BLOCK_QUEUE, confirmation_block_queue, None)
-
-        return block_identifier
+        add_queued_confirmation_block(confirmation_block=self.initial_data)
+        return validated_data['block_identifier']
 
     def update(self, instance, validated_data):
         pass
@@ -44,10 +41,15 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         """
 
         block_identifier = data['block_identifier']
-        confirmation_block_queue = cache.get(CONFIRMATION_BLOCK_QUEUE)
 
-        if confirmation_block_queue.get(block_identifier):
-            raise serializers.ValidationError('Confirmation block with that block_identifier already exists')
+        queued_confirmation_block_cache_key = get_queued_confirmation_block_cache_key(block_identifier=block_identifier)
+        valid_confirmation_block_cache_key = get_valid_confirmation_block_cache_key(block_identifier=block_identifier)
+
+        if cache.has_key(queued_confirmation_block_cache_key):
+            raise serializers.ValidationError('Queued confirmation block with that block_identifier already exists')
+
+        if cache.has_key(valid_confirmation_block_cache_key):
+            raise serializers.ValidationError('Valid confirmation block with that block_identifier already exists')
 
         return data
 

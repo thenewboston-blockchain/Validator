@@ -4,7 +4,8 @@ from thenewboston.constants.network import CONFIRMATION_VALIDATOR, PRIMARY_VALID
 
 from v1.banks.helpers.most_trusted import get_most_trusted_bank
 from v1.banks.models.bank import Bank
-from v1.cache_tools.cache_keys import BLOCK_QUEUE, CONFIRMATION_BLOCK_QUEUE
+from v1.cache_tools.cache_keys import BLOCK_QUEUE
+from v1.cache_tools.queued_confirmation_blocks import delete_all_queued_confirmation_blocks
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.upgrade_notices import send_upgrade_notices
 
@@ -30,7 +31,7 @@ class UpgradeRequestSerializer(serializers.Serializer):
             self_configuration.node_type = PRIMARY_VALIDATOR
             self_configuration.save()
             cache.set(BLOCK_QUEUE, [], None)
-            cache.set(CONFIRMATION_BLOCK_QUEUE, {}, None)
+            delete_all_queued_confirmation_blocks()
             send_upgrade_notices.delay(requesting_banks_node_identifier=validated_data['node_identifier'])
 
         return self_configuration
