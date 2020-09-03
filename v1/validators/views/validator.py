@@ -27,6 +27,7 @@ class ValidatorViewSet(
     """
 
     lookup_field = 'node_identifier'
+    ordering_fields = '__all__'
     queryset = Validator.objects.all()
     serializer_class = ValidatorSerializer
     serializer_create_class = ValidatorSerializerCreate

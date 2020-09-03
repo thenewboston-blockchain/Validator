@@ -26,6 +26,7 @@ class BankViewSet(
     """
 
     lookup_field = 'node_identifier'
+    ordering_fields = '__all__'
     queryset = Bank.objects.all()
     serializer_class = BankSerializer
     serializer_create_class = BankSerializerCreate
