@@ -12,8 +12,15 @@ class ValidatorSerializer(serializers.ModelSerializer):
         read_only_fields = all_field_names(Validator)
 
 
+class ValidatorSerializerCreate(serializers.ModelSerializer):
+
+    class Meta:
+        fields = '__all__'
+        model = Validator
+
+
 class ValidatorSerializerUpdate(serializers.ModelSerializer):
 
     class Meta:
-        model = Validator
         fields = ('trust',)
+        model = Validator

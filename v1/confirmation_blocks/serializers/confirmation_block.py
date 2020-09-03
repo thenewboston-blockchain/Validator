@@ -45,10 +45,13 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         queued_confirmation_block_cache_key = get_queued_confirmation_block_cache_key(block_identifier=block_identifier)
         valid_confirmation_block_cache_key = get_valid_confirmation_block_cache_key(block_identifier=block_identifier)
 
-        if cache.has_key(queued_confirmation_block_cache_key):
+        # TODO: Checking for the existence of the key is fine, however .has_key() causes PEP8 warnings due to Pythons
+        # TODO: deprecated has_key function
+
+        if cache.get(queued_confirmation_block_cache_key):
             raise serializers.ValidationError('Queued confirmation block with that block_identifier already exists')
 
-        if cache.has_key(valid_confirmation_block_cache_key):
+        if cache.get(valid_confirmation_block_cache_key):
             raise serializers.ValidationError('Valid confirmation block with that block_identifier already exists')
 
         return data
