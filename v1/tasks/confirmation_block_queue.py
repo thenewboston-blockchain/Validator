@@ -78,11 +78,14 @@ def process_confirmation_block_queue():
         delete_queued_confirmation_block(block_identifier=confirmation_block['message']['block_identifier'])
         add_valid_confirmation_block(confirmation_block=confirmation_block)
 
-        # TODO: Run as task
-        handle_bank_confirmation_services(
-            block=block,
-            self_account_number=self_configuration.account_number
-        )
+        if self_configuration.daily_confirmation_rate:
+
+            # TODO: Run as task
+            handle_bank_confirmation_services(
+                block=block,
+                self_account_number=self_configuration.account_number
+            )
+
         send_confirmation_block_to_banks(confirmation_block=confirmation_block)
         confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
 
