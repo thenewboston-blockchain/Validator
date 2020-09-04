@@ -9,7 +9,7 @@
       "port": 8000,
       "protocol": "http",
       "version": "v1.0",
-      "default_transaction_fee": "4",
+      "default_transaction_fee": 4,
       "root_account_file": "https://gist.githubusercontent.com/buckyroberts/5c82af10872bc25f7ab51ac71f2b5378/raw/77ff5cab1385b59cb2b212e091394afd16bfe23d/1.json",
       "root_account_file_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
       "seed_block_identifier": "",
