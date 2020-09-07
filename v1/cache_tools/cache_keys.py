@@ -1,4 +1,6 @@
 BLOCK_QUEUE = 'block-queue'
+CRAWL_LAST_COMPLETED = 'crawl-last-completed'
+CRAWL_STATUS = 'crawl-status'
 HEAD_BLOCK_HASH = 'head-block-hash'
 
 # Cache key prefixes
