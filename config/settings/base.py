@@ -18,6 +18,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     # Requirements
+    'channels',
     'corsheaders',
     'rest_framework',
 
@@ -146,5 +147,14 @@ REST_FRAMEWORK = {
 
 PAGINATION_DEFAULT_LIMIT = 50
 PAGINATION_MAX_LIMIT = 100
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            'hosts': [('127.0.0.1', 6379)],
+        },
+    },
+}
 
 LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(TMP_DIR, 'root_account_file.json')
