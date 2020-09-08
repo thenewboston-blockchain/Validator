@@ -9,8 +9,9 @@ def create_bank_from_config_data(*, config_data):
     Create bank from config data
     """
 
+    excluded = ['confirmation_expiration', 'trust']
     fields = standard_field_names(Bank)
-    data = {field: config_data[field] for field in fields if field != 'trust'}
+    data = {field: config_data[field] for field in fields if field not in excluded}
     Bank.objects.create(**data, trust=0)
 
 
