@@ -46,6 +46,7 @@ MIDDLEWARE = [
 ]
 
 ROOT_URLCONF = 'config.urls'
+ASGI_APPLICATION = 'config.routing.application'
 
 TEMPLATES = [
     {
