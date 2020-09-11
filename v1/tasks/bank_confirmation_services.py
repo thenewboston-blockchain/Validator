@@ -1,6 +1,7 @@
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
+from v1.bank_confirmation_services.models.bank_confirmation_service import BankConfirmationService
 from v1.banks.models.bank import Bank
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from .signed_requests import send_signed_post_request
@@ -26,8 +27,9 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
     days_purchased = confirmation_service_amount / daily_confirmation_rate
     seconds_purchased = days_purchased * 86400
     seconds_purchased = int(seconds_purchased)
-
     end = start + relativedelta(seconds=seconds_purchased)
+
+    BankConfirmationService.objects.create(bank=bank, end=end, start=start)
     bank.confirmation_expiration = end
     bank.save()
 
