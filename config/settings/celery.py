@@ -10,6 +10,12 @@ app = Celery('tasks')
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
 
+app.conf.update(
+    task_routes={
+        'v1.tasks.block_queue.process_block_queue': {'queue': 'block_queue'},
+    },
+)
+
 
 @app.task(bind=True)
 def debug_task(self):

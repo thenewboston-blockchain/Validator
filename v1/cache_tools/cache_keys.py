@@ -3,6 +3,10 @@ CRAWL_LAST_COMPLETED = 'crawl-last-completed'
 CRAWL_STATUS = 'crawl-status'
 HEAD_BLOCK_HASH = 'head-block-hash'
 
+# Cache lock keys
+BLOCK_QUEUE_CACHE_LOCK_KEY = 'block-queue-cache-lock-key'
+CRAWL_CACHE_LOCK_KEY = 'crawl-cache-lock-key'
+
 # Cache key prefixes
 QUEUED_CONFIRMATION_BLOCK = 'queued-confirmation-block'
 VALID_CONFIRMATION_BLOCK = 'valid-confirmation-block'
