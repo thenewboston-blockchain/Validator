@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.viewsets import ViewSet
 from thenewboston.constants.network import PRIMARY_VALIDATOR
 from thenewboston.serializers.network_block import NetworkBlockSerializer
 
@@ -16,15 +16,16 @@ This view should check the block formatting only and not the validity of the tra
 """
 
 
-# bank_blocks
-class BankBlockView(APIView):
+class BankBlockViewSet(ViewSet):
+    """
+    Bank block
+    ---
+    create:
+      description: Add a block to the queue
+    """
 
     @staticmethod
     def add_block_to_queue(block):
-        """
-        Add block to the queue
-        """
-
         # TODO: Improved caching system
 
         queue = cache.get(BLOCK_QUEUE)
@@ -39,10 +40,7 @@ class BankBlockView(APIView):
 
     @staticmethod
     @is_signed_bank_block
-    def post(request):
-        """
-        description: Add a block to the queue
-        """
+    def create(request):
 
         self_configuration = get_self_configuration(exception_class=RuntimeError)
 
@@ -55,9 +53,7 @@ class BankBlockView(APIView):
             data=block,
             context={'request': request}
         )
+        serializer.is_valid(raise_exception=True)
+        BankBlockViewSet.add_block_to_queue(block)
 
-        if serializer.is_valid():
-            BankBlockView.add_block_to_queue(block)
-            return Response({}, status=status.HTTP_200_OK)
-
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response({}, status=status.HTTP_200_OK)
