@@ -5,7 +5,7 @@ from django.core.cache import cache
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 
-from v1.cache_tools.cache_keys import BLOCK_QUEUE
+from v1.cache_tools.cache_keys import BLOCK_QUEUE, BLOCK_QUEUE_CACHE_LOCK_KEY
 from v1.cache_tools.valid_confirmation_blocks import add_valid_confirmation_block
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.validators.models.validator import Validator
@@ -22,9 +22,10 @@ def process_block_queue():
     - this is for primary validators only
     """
 
-    # TODO: Lock or pop (must be atomic) since new blocks may be added between the time it's read and cleared
-    block_queue = cache.get(BLOCK_QUEUE)
-    cache.set(BLOCK_QUEUE, [], None)
+    with cache.lock(BLOCK_QUEUE_CACHE_LOCK_KEY):
+        block_queue = cache.get(BLOCK_QUEUE)
+        if block_queue:
+            cache.set(BLOCK_QUEUE, [], None)
 
     for block in block_queue:
         is_valid, sender_account_balance = is_block_valid(block=block)
@@ -50,11 +51,10 @@ def process_block_queue():
             new_accounts=new_accounts
         )
         add_valid_confirmation_block(confirmation_block=confirmation_block)
-
-        # TODO: Run as task
-        send_confirmation_block_to_confirmation_validators(confirmation_block=confirmation_block)
+        send_confirmation_block_to_confirmation_validators.delay(confirmation_block=confirmation_block)
 
 
+@shared_task
 def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     """
     Send confirmed block to confirmation validators
