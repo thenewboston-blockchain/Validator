@@ -24,6 +24,7 @@ def process_block_queue():
 
     with cache.lock(BLOCK_QUEUE_CACHE_LOCK_KEY):
         block_queue = cache.get(BLOCK_QUEUE)
+
         if block_queue:
             cache.set(BLOCK_QUEUE, [], None)
 

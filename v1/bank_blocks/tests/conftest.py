@@ -1,12 +1,11 @@
 import pytest
-
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
 from thenewboston.accounts.manage import create_account
 from thenewboston.blocks.block import generate_block
 from thenewboston.blocks.signatures import generate_signature
-from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 from thenewboston.utils.tools import sort_and_encode
+from thenewboston.verify_keys.verify_key import encode_verify_key, get_verify_key
 
 
 @pytest.fixture

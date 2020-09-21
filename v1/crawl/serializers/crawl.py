@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from rest_framework import serializers
 
-from v1.cache_tools.cache_keys import CRAWL_STATUS, CRAWL_CACHE_LOCK_KEY
+from v1.cache_tools.cache_keys import CRAWL_CACHE_LOCK_KEY, CRAWL_STATUS
 from v1.tasks.crawl import start_crawl
 from ..constants import (
     CRAWL_COMMAND_START,
