@@ -25,6 +25,6 @@ class QueuedConfirmationBlockDetail(APIView):
         queued_confirmation_block = get_queued_confirmation_block(block_identifier=block_identifier)
 
         if not queued_confirmation_block:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(queued_confirmation_block)

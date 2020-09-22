@@ -25,6 +25,6 @@ class ValidConfirmationBlockDetail(APIView):
         valid_confirmation_block = get_valid_confirmation_block(block_identifier=block_identifier)
 
         if not valid_confirmation_block:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response({}, status=status.HTTP_404_NOT_FOUND)
 
         return Response(valid_confirmation_block)

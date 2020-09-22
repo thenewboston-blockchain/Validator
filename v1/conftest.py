@@ -3,6 +3,7 @@ import os
 import pytest
 from django.core.management import call_command
 from thenewboston.accounts.manage import create_account
+from thenewboston.blocks.block import generate_block
 from thenewboston.third_party.pytest.client import UserWrapper
 from thenewboston.verify_keys.verify_key import encode_verify_key
 
@@ -31,6 +32,25 @@ def account_number(account_data):
 @pytest.fixture
 def bank(encoded_account_number):
     yield BankFactory(node_identifier=encoded_account_number)
+
+
+@pytest.fixture
+def block_data(account_data, encoded_account_number, random_encoded_account_number):
+    signing_key, account_number = create_account()
+
+    yield generate_block(
+        account_number=account_number,
+        balance_lock=encode_verify_key(
+            verify_key=account_number,
+        ),
+        signing_key=signing_key,
+        transactions=[
+            {
+                'amount': 1,
+                'recipient': random_encoded_account_number
+            }
+        ]
+    )
 
 
 @pytest.fixture
@@ -80,6 +100,12 @@ def primary_validator_configuration(monkeypatch):
     load_validator_fixtures(PRIMARY_VALIDATOR_FIXTURES_DIR)
     monkeypatch.setenv('NETWORK_SIGNING_KEY', '6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81')
     yield get_self_configuration(exception_class=RuntimeError)
+
+
+@pytest.fixture
+def random_encoded_account_number():
+    _, account_number = create_account()
+    yield encode_verify_key(verify_key=account_number)
 
 
 @pytest.fixture

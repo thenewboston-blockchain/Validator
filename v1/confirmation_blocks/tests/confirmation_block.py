@@ -1,0 +1,52 @@
+import pytest
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
+
+from v1.cache_tools.queued_confirmation_blocks import add_queued_confirmation_block
+from v1.cache_tools.valid_confirmation_blocks import add_valid_confirmation_block
+
+
+@pytest.fixture(autouse=True)
+def confirmation_primary_validator(confirmation_validator_configuration):
+    pass
+
+
+def test_confirmation_block_post(client, confirmation_block_data, celery_worker):
+    client.post_json(
+        '/confirmation_blocks',
+        confirmation_block_data,
+        expected=HTTP_201_CREATED,
+    )
+
+
+def test_confirmation_block_queued_200(client, confirmation_block_data, block_identifier):
+    add_queued_confirmation_block(confirmation_block=confirmation_block_data['message'])
+
+    result = client.get_json(
+        '/queued_confirmation_blocks/%s' % block_identifier,
+        expected=HTTP_200_OK,
+    )
+    assert result == confirmation_block_data['message']
+
+
+def test_confirmation_block_queued_404(client, confirmation_block_data, block_identifier):
+    client.get_json(
+        '/queued_confirmation_blocks/%s' % block_identifier,
+        expected=HTTP_404_NOT_FOUND,
+    )
+
+
+def test_confirmation_block_valid_200(client, confirmation_block_data, block_identifier):
+    add_valid_confirmation_block(confirmation_block=confirmation_block_data)
+
+    result = client.get_json(
+        '/valid_confirmation_blocks/%s' % block_identifier,
+        expected=HTTP_200_OK,
+    )
+    assert result == confirmation_block_data
+
+
+def test_confirmation_block_valid_404(client, block_identifier):
+    client.get_json(
+        '/valid_confirmation_blocks/%s' % block_identifier,
+        expected=HTTP_404_NOT_FOUND,
+    )
