@@ -1,0 +1,40 @@
+version: '3.2'
+
+services:
+  redis:
+    image: redis
+
+  app:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - REDIS_HOST=redis
+      - DJANGO_APPLICATION_ENVIRONMENT=local
+      - NETWORK_SIGNING_KEY=6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81
+    command: python3 -u /opt/project/manage.py
+    volumes:
+      - .:/opt/project
+    ports:
+      - "8000:8000"
+    links:
+      - redis
+    depends_on:
+      - redis
+      - celery
+
+  celery:
+    build:
+      dockerfile: Dockerfile
+      context: .
+    environment:
+      - REDIS_HOST=redis
+      - DJANGO_APPLICATION_ENVIRONMENT=local
+      - NETWORK_SIGNING_KEY=6f812a35643b55a77f71c3b722504fbc5918e83ec72965f7fd33865ed0be8f81
+    command: celery -A config.settings worker -l debug
+    volumes:
+      - .:/opt/project
+    links:
+      - redis
+    depends_on:
+      - redis
