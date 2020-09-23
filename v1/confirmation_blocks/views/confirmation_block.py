@@ -3,11 +3,12 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 from thenewboston.constants.errors import ERROR
-from thenewboston.constants.network import HEAD_HASH_LENGTH
+from thenewboston.constants.network import HEAD_HASH_LENGTH, CONFIRMATION_VALIDATOR
 
 from v1.cache_tools.queued_confirmation_blocks import get_queued_confirmation_block
 from v1.cache_tools.valid_confirmation_blocks import get_valid_confirmation_block
 from v1.decorators.nodes import is_signed_by_primary_validator
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.confirmation_block_queue import process_confirmation_block_queue
 from ..serializers.confirmation_block import ConfirmationBlockSerializerCreate
 
@@ -27,6 +28,10 @@ class ConfirmationBlockViewSet(ViewSet):
     @staticmethod
     @is_signed_by_primary_validator
     def create(request):
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        if self_configuration.node_type != CONFIRMATION_VALIDATOR:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
         serializer = ConfirmationBlockSerializerCreate(data=request.data['message'])
 
@@ -38,7 +43,6 @@ class ConfirmationBlockViewSet(ViewSet):
 
     @staticmethod
     def get_block(block_identifier, block_getter):
-
         if len(block_identifier) != HEAD_HASH_LENGTH:
             return Response(
                 {ERROR: f'block_identifier must be {HEAD_HASH_LENGTH} characters long'},
@@ -55,6 +59,11 @@ class ConfirmationBlockViewSet(ViewSet):
     @staticmethod
     @action(methods=['get'], detail=True)
     def queued(request, pk):
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        if self_configuration.node_type != CONFIRMATION_VALIDATOR:
+            return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
         return ConfirmationBlockViewSet.get_block(pk, get_queued_confirmation_block)
 
     @staticmethod
