@@ -8,6 +8,7 @@ from thenewboston.third_party.pytest.client import UserWrapper
 from thenewboston.verify_keys.verify_key import encode_verify_key
 
 from v1.banks.factories.bank import BankFactory
+from v1.cache_tools.helpers import rebuild_cache
 from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.self_configurations.management.commands.initialize_test_confirmation_validator import (
     FIXTURES_DIR as CONFIRMATION_VALIDATOR_FIXTURES_DIR
@@ -62,7 +63,11 @@ def client():
 def confirmation_validator_configuration(monkeypatch):
     load_validator_fixtures(CONFIRMATION_VALIDATOR_FIXTURES_DIR)
     monkeypatch.setenv('NETWORK_SIGNING_KEY', '7a3359729b41f953d52818e787a312c8576e179e2ee50a2e4f28c4596b12dce0')
-    yield get_self_configuration(exception_class=RuntimeError)
+
+    self_configuration = get_self_configuration(exception_class=RuntimeError)
+    rebuild_cache(head_block_hash=self_configuration.root_account_file_hash)
+
+    yield self_configuration
 
 
 @pytest.fixture(autouse=True)

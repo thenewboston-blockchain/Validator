@@ -80,16 +80,16 @@ def process_confirmation_block_queue():
 
         if self_configuration.daily_confirmation_rate:
 
-            # TODO: Run as task
             handle_bank_confirmation_services(
                 block=block,
                 self_account_number=self_configuration.account_number
-            )
+            ).delay()
 
         send_confirmation_block_to_banks(confirmation_block=confirmation_block)
         confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
 
 
+@shared_task
 def send_confirmation_block_to_banks(*, confirmation_block):
     """
     Send confirmed block to banks with active confirmation services

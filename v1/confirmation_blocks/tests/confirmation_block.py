@@ -11,6 +11,7 @@ def confirmation_primary_validator(confirmation_validator_configuration):
     pass
 
 
+@pytest.mark.django_db(transaction=True)
 def test_confirmation_block_post(client, confirmation_block_data, celery_worker):
     client.post_json(
         reverse('confirmation_blocks-list'),
