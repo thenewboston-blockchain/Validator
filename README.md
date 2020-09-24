@@ -1,6 +1,19 @@
+## Community
+
+Join the community to stay updated on the most recent developments, project roadmaps, and random discussions about
+completely unrelated topics.
+
+- [thenewboston.com](https://thenewboston.com/)
+- [Slack](https://join.slack.com/t/thenewboston/shared_invite/zt-hkw1b98m-X3oe6VPX6xenHvQeaXQbfg)
+- [reddit](https://www.reddit.com/r/thenewboston/)
+- [Facebook](https://www.facebook.com/TheNewBoston-464114846956315/)
+- [Twitter](https://twitter.com/bucky_roberts)
+- [YouTube](https://www.youtube.com/user/thenewboston)
+
 # Project Setup
 
-You can join in the discussion over at [thenewboston Slack](https://thenewboston.slack.com/join/shared_invite/zt-fmj4j8af-reXJKdQADo7QIvAp92Ro5w?fbclid=IwAR1AKKWJ_ljPi8SpfEuQW2oCcZ8r_ho9ebanqH0fDvuppQKxSiN-k5VY4jk#/)
+Follow the steps below to set up the project on your environment. If you run into any problems, feel free to leave a 
+GitHub Issue or reach out to any of our communities above.
 
 ## Windows
 
