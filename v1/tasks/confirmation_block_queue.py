@@ -89,7 +89,6 @@ def process_confirmation_block_queue():
         confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
 
 
-@shared_task
 def send_confirmation_block_to_banks(*, confirmation_block):
     """
     Send confirmed block to banks with active confirmation services

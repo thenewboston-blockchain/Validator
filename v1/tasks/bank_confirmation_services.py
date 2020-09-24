@@ -1,3 +1,4 @@
+from celery import shared_task
 from dateutil.relativedelta import relativedelta
 from django.utils import timezone
 
@@ -47,6 +48,7 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
     return seconds_purchased
 
 
+@shared_task
 def handle_bank_confirmation_services(*, block, self_account_number):
     """
     Check validated block to see if there are any payments to self from banks
