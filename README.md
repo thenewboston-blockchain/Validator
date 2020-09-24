@@ -1,4 +1,4 @@
-## Community
+# Community
 
 Join the community to stay updated on the most recent developments, project roadmaps, and random discussions about
 completely unrelated topics.
