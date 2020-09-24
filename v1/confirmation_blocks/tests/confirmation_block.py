@@ -1,7 +1,9 @@
 import pytest
+from django.core.cache import cache
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_404_NOT_FOUND
 
+from v1.cache_tools.cache_keys import HEAD_BLOCK_HASH
 from v1.cache_tools.queued_confirmation_blocks import add_queued_confirmation_block
 from v1.cache_tools.valid_confirmation_blocks import add_valid_confirmation_block
 
@@ -13,6 +15,10 @@ def confirmation_primary_validator(confirmation_validator_configuration):
 
 @pytest.mark.django_db(transaction=True)
 def test_confirmation_block_post(client, confirmation_block_data, celery_worker):
+
+    key = confirmation_block_data['message']['block_identifier']
+    cache.set(HEAD_BLOCK_HASH, key, None)
+
     client.post_json(
         reverse('confirmation_blocks-list'),
         confirmation_block_data,
