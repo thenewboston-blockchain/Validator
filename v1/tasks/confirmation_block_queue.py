@@ -79,7 +79,6 @@ def process_confirmation_block_queue():
         add_valid_confirmation_block(confirmation_block=confirmation_block)
 
         if self_configuration.daily_confirmation_rate:
-
             handle_bank_confirmation_services(
                 block=block,
                 self_account_number=self_configuration.account_number
