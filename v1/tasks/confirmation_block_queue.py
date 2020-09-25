@@ -79,10 +79,10 @@ def process_confirmation_block_queue():
         add_valid_confirmation_block(confirmation_block=confirmation_block)
 
         if self_configuration.daily_confirmation_rate:
-            handle_bank_confirmation_services(
+            handle_bank_confirmation_services.delay(
                 block=block,
                 self_account_number=self_configuration.account_number
-            ).delay()
+            )
 
         send_confirmation_block_to_banks(confirmation_block=confirmation_block)
         confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)

@@ -58,9 +58,11 @@ Run Redis:
 redis-server
 ```
 
-Run Celery:
+Run Celery (run each as a separate process):
 ```
 celery -A config.settings worker -l debug
+celery -A config.settings worker -l debug --queue block_queue --pool solo
+celery -A config.settings worker -l debug --queue confirmation_block_queue --pool solo
 ```
 
 To monitor Celery tasks:
