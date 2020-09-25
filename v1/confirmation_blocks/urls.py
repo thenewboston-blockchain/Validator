@@ -1,18 +1,6 @@
-from django.urls import path
+from rest_framework.routers import SimpleRouter
 
-from .views.confirmation_block import ConfirmationBlockView
-from .views.queued_confirmation_block import QueuedConfirmationBlockDetail
-from .views.valid_confirmation_block import ValidConfirmationBlockDetail
+from .views.confirmation_block import ConfirmationBlockViewSet
 
-urlpatterns = [
-
-    # Confirmation blocks
-    path('confirmation_blocks', ConfirmationBlockView.as_view()),
-
-    # Queued confirmation blocks
-    path('queued_confirmation_blocks/<str:block_identifier>', QueuedConfirmationBlockDetail.as_view()),
-
-    # Valid confirmation blocks
-    path('valid_confirmation_blocks/<str:block_identifier>', ValidConfirmationBlockDetail.as_view()),
-
-]
+router = SimpleRouter(trailing_slash=False)
+router.register('confirmation_blocks', ConfirmationBlockViewSet, basename='confirmation_blocks')
