@@ -9,8 +9,8 @@ dump.rdb
 logs/*
 
 # Project files
-!tmp/.gitkeep
-tmp/*
+!media/.gitkeep
+media/*
 
 # Django
 *.pot

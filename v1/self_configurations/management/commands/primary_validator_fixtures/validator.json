@@ -10,7 +10,7 @@
       "protocol": "http",
       "version": "v1.0",
       "default_transaction_fee": 4,
-      "root_account_file": "https://gist.githubusercontent.com/buckyroberts/519b5cb82a0a5b5d4ae8a2175b722520/raw/9237deb449e27cab93cb89ea3346ecdfc61fe9ea/0.json",
+      "root_account_file": "https://gist.githubusercontent.com/buckyroberts/032e8459789a7a2606b59ac0241fdc48/raw/25296313948f46b7b0dcb8790ec2dd0036e06d14/alpha-01.json",
       "root_account_file_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
       "seed_block_identifier": "",
       "trust": "100.00"

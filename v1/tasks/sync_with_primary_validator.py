@@ -3,6 +3,7 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
+from django.core.files.storage import default_storage
 from django.db.models import Q
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.files import get_file_hash
@@ -155,17 +156,16 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
     """
 
     try:
-        download_root_account_file(
-            url=primary_validator.root_account_file,
-            destination_file_path=settings.LOCAL_ROOT_ACCOUNT_FILE_PATH
-        )
-        file_hash = get_file_hash(settings.LOCAL_ROOT_ACCOUNT_FILE_PATH)
-
-        # TODO: root_account_file should not be a copy of PVs URL but rather a unique path
-        # TODO: this way, every validator maintains their own copy
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        self_configuration.root_account_file = primary_validator.root_account_file
-        self_configuration.root_account_file_hash = file_hash
+        self_address = format_address(
+            ip_address=self_configuration.ip_address,
+            port=self_configuration.port,
+            protocol=self_configuration.protocol,
+        )
+        download_root_account_file(url=primary_validator.root_account_file)
+
+        self_configuration.root_account_file = self_address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)
+        self_configuration.root_account_file_hash = get_file_hash(settings.ROOT_ACCOUNT_FILE_PATH)
         self_configuration.seed_block_identifier = primary_validator.seed_block_identifier
         self_configuration.save()
 

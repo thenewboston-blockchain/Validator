@@ -3,6 +3,7 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.files.storage import default_storage
 from django.core.validators import URLValidator
 from django.db.models import Q
 from thenewboston.base_classes.initialize_node import InitializeNode
@@ -13,6 +14,7 @@ from thenewboston.constants.network import (
     PRIMARY_VALIDATOR
 )
 from thenewboston.utils.files import get_file_hash
+from thenewboston.utils.format import format_address
 
 from v1.cache_tools.helpers import rebuild_cache
 from v1.cache_tools.valid_confirmation_blocks import delete_all_valid_confirmation_blocks
@@ -128,19 +130,23 @@ class Command(InitializeNode):
                 continue
 
             try:
-                download_root_account_file(
-                    url=root_account_file,
-                    destination_file_path=settings.LOCAL_ROOT_ACCOUNT_FILE_PATH
-                )
+                download_root_account_file(url=root_account_file)
             except Exception as e:
                 logger.exception(e)
                 self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
                 self.stdout.write(self.style.ERROR(e))
 
-            file_hash = get_file_hash(settings.LOCAL_ROOT_ACCOUNT_FILE_PATH)
+            file_hash = get_file_hash(settings.ROOT_ACCOUNT_FILE_PATH)
 
             if not self.required_input['head_block_hash']:
                 self.required_input['head_block_hash'] = file_hash
+
+            self_address = format_address(
+                ip_address=self.required_input.get('ip_address'),
+                port=self.required_input.get('port'),
+                protocol=self.required_input.get('protocol'),
+            )
+            root_account_file = self_address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)
 
             self.required_input.update({
                 'root_account_file': root_account_file,
@@ -198,10 +204,10 @@ class Command(InitializeNode):
         self.get_node_type()
         self.get_seed_block_identifier()
         self.get_head_block_hash()
-        self.get_root_account_file()
         self.get_protocol()
         self.get_ip_address()
         self.get_port()
+        self.get_root_account_file()
         self.get_version_number()
 
         self.initialize_validator()
