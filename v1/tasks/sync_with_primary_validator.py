@@ -3,7 +3,6 @@ import logging
 from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
-from django.core.files.storage import default_storage
 from django.db.models import Q
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.files import get_file_hash
@@ -16,7 +15,7 @@ from v1.cache_tools.helpers import rebuild_cache
 from v1.cache_tools.queued_confirmation_blocks import delete_all_queued_confirmation_blocks
 from v1.connection_requests.helpers.connect import connect_to_primary_validator
 from v1.meta.helpers.block_identifier import get_initial_block_identifier
-from v1.self_configurations.helpers.self_configuration import get_self_configuration
+from v1.self_configurations.helpers.self_configuration import get_root_account_file_url, get_self_configuration
 from v1.self_configurations.helpers.signing_key import get_signing_key
 from v1.sync.helpers import download_root_account_file, sync_accounts_table_to_root_account_file
 from v1.sync.serializers.primary_validator_sync import PrimaryValidatorSyncSerializer
@@ -157,14 +156,9 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
 
     try:
         self_configuration = get_self_configuration(exception_class=RuntimeError)
-        self_address = format_address(
-            ip_address=self_configuration.ip_address,
-            port=self_configuration.port,
-            protocol=self_configuration.protocol,
-        )
         download_root_account_file(url=primary_validator.root_account_file)
 
-        self_configuration.root_account_file = self_address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)
+        self_configuration.root_account_file = get_root_account_file_url()
         self_configuration.root_account_file_hash = get_file_hash(settings.ROOT_ACCOUNT_FILE_PATH)
         self_configuration.seed_block_identifier = primary_validator.seed_block_identifier
         self_configuration.save()

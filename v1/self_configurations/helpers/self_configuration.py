@@ -1,3 +1,7 @@
+from django.conf import settings
+from django.core.files.storage import default_storage
+from thenewboston.utils.format import format_address
+
 from ..models.self_configuration import SelfConfiguration
 
 
@@ -23,3 +27,20 @@ def get_self_configuration(*, exception_class):
         raise exception_class('No self configuration')
 
     return self_configuration
+
+
+def get_root_account_file_url(*, address=None):
+    """
+    Return root accout file url
+    """
+
+    if not address:
+        self_configuration = get_self_configuration(exception_class=RuntimeError)
+
+        address = format_address(
+            ip_address=self_configuration.ip_address,
+            port=self_configuration.port,
+            protocol=self_configuration.protocol,
+        )
+
+    return address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)

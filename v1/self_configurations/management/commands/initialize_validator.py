@@ -3,7 +3,6 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.files.storage import default_storage
 from django.core.validators import URLValidator
 from django.db.models import Q
 from thenewboston.base_classes.initialize_node import InitializeNode
@@ -18,6 +17,7 @@ from thenewboston.utils.format import format_address
 
 from v1.cache_tools.helpers import rebuild_cache
 from v1.cache_tools.valid_confirmation_blocks import delete_all_valid_confirmation_blocks
+from v1.self_configurations.helpers.self_configuration import get_root_account_file_url
 from v1.self_configurations.models.self_configuration import SelfConfiguration
 from v1.sync.helpers import download_root_account_file, sync_accounts_table_to_root_account_file
 from v1.validators.models.validator import Validator
@@ -146,7 +146,7 @@ class Command(InitializeNode):
                 port=self.required_input.get('port'),
                 protocol=self.required_input.get('protocol'),
             )
-            root_account_file = self_address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)
+            root_account_file = get_root_account_file_url(address=self_address)
 
             self.required_input.update({
                 'root_account_file': root_account_file,
