@@ -7,15 +7,16 @@ from thenewboston.utils.files import read_json, write_json
 from v1.accounts.models.account import Account
 
 
-def download_root_account_file(*, url, destination_file_path):
+def download_root_account_file(*, url):
     """
     Download root account JSON file and save
     """
 
     request = Request(url)
     response = urlopen(request)
+
     results = json.loads(response.read())
-    write_json(destination_file_path, results)
+    write_json(settings.ROOT_ACCOUNT_FILE_PATH, results)
 
 
 def sync_accounts_table_to_root_account_file():
@@ -24,7 +25,7 @@ def sync_accounts_table_to_root_account_file():
     """
 
     Account.objects.all().delete()
-    account_data = read_json(settings.LOCAL_ROOT_ACCOUNT_FILE_PATH)
+    account_data = read_json(settings.ROOT_ACCOUNT_FILE_PATH)
     accounts = [
         Account(
             account_number=k,

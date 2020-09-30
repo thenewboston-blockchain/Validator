@@ -2,7 +2,6 @@ import os
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 LOGS_DIR = os.path.join(BASE_DIR, 'logs')
-TMP_DIR = os.path.join(BASE_DIR, 'tmp')
 
 SECRET_KEY = 'g#$0(*8%8af27k7-e!ll^!-4yxomcx8ljv_o&_z*zhvi)f8&e7'
 DEBUG = True
@@ -97,6 +96,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TASK_SERIALIZER = 'json'
@@ -158,4 +160,4 @@ CHANNEL_LAYERS = {
     },
 }
 
-LOCAL_ROOT_ACCOUNT_FILE_PATH = os.path.join(TMP_DIR, 'root_account_file.json')
+ROOT_ACCOUNT_FILE_PATH = 'root_account_file.json'
