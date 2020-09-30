@@ -16,22 +16,9 @@ def get_primary_validator():
     return self_configuration.primary_validator
 
 
-def get_self_configuration(*, exception_class):
-    """
-    Return self configuration
-    """
-
-    self_configuration = SelfConfiguration.objects.first()
-
-    if not self_configuration:
-        raise exception_class('No self configuration')
-
-    return self_configuration
-
-
 def get_root_account_file_url(*, address=None):
     """
-    Return root accout file url
+    Return root account file URL
     """
 
     if not address:
@@ -44,3 +31,16 @@ def get_root_account_file_url(*, address=None):
         )
 
     return address + default_storage.url(settings.ROOT_ACCOUNT_FILE_PATH)
+
+
+def get_self_configuration(*, exception_class):
+    """
+    Return self configuration
+    """
+
+    self_configuration = SelfConfiguration.objects.first()
+
+    if not self_configuration:
+        raise exception_class('No self configuration')
+
+    return self_configuration
