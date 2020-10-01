@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import URLValidator
 from django.db.models import Q
+from sentry_sdk import capture_exception
 from thenewboston.base_classes.initialize_node import InitializeNode
 from thenewboston.constants.network import (
     BLOCK_IDENTIFIER_LENGTH,
@@ -132,6 +133,7 @@ class Command(InitializeNode):
             try:
                 download_root_account_file(url=root_account_file)
             except Exception as e:
+                capture_exception(e)
                 logger.exception(e)
                 self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
                 self.stdout.write(self.style.ERROR(e))

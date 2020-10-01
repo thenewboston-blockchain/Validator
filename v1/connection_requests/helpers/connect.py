@@ -1,5 +1,6 @@
 import logging
 
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch, post
 from thenewboston.utils.signed_requests import generate_signed_request
@@ -58,6 +59,7 @@ def is_connected_to_primary_validator(*, primary_validator_address, self_configu
         fetch(url=url, headers={})
         return True
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
 
     return False
@@ -79,6 +81,7 @@ def is_self_known_to_node(*, node, self_configuration):
         fetch(url=url, headers={})
         return True
     except Exception as e:
+        capture_exception(e)
         logger.debug(e)
 
     return False

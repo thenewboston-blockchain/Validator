@@ -2,6 +2,7 @@ import logging
 
 from celery import shared_task
 from django.core.cache import cache
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 
@@ -78,4 +79,5 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
         try:
             post(url=url, body=confirmation_block)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)

@@ -4,6 +4,7 @@ from celery import shared_task
 from django.conf import settings
 from django.core.cache import cache
 from django.db.models import Q
+from sentry_sdk import capture_exception
 from thenewboston.utils.fields import standard_field_names
 from thenewboston.utils.files import get_file_hash
 from thenewboston.utils.format import format_address
@@ -40,6 +41,7 @@ def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
         results = fetch(url=url, headers={})
         return results
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
 
 
@@ -95,6 +97,7 @@ def send_confirmation_block_history_request():
     try:
         post(url=url, body=signed_request)
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
 
 

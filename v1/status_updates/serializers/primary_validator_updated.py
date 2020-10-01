@@ -1,6 +1,7 @@
 import logging
 
 from rest_framework import serializers
+from sentry_sdk import capture_exception
 from thenewboston.constants.network import (
     CONFIRMATION_VALIDATOR,
     PRIMARY_VALIDATOR,
@@ -56,6 +57,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
             try:
                 config = fetch(url=f'{address}/config', headers={})
             except Exception as e:
+                capture_exception(e)
                 logger.exception(e)
             else:
                 sync_with_primary_validator.delay(config=config)

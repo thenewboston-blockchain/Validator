@@ -1,6 +1,7 @@
 import logging
 
 from celery import shared_task
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 from thenewboston.utils.signed_requests import generate_signed_request
@@ -50,4 +51,5 @@ def send_upgrade_notices(*, requesting_banks_node_identifier):
             post(url=url, body=signed_request)
         except Exception as e:
             bank.delete()
+            capture_exception(e)
             logger.exception(e)

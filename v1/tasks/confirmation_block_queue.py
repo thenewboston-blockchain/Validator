@@ -3,6 +3,7 @@ import logging
 
 from celery import shared_task
 from django.core.cache import cache
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import post
 from thenewboston.utils.signed_requests import generate_signed_request
@@ -106,6 +107,7 @@ def send_confirmation_block_to_banks(*, confirmation_block):
         try:
             post(url=url, body=confirmation_block)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
 
@@ -143,6 +145,7 @@ def send_invalid_block_to_banks(*, confirmation_block):
         try:
             post(url=url, body=invalid_block)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
 
