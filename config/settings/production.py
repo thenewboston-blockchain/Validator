@@ -6,7 +6,6 @@ from sentry_sdk.integrations.tornado import TornadoIntegration
 
 from .base import *
 
-
 sentry_sdk.init(
     'https://5a8286bb454c425baa7e995ebc3be100@o455400.ingest.sentry.io/5446923',
     traces_sample_rate=1.0,
