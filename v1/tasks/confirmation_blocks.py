@@ -1,6 +1,7 @@
 import logging
 
 from django.core.cache import cache
+from sentry_sdk import capture_exception
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.signed_requests import generate_signed_request
 
@@ -35,4 +36,5 @@ def sign_block_to_confirm_and_update_head_block_hash(*, block, existing_accounts
 
         return confirmation_block, message_hash
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)

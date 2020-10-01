@@ -3,6 +3,7 @@ from operator import itemgetter
 
 from django.core.cache import cache
 from nacl.exceptions import BadSignatureError
+from sentry_sdk import capture_exception
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.tools import sort_and_encode
@@ -85,6 +86,7 @@ def is_block_valid(*, block):
     except BadSignatureError:
         return False, None
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
         return False, None
 

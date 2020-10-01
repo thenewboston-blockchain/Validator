@@ -3,6 +3,7 @@ import logging
 from celery import shared_task
 from django.core.cache import cache
 from django.utils import timezone
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.network import fetch
 
@@ -48,6 +49,7 @@ def create_banks(*, known_nodes, results):
 
             logger.exception(serializer.errors)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
 
@@ -71,6 +73,7 @@ def crawl_banks(*, primary_validator_address, self_node_identifier):
             results = [i for i in results if i['node_identifier'] != self_node_identifier]
             create_banks(known_nodes=known_nodes, results=results)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
             break
 
@@ -100,6 +103,7 @@ def create_validators(*, known_nodes, results):
 
             logger.exception(serializer.errors)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
 
@@ -122,6 +126,7 @@ def crawl_validators(*, primary_validator_address):
             results = response.get('results')
             create_validators(known_nodes=known_nodes, results=results)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
             break
 
@@ -165,6 +170,7 @@ def send_connection_requests(*, node_class, self_configuration):
             if not is_self_known_to_node(node=node, self_configuration=self_configuration):
                 send_connection_request(node=node, self_configuration=self_configuration)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
 

@@ -1,6 +1,7 @@
 import logging
 
 from celery import shared_task
+from sentry_sdk import capture_exception
 from thenewboston.utils.format import format_address
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.network import post
@@ -30,6 +31,7 @@ def send_confirmation_block_history(*, block_identifier, ip_address, port, proto
         try:
             post(url=url, body=valid_confirmation_block)
         except Exception as e:
+            capture_exception(e)
             logger.exception(e)
 
         block_identifier = get_message_hash(message=valid_confirmation_block['message'])

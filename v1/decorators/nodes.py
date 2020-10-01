@@ -4,6 +4,7 @@ from functools import wraps
 from nacl.exceptions import BadSignatureError
 from rest_framework import status
 from rest_framework.response import Response
+from sentry_sdk import capture_exception
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.constants.errors import BAD_SIGNATURE, ERROR, UNKNOWN
 from thenewboston.utils.tools import sort_and_encode
@@ -147,9 +148,11 @@ def verify_request_signature(*, request, signed_data_key):
             verify_key=node_identifier
         )
     except BadSignatureError as e:
+        capture_exception(e)
         logger.exception(e)
         error = {ERROR: BAD_SIGNATURE}
     except Exception as e:
+        capture_exception(e)
         logger.exception(e)
         error = {ERROR: UNKNOWN}
 
