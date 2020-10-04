@@ -45,14 +45,13 @@ def clean_status(client):
 
 @pytest.mark.django_db(transaction=True)
 def test_clean_start_200(client, celery_worker):
-
     response = clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
 
     assert response['clean_last_completed'] is None
     assert response['clean_status'] == CLEAN_STATUS_CLEANING
 
     assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_CLEANING
-    time.sleep(2)
+    time.sleep(1)
     assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_NOT_CLEANING
     assert clean_status(client)['clean_status'] == CLEAN_STATUS_NOT_CLEANING
 
