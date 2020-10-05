@@ -4,8 +4,11 @@ import pytest
 from django.core.cache import cache
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
+from thenewboston.utils.format import format_address
 from thenewboston.utils.signed_requests import generate_signed_request
 
+from v1.banks.models.bank import Bank
+from v1.banks.serializers.bank import BankSerializer
 from v1.cache_tools.cache_keys import CLEAN_STATUS
 from v1.self_configurations.helpers.signing_key import get_signing_key
 from ..constants import (
@@ -44,7 +47,7 @@ def clean_status(client):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_clean_start_200(client, celery_worker):
+def test_clean_start_200(client, no_requests, celery_worker):
     response = clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
 
     assert response['clean_last_completed'] is None
@@ -54,6 +57,25 @@ def test_clean_start_200(client, celery_worker):
     time.sleep(1)
     assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_NOT_CLEANING
     assert clean_status(client)['clean_status'] == CLEAN_STATUS_NOT_CLEANING
+
+
+def test_clean_start_200_bank_removed(client, settings, requests_mock):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+
+    bank = Bank.objects.first()
+    bank_address = format_address(
+        ip_address=bank.ip_address,
+        port=bank.port,
+        protocol=bank.protocol
+    )
+    requests_mock.get(
+        f'{bank_address}/config',
+        json=BankSerializer(bank).data,
+    )
+    clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
+
+    with pytest.raises(Bank.DoesNotExist):
+        bank.refresh_from_db()
 
 
 def test_clean_start_400_already_cleaning(client):

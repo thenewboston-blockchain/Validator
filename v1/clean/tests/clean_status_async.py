@@ -13,7 +13,7 @@ from ..consumers.clean_status import CleanStatusConsumer
 
 @pytest.mark.asyncio
 @pytest.mark.django_db(transaction=True)
-async def test_clean_status_async(client, confirmation_validator_configuration, celery_worker):
+async def test_clean_status_async(client, confirmation_validator_configuration, no_requests, celery_worker):
 
     communicator = WebsocketCommunicator(
         CleanStatusConsumer,
