@@ -8,6 +8,7 @@ aioredis==1.3.1           # via channels-redis
 amqp==2.6.1               # via kombu
 asgiref==3.2.10           # via channels, channels-redis, daphne, django
 async-timeout==3.0.1      # via aioredis
+atomicwrites==1.4.0       # via pytest
 attrs==20.2.0             # via automat, pytest, service-identity, twisted
 autobahn==20.7.1          # via daphne
 automat==20.2.0           # via twisted
@@ -18,6 +19,7 @@ cffi==1.14.3              # via cryptography, pynacl
 channels-redis==2.4.2     # via thenewboston
 channels==2.4.0           # via channels-redis, thenewboston
 chardet==3.0.4            # via requests
+colorama==0.4.3           # via pytest
 constantly==15.1.0        # via twisted
 coverage==5.3             # via pytest-cov
 cryptography==3.1.1       # via autobahn, pyopenssl, service-identity
@@ -28,7 +30,7 @@ django-redis==4.11.0      # via -r requirements/base.in
 django==3.1.1             # via channels, django-cors-headers, django-debug-toolbar, django-redis, djangorestframework, thenewboston
 djangorestframework==3.11.1  # via thenewboston
 factory-boy==3.0.1        # via thenewboston
-faker==4.1.4              # via factory-boy
+faker==4.4.0              # via factory-boy
 flower==0.9.4             # via -r requirements/base.in
 hiredis==1.1.0            # via aioredis
 humanize==0.5.1           # via flower
@@ -59,10 +61,11 @@ pytest==6.0.2             # via pytest-asyncio, pytest-cov, pytest-django, thene
 python-dateutil==2.8.1    # via faker
 pytz==2020.1              # via celery, django, flower
 redis==3.5.2              # via -r requirements/base.in, django-redis
-requests==2.24.0          # via thenewboston
+requests-mock==1.8.0      # via -r requirements/base.in
+requests==2.24.0          # via requests-mock, thenewboston
 sentry-sdk==0.18.0        # via thenewboston
 service-identity==18.1.0  # via twisted
-six==1.15.0               # via automat, cryptography, packaging, pynacl, pyopenssl, python-dateutil
+six==1.15.0               # via automat, cryptography, packaging, pynacl, pyopenssl, python-dateutil, requests-mock
 sqlparse==0.3.1           # via django, django-debug-toolbar
 tblib==1.6.0              # via -r requirements/base.in
 text-unidecode==1.3       # via faker
@@ -74,8 +77,8 @@ txaio==20.4.1             # via autobahn
 urllib3==1.25.10          # via requests, sentry-sdk
 vine==1.3.0               # via amqp, celery
 wheel==0.34.2             # via -r requirements/base.in
-zipp==3.2.0               # via importlib-metadata
-zope.interface==5.1.1     # via twisted
+zipp==3.3.0               # via importlib-metadata
+zope.interface==5.1.2     # via twisted
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
