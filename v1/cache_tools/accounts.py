@@ -18,7 +18,7 @@ def get_account_balance(*, account_number):
         if account:
             return account.balance
 
-    return int(account_balance) if account_balance else None
+    return account_balance
 
 
 def get_account_balance_lock(*, account_number):
