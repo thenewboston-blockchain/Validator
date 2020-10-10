@@ -1,11 +1,11 @@
 from django.core.cache import cache
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_404_NOT_FOUND
+from thenewboston.constants.clean import CLEAN_COMMAND_START
 from thenewboston.utils.signed_requests import generate_signed_request
 
 from v1.cache_tools.cache_keys import CLEAN_STATUS
 from v1.self_configurations.helpers.signing_key import get_signing_key
-from ..constants import CLEAN_COMMAND_START
 
 
 def test_clean_start_200(client, primary_validator_configuration):
