@@ -35,7 +35,7 @@ def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
         port=primary_validator.port,
         protocol=primary_validator.protocol
     )
-    url = f'{address}/valid_confirmation_blocks/{block_identifier}'
+    url = f'{address}/confirmation_blocks/{block_identifier}/valid'
 
     try:
         results = fetch(url=url, headers={})
