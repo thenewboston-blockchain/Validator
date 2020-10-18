@@ -90,9 +90,9 @@ Run:
 docker-compose up # add -d to detach from donsole
 ```
 
-To run all tests:
+To run all tests in parallel:
 ```
-docker-compose run app pytest
+docker-compose run app pytest -n auto
 # or
 docker-compose exec app pytest # if docker-compose run is running
 ```
@@ -109,9 +109,9 @@ To watch log files:
 tail -f logs/warning.log -n 10
 ```
 
-To run all tests:
+To run all tests in parallel:
 ```
-pytest
+pytest -n auto
 ```
 
 When adding a package, add to `requirements/base.in` and then :

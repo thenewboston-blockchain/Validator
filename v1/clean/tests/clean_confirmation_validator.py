@@ -1,5 +1,3 @@
-import time
-
 import pytest
 from django.core.cache import cache
 from rest_framework.reverse import reverse
@@ -16,7 +14,7 @@ from thenewboston.utils.signed_requests import generate_signed_request
 
 from v1.banks.models.bank import Bank
 from v1.banks.serializers.bank import BankSerializer
-from v1.cache_tools.cache_keys import CLEAN_STATUS
+from v1.cache_tools.cache_keys import CLEAN_LAST_COMPLETED, CLEAN_STATUS
 from v1.self_configurations.helpers.signing_key import get_signing_key
 from ..helpers import get_clean_info
 from ..serializers.clean import CleanSerializer
@@ -48,16 +46,16 @@ def clean_status(client):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_clean_start_200(client, no_requests, celery_worker):
-    response = clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
+def test_clean_start_200(client, no_requests, settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
 
-    assert response['clean_last_completed'] is None
-    assert response['clean_status'] == CLEAN_STATUS_CLEANING
-
-    assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_CLEANING
-    time.sleep(1)
+    assert cache.get(CLEAN_LAST_COMPLETED) is not None
     assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_NOT_CLEANING
-    assert clean_status(client)['clean_status'] == CLEAN_STATUS_NOT_CLEANING
+
+    status = clean_status(client)
+    assert status['clean_last_completed'] is not None
+    assert status['clean_status'] == CLEAN_STATUS_NOT_CLEANING
 
 
 def test_clean_start_200_bank_removed(client, settings, requests_mock):
@@ -96,15 +94,14 @@ def test_clean_start_400_stop_requested(client):
 
 
 @pytest.mark.django_db(transaction=True)
-def test_clean_stop_200(client, celery_worker):
-    clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
+def test_clean_stop_200(client, settings):
+    settings.CELERY_TASK_ALWAYS_EAGER = True
+    cache.set(CLEAN_STATUS, CLEAN_STATUS_CLEANING, None)
+
     response = clean_request(client, CLEAN_COMMAND_STOP, HTTP_200_OK)
 
-    assert response['clean_last_completed'] is None
     assert response['clean_status'] == CLEAN_STATUS_STOP_REQUESTED
-    time.sleep(2)
-    assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_NOT_CLEANING
-    assert clean_status(client)['clean_status'] == CLEAN_STATUS_NOT_CLEANING
+    assert cache.get(CLEAN_STATUS) == CLEAN_STATUS_STOP_REQUESTED
 
 
 def test_clean_stop_400_not_cleaning(client):
