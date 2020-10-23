@@ -47,7 +47,7 @@ Resources:
                 yum install -y amazon-linux-extras
                 amazon-linux-extras enable python3.8 nginx1 redis4.0
                 amazon-linux-extras install -y epel
-                yum install -y python38 python38-devel nginx redis supervisor openssl-devel bzip2-devel libffi-devel
+                yum install -y python38 python38-devel nginx redis supervisor openssl-devel bzip2-devel libffi-devel postgresql-devel
                 yum -y groupinstall "Development Tools"
 
                 rm -rf /var/www/validator
@@ -61,6 +61,10 @@ Resources:
                 mkdir -p /var/log/validator/api
                 mkdir -p /var/log/validator/celery
                 chmod -R 0777 /var/log/validator
+
+                mkdir -p /var/run/daphne
+                chmod 0775 /var/run/daphne
+                chown nobody:nobody /var/run/daphne
 
                 # wget https://github.com/thenewboston-developers/Validator/archive/master.zip -P /tmp
                 wget -O /tmp/master.zip https://github.com/thenewboston-developers/Validator/archive/cf_rds.zip -P /tmp
@@ -142,7 +146,7 @@ Resources:
 
             /etc/supervisord.d/celery.ini:
               content: !Sub |
-                [program:validator-celery]
+                [program:validator-celery-w1]
                 environment=
                     APP_LOGS_DIR=/var/log/validator/celery,
                     DJANGO_APPLICATION_ENVIRONMENT=production,
@@ -156,28 +160,88 @@ Resources:
 
                 user=nobody
                 numprocs=1
-                stdout_logfile=/var/log/celery/validator-celery.log
-                stderr_logfile=/var/log/celery/validator-celery.error.log
+                stdout_logfile=/var/log/celery/validator-celery-w1.log
+                stderr_logfile=/var/log/celery/validator-celery-w1.error.log
                 autostart=true
                 autorestart=true
                 startsecs=10
 
-                command=/var/www/validator/.venv/bin/celery
-                    multi start w1 w2 w3
+                command=/var/www/validator/.venv/bin/celery worker
                     -A config.settings
                     --loglevel=DEBUG
                     --max-tasks-per-child=5000
                     --time-limit=1800
-                    -c:w1 2
-                    -Q:w1 celery
-                    -Q:w2 block_queue
-                    -Q:w3 confirmation_block_queue
-                    -P:w2 solo
-                    -P:w3 solo
+                    -c 2
+                    -Q celery
 
                 stopwaitsecs=600
                 stopasgroup=true
                 priority=1000
+
+                [program:validator-celery-w2]
+                environment=
+                    APP_LOGS_DIR=/var/log/validator/celery,
+                    DJANGO_APPLICATION_ENVIRONMENT=production,
+                    DJANGO_SETTINGS_MODULE=config.settings.production,
+                    NETWORK_SIGNING_KEY=${NetworkSigningKey},
+                    POSTGRES_HOST=${DBEndpoint},
+                    POSTGRES_DB=${EnvironmentName}Validator,
+                    POSTGRES_USER=root,
+                    POSTGRES_PASSWORD=${MasterUserPassword}
+                directory=/var/www/validator
+
+                user=nobody
+                numprocs=1
+                stdout_logfile=/var/log/celery/validator-celery-w2.log
+                stderr_logfile=/var/log/celery/validator-celery-w2.error.log
+                autostart=true
+                autorestart=true
+                startsecs=10
+
+                command=/var/www/validator/.venv/bin/celery worker
+                    -A config.settings
+                    --loglevel=DEBUG
+                    --max-tasks-per-child=5000
+                    --time-limit=1800
+                    -P solo
+                    -Q block_queue
+
+                stopwaitsecs=600
+                stopasgroup=true
+                priority=1000
+
+                [program:validator-celery-w3]
+                environment=
+                    APP_LOGS_DIR=/var/log/validator/celery,
+                    DJANGO_APPLICATION_ENVIRONMENT=production,
+                    DJANGO_SETTINGS_MODULE=config.settings.production,
+                    NETWORK_SIGNING_KEY=${NetworkSigningKey},
+                    POSTGRES_HOST=${DBEndpoint},
+                    POSTGRES_DB=${EnvironmentName}Validator,
+                    POSTGRES_USER=root,
+                    POSTGRES_PASSWORD=${MasterUserPassword}
+                directory=/var/www/validator
+
+                user=nobody
+                numprocs=1
+                stdout_logfile=/var/log/celery/validator-celery-w3.log
+                stderr_logfile=/var/log/celery/validator-celery-w3.error.log
+                autostart=true
+                autorestart=true
+                startsecs=10
+
+                command=/var/www/validator/.venv/bin/celery worker
+                    -A config.settings
+                    --loglevel=DEBUG
+                    --max-tasks-per-child=5000
+                    --time-limit=1800
+                    -P solo
+                    -Q confirmation_block_queue
+
+                stopwaitsecs=600
+                stopasgroup=true
+                priority=1000
+
               mode: '000600'
               owner: 'root'
               group: 'root'
@@ -206,7 +270,7 @@ Resources:
                 startsecs=10
 
                 command=/var/www/validator/.venv/bin/daphne
-                    -u /var/run/daphne%(process_num)d.sock
+                    -u /var/run/daphne/daphne%(process_num)d.sock
                     --fd 0
                     --access-log -
                     --proxy-headers
@@ -278,10 +342,32 @@ Resources:
               owner: 'root'
               group: 'root'
 
+            /etc/tmpfiles.d/daphne.conf:
+              content: !Sub |
+                D /var/run/daphne 0775 nobody nobody -
+              mode: '000644'
+              owner: 'root'
+              group: 'root'
+
         Install:
           commands:
-            install:
+            1.install:
               command: /usr/local/bin/validator-install
+
+            2.init:
+              command: !Sub |
+                #!/bin/bash -xe
+                /var/www/validator/.venv/bin/python /var/www/validator/manage.py migrate --noinput --skip-checks
+                /var/www/validator/.venv/bin/python /var/www/validator/manage.py collectstatic --noinput --clear --skip-checks
+                /bin/systemctl restart supervisord
+              cwd: /var/www/validator
+              env:
+                DJANGO_APPLICATION_ENVIRONMENT: 'production'
+                DJANGO_SETTINGS_MODULE: 'config.settings.production'
+                POSTGRES_HOST: !Ref DBEndpoint
+                POSTGRES_DB: !Sub ${EnvironmentName}Validator
+                POSTGRES_USER: 'root'
+                POSTGRES_PASSWORD: !Ref MasterUserPassword
 
         Start:
           services:
