@@ -45,7 +45,6 @@ def clean_status(client):
     )
 
 
-@pytest.mark.django_db(transaction=True)
 def test_clean_start_200(client, no_requests, settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
     clean_request(client, CLEAN_COMMAND_START, HTTP_200_OK)
@@ -93,7 +92,6 @@ def test_clean_start_400_stop_requested(client):
     assert clean_status(client)['clean_status'] == CLEAN_STATUS_STOP_REQUESTED
 
 
-@pytest.mark.django_db(transaction=True)
 def test_clean_stop_200(client, settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
     cache.set(CLEAN_STATUS, CLEAN_STATUS_CLEANING, None)
