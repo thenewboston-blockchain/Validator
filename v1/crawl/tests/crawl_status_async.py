@@ -12,7 +12,6 @@ from ..consumers.crawl_status import CrawlStatusConsumer
 
 
 @pytest.mark.asyncio
-@pytest.mark.django_db(transaction=True)
 async def test_crawl_status_async(client, confirmation_validator_configuration, celery_worker):
 
     communicator = WebsocketCommunicator(

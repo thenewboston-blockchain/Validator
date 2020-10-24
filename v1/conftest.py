@@ -1,7 +1,9 @@
 import os
 
 import pytest
+from django.conf import settings
 from django.core.management import call_command
+from pytest_django.migrations import DisableMigrations
 from thenewboston.accounts.manage import create_account
 from thenewboston.blocks.block import generate_block
 from thenewboston.third_party.pytest.client import UserWrapper
@@ -71,8 +73,14 @@ def confirmation_validator_configuration(monkeypatch):
 
 
 @pytest.fixture(autouse=True)
-def enable_db_access_for_all_tests(db):
+def enable_db_access_for_all_tests(transactional_db):
     pass
+
+
+@pytest.fixture(scope='session', autouse=True)
+def migrations_disabled():
+    settings.MIGRATION_MODULES = DisableMigrations()
+    yield None
 
 
 @pytest.fixture

@@ -42,7 +42,6 @@ def crawl_status(client):
     )
 
 
-@pytest.mark.django_db(transaction=True)
 def test_crawl_start_200(client, settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
     crawl_request(client, CRAWL_COMMAND_START, HTTP_200_OK)
@@ -71,7 +70,6 @@ def test_crawl_start_400_stop_requested(client):
     assert crawl_status(client)['crawl_status'] == CRAWL_STATUS_STOP_REQUESTED
 
 
-@pytest.mark.django_db(transaction=True)
 def test_crawl_stop_200(client, settings):
     settings.CELERY_TASK_ALWAYS_EAGER = True
 
