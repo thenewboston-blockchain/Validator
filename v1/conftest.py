@@ -1,7 +1,7 @@
 import os
 
-from django.conf import settings
 import pytest
+from django.conf import settings
 from django.core.management import call_command
 from pytest_django.migrations import DisableMigrations
 from thenewboston.accounts.manage import create_account
