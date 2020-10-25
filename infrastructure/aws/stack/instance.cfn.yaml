@@ -13,6 +13,10 @@ Parameters:
     NoEcho: true
     Description: network signing key
 
+  ValidatorType:
+    Type: String
+    Description: validator type
+
   VpcSecurityGroupId:
     Type: AWS::EC2::SecurityGroup::Id
 
@@ -66,12 +70,10 @@ Resources:
                 chmod 0775 /var/run/daphne
                 chown nobody:nobody /var/run/daphne
 
-                # wget https://github.com/thenewboston-developers/Validator/archive/master.zip -P /tmp
-                wget -O /tmp/master.zip https://github.com/thenewboston-developers/Validator/archive/cf_rds.zip -P /tmp
+                wget https://github.com/thenewboston-developers/Validator/archive/master.zip -P /tmp
                 unzip /tmp/master.zip -d /tmp
-                # mv /tmp/Validator-master/* /var/www/validator
-                mv /tmp/Validator-cf_rds/* /var/www/validator
-                rm -rf /tmp/Validator-master /tmp/Validator-cf_rds /tmp/master.zip /tmp/cf_rds.zip
+                mv /tmp/Validator-master/* /var/www/validator
+                rm -rf /tmp/Validator-master /tmp/master.zip
                 python3.8 -m venv --clear /var/www/validator/.venv
                 /var/www/validator/.venv/bin/pip install -r /var/www/validator/requirements/production.txt
               mode: '000755'
@@ -360,6 +362,11 @@ Resources:
                 /var/www/validator/.venv/bin/python /var/www/validator/manage.py migrate --noinput --skip-checks
                 /var/www/validator/.venv/bin/python /var/www/validator/manage.py collectstatic --noinput --clear --skip-checks
                 /bin/systemctl restart supervisord
+                # /var/www/validator/.venv/bin/python /var/www/validator/manage.py initialize_validator
+                # if [ "${ValidatorType}" = "primary" ]; then
+                #   /var/www/validator/.venv/bin/python /var/www/validator/manage.py set_primary_validator
+                # fi
+
               cwd: /var/www/validator
               env:
                 DJANGO_APPLICATION_ENVIRONMENT: 'production'
@@ -424,3 +431,9 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${EnvironmentName} ValidatorInstance
+
+
+Outputs:
+  PublicIp:
+    Description: Public IP address of the EC2 instance
+    Value: !GetAtt [ValidatorInstance, PublicIp]
