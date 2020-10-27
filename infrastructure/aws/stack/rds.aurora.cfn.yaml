@@ -1,0 +1,61 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  Aurora serverless
+  Requires 2 AZ
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: name of the environment
+
+  MasterUserPassword:
+    Type: String
+    NoEcho: true
+
+  SubnetIds:
+    Type: CommaDelimitedList
+
+  VpcSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  AuroraServerlessCluster:
+    Type: AWS::RDS::DBCluster
+    Properties:
+      Engine: aurora-postgresql
+      EngineMode: serverless
+      EngineVersion: '10.7'
+      DatabaseName: thenewbostonValidator
+      MasterUsername: root
+      MasterUserPassword: !Ref MasterUserPassword
+      DBClusterIdentifier: !Sub '${EnvironmentName}-cluster'
+      BackupRetentionPeriod: 35
+      DeletionProtection: true
+      ScalingConfiguration:
+        AutoPause: true
+        MinCapacity: 2
+        MaxCapacity: 4
+        SecondsUntilAutoPause: 1000
+      VpcSecurityGroupIds:
+        - !Ref VpcSecurityGroupId
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} Cluster
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub ${EnvironmentName} DBSubnet
+      DBSubnetGroupName: !Sub ${EnvironmentName} DBSubnet
+      SubnetIds: !Ref SubnetIds
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} DBSubnet
+
+Outputs:
+  DBEndpoint:
+    Value: !GetAtt AuroraServerlessCluster.Endpoint.Address
+    Export:
+      Name: !Sub '${EnvironmentName}DBEndpoint'

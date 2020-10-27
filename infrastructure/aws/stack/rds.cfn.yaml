@@ -1,0 +1,62 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  PG instance
+
+Parameters:
+  EnvironmentName:
+    Type: String
+    Description: name of the environment
+
+  MasterUserPassword:
+    Type: String
+    NoEcho: true
+
+  SubnetIds:
+    Type: CommaDelimitedList
+
+  VpcSecurityGroupId:
+    Type: AWS::EC2::SecurityGroup::Id
+
+Resources:
+  PGInstance:
+    Type: AWS::RDS::DBInstance
+    DeletionPolicy: Snapshot
+    UpdateReplacePolicy: Snapshot
+    Properties:
+      AllocatedStorage: '20'
+      AllowMajorVersionUpgrade: false
+      AutoMinorVersionUpgrade: true
+      BackupRetentionPeriod: 10
+      CopyTagsToSnapshot: true
+      DBInstanceClass: 'db.t2.micro'
+      DBName: !Sub '${EnvironmentName}Validator'
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      EnableIAMDatabaseAuthentication: true
+      Engine: postgres
+      EngineVersion: '12.4'
+      MasterUsername: root
+      MasterUserPassword: !Ref MasterUserPassword
+      StorageType: gp2
+      MultiAZ: false
+      VPCSecurityGroups:
+        - !Ref VpcSecurityGroupId
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} PGInstance
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Sub ${EnvironmentName} DBSubnet
+      DBSubnetGroupName: !Sub ${EnvironmentName} DBSubnet
+      SubnetIds: !Ref SubnetIds
+      Tags:
+        - Key: Name
+          Value: !Sub ${EnvironmentName} DBSubnetGroup
+
+Outputs:
+  DBEndpoint:
+    Value: !GetAtt PGInstance.Endpoint.Address
+    Export:
+      Name: !Sub '${EnvironmentName}DBEndpoint'
