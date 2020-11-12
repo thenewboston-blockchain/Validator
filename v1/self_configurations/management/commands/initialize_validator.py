@@ -59,7 +59,8 @@ class Command(InitializeNode):
             'root_account_file': None,
             'root_account_file_hash': None,
             'seed_block_identifier': None,
-            'version': None
+            'version': None,
+            'daily_confirmation_rate': None
         }
 
     def get_head_block_hash(self):
@@ -202,6 +203,10 @@ class Command(InitializeNode):
         self.get_fee(
             attribute_name='default_transaction_fee',
             human_readable_name='default transaction fee'
+        )
+        self.get_fee(
+            attribute_name='daily_confirmation_rate',
+            human_readable_name='daily confirmation rate'
         )
         self.get_node_type()
         self.get_seed_block_identifier()
