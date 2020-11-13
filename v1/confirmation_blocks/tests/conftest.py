@@ -1,7 +1,7 @@
-import pytest
-from factory import Faker
+from faker import Faker
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
+import pytest
 from thenewboston.constants.network import BLOCK_IDENTIFIER_LENGTH
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.signed_requests import generate_signed_request
@@ -9,7 +9,7 @@ from thenewboston.utils.signed_requests import generate_signed_request
 
 @pytest.fixture
 def block_identifier():
-    yield Faker('pystr', max_chars=BLOCK_IDENTIFIER_LENGTH).generate()
+    yield Faker().pystr(max_chars=BLOCK_IDENTIFIER_LENGTH)
 
 
 @pytest.fixture
