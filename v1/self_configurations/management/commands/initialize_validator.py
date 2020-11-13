@@ -13,7 +13,7 @@ from thenewboston.constants.network import (
     BLOCK_IDENTIFIER_LENGTH,
     CONFIRMATION_VALIDATOR,
     HEAD_HASH_LENGTH,
-    PRIMARY_VALIDATOR, VERIFY_KEY_LENGTH
+    PRIMARY_VALIDATOR
 )
 from thenewboston.utils.files import get_file_hash
 from thenewboston.utils.format import format_address
