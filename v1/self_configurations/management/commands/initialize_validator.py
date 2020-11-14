@@ -3,9 +3,11 @@ from pathlib import Path
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.management import CommandParser
 from django.core.validators import URLValidator
 from django.db.models import Q
 from sentry_sdk import capture_exception
+from thenewboston.argparser.validators import str_length_validator, url_validator
 from thenewboston.base_classes.initialize_node import InitializeNode
 from thenewboston.constants.network import (
     BLOCK_IDENTIFIER_LENGTH,
@@ -44,8 +46,8 @@ logger = logging.getLogger('thenewboston')
 class Command(InitializeNode):
     help = 'Initialize validator'
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
 
         self.required_input = {
             'account_number': None,
@@ -62,7 +64,14 @@ class Command(InitializeNode):
             'version': None
         }
 
-    def get_head_block_hash(self):
+    def add_arguments(self, parser: CommandParser):
+        super(Command, self).add_arguments(parser)
+        parser.add_argument('--node_type', choices=[CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR])
+        parser.add_argument('--seed_block_identifier', type=str_length_validator(length=BLOCK_IDENTIFIER_LENGTH))
+        parser.add_argument('--head_block_hash', type=str_length_validator(length=HEAD_HASH_LENGTH))
+        parser.add_argument('--root_account_file', type=url_validator(suffix='.json'))
+
+    def get_head_block_hash(self, value=None):
         """
         Get head block hash
         """
@@ -73,7 +82,10 @@ class Command(InitializeNode):
         valid = False
 
         while not valid:
-            head_block_hash = input('Enter head_block_hash: ')
+            if self.unattended:
+                head_block_hash = value
+            else:
+                head_block_hash = input('Enter head_block_hash: ')
 
             if not head_block_hash:
                 break
@@ -85,7 +97,7 @@ class Command(InitializeNode):
             self.required_input['head_block_hash'] = head_block_hash
             valid = True
 
-    def get_node_type(self):
+    def get_node_type(self, value=None):
         """
         Get node type
         """
@@ -93,7 +105,10 @@ class Command(InitializeNode):
         valid = False
 
         while not valid:
-            node_type = input('Enter node_type (required): ')
+            if self.unattended:
+                node_type = value
+            else:
+                node_type = input('Enter node_type (required): ')
 
             if not node_type:
                 continue
@@ -105,7 +120,7 @@ class Command(InitializeNode):
             self.required_input['node_type'] = node_type
             valid = True
 
-    def get_root_account_file(self):
+    def get_root_account_file(self, value=None):
         """
         Get root account file from user
         """
@@ -113,7 +128,10 @@ class Command(InitializeNode):
         valid = False
 
         while not valid:
-            root_account_file = input('Enter root account file URL (required): ')
+            if self.unattended:
+                root_account_file = value
+            else:
+                root_account_file = input('Enter root account file URL (required): ')
 
             if not root_account_file:
                 self._error('root_account_file required')
@@ -156,7 +174,7 @@ class Command(InitializeNode):
             })
             valid = True
 
-    def get_seed_block_identifier(self):
+    def get_seed_block_identifier(self, value=None):
         """
         Get seed block identifier from user
         """
@@ -164,7 +182,10 @@ class Command(InitializeNode):
         valid = False
 
         while not valid:
-            seed_block_identifier = input('Enter seed block identifier: ')
+            if self.unattended:
+                seed_block_identifier = value
+            else:
+                seed_block_identifier = input('Enter seed block identifier: ')
 
             if not seed_block_identifier:
                 self.required_input['seed_block_identifier'] = ''
@@ -191,26 +212,30 @@ class Command(InitializeNode):
         """
 
         # Input values
+        print(options)
         self.get_verify_key(
             attribute_name='node_identifier',
-            human_readable_name='node identifier'
+            human_readable_name='node identifier',
+            value=options.get('node_identifier')
         )
         self.get_verify_key(
             attribute_name='account_number',
-            human_readable_name='account number'
+            human_readable_name='account number',
+            value=options.get('account_number')
         )
         self.get_fee(
             attribute_name='default_transaction_fee',
-            human_readable_name='default transaction fee'
+            human_readable_name='default transaction fee',
+            value=options.get('default_transaction_fee')
         )
-        self.get_node_type()
-        self.get_seed_block_identifier()
-        self.get_head_block_hash()
-        self.get_protocol()
-        self.get_ip_address()
-        self.get_port()
-        self.get_root_account_file()
-        self.get_version_number()
+        self.get_node_type(value=options.get('node_type'))
+        self.get_seed_block_identifier(value=options.get('seed_block_identifier'))
+        self.get_head_block_hash(value=options.get('head_block_hash'))
+        self.get_protocol(value=options.get('protocol'))
+        self.get_ip_address(value=options.get('ip_address'))
+        self.get_port(value=options.get('port'))
+        self.get_root_account_file(value=options.get('root_account_file'))
+        self.get_version_number(value=options.get('version_number'))
 
         self.initialize_validator()
 

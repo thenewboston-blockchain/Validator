@@ -8,10 +8,6 @@ dump.rdb
 *.log
 logs/*
 
-# Project files
-!media/.gitkeep
-media/*
-
 # Django
 *.pot
 *.pyc
@@ -49,6 +45,7 @@ sdist/
 share/python-wheels/
 var/
 wheels/
+thenewboston.tar.gz
 
 # Unit test / coverage reports
 *.cover
@@ -63,6 +60,9 @@ wheels/
 coverage.xml
 htmlcov/
 nosetests.xml
+
+# pytest
+.pytest_cache
 
 # pyenv
 .python-version
