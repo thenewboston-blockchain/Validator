@@ -20,9 +20,11 @@ Running this script will:
 class Command(FetchPrimaryValidatorConfig):
     help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
 
-    def __init__(self):
-        super().__init__()
-        self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
+    def __init__(self, *args, **kwargs):
+        """Inits Command class"""
+        super().__init__(*args, **kwargs)
+        if not self.unattended:
+            self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
 
     def handle_primary_validator_config(self, primary_validator_config):
         """

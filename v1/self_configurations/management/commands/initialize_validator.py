@@ -47,6 +47,7 @@ class Command(InitializeNode):
     help = 'Initialize validator'
 
     def __init__(self, *args, **kwargs):
+        """Inits Command class"""
         super().__init__(*args, **kwargs)
 
         self.required_input = {
@@ -65,6 +66,7 @@ class Command(InitializeNode):
         }
 
     def add_arguments(self, parser: CommandParser):
+        """Additional custom arguments"""
         super(Command, self).add_arguments(parser)
         parser.add_argument('--node_type', choices=[CONFIRMATION_VALIDATOR, PRIMARY_VALIDATOR])
         parser.add_argument('--seed_block_identifier', type=str_length_validator(length=BLOCK_IDENTIFIER_LENGTH))
@@ -212,7 +214,6 @@ class Command(InitializeNode):
         """
 
         # Input values
-        print(options)
         self.get_verify_key(
             attribute_name='node_identifier',
             human_readable_name='node identifier',
