@@ -13,9 +13,44 @@ Parameters:
     NoEcho: true
     Description: network signing key
 
-  ValidatorType:
+  NodeType:
     Type: String
-    Description: validator type
+    Description: Node type type
+
+  NodeIdentifier:
+    Type: String
+
+  AccountNumber:
+    Type: String
+
+  DefaultTransactionFee:
+    Type: String
+
+  SeedBlockIdentifier:
+    Type: String
+    Default: ''
+
+  RootAccountFile:
+    Type: String
+
+  VersionNumber:
+    Type: String
+
+  PrimaryIp:
+    Type: String
+    Default: ''
+
+  PrimaryProto:
+    Type: String
+    Default: ''
+
+  PrimaryPort:
+    Type: String
+    Default: ''
+
+  PrimaryTrust:
+    Type: String
+    Default: ''
 
   VpcSecurityGroupId:
     Type: AWS::EC2::SecurityGroup::Id
@@ -32,7 +67,36 @@ Parameters:
   DBEndpoint:
     Type: String
 
+  DjangoSecretKey:
+    Type: String
+
+  DjangoSentryDSN:
+    Type: String
+    Default: ''
+
+Conditions:
+  EnableSentry:
+    Fn::Not:
+      - Fn::Equals:
+          - !Ref DjangoSentryDSN
+          - ''
+
 Resources:
+  DjangoSecretKeyParameter:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${EnvironmentName}ValidatorDjangoSecretKey${NodeType}
+      Type: String
+      Value: !Ref DjangoSecretKey
+
+  SentryDsnParameter:
+    Condition: EnableSentry
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Sub ${EnvironmentName}ValidatorDjangoSentryDSN${NodeType}
+      Type: String
+      Value: !Ref DjangoSentryDSN
+
   ValidatorInstance:
     Type: AWS::EC2::Instance
     Metadata:
@@ -157,7 +221,9 @@ Resources:
                     POSTGRES_HOST=${DBEndpoint},
                     POSTGRES_DB=${EnvironmentName}Validator,
                     POSTGRES_USER=root,
-                    POSTGRES_PASSWORD=${MasterUserPassword}
+                    POSTGRES_PASSWORD=${MasterUserPassword},
+                    SECRET_KEY=${DjangoSecretKey},
+                    SENTRY_DSN=${DjangoSentryDSN}
                 directory=/var/www/validator
 
                 user=nobody
@@ -189,7 +255,9 @@ Resources:
                     POSTGRES_HOST=${DBEndpoint},
                     POSTGRES_DB=${EnvironmentName}Validator,
                     POSTGRES_USER=root,
-                    POSTGRES_PASSWORD=${MasterUserPassword}
+                    POSTGRES_PASSWORD=${MasterUserPassword},
+                    SECRET_KEY=${DjangoSecretKey},
+                    SENTRY_DSN=${DjangoSentryDSN}
                 directory=/var/www/validator
 
                 user=nobody
@@ -221,7 +289,9 @@ Resources:
                     POSTGRES_HOST=${DBEndpoint},
                     POSTGRES_DB=${EnvironmentName}Validator,
                     POSTGRES_USER=root,
-                    POSTGRES_PASSWORD=${MasterUserPassword}
+                    POSTGRES_PASSWORD=${MasterUserPassword},
+                    SECRET_KEY=${DjangoSecretKey},
+                    SENTRY_DSN=${DjangoSentryDSN}
                 directory=/var/www/validator
 
                 user=nobody
@@ -259,7 +329,9 @@ Resources:
                     POSTGRES_HOST=${DBEndpoint},
                     POSTGRES_DB=${EnvironmentName}Validator,
                     POSTGRES_USER=root,
-                    POSTGRES_PASSWORD=${MasterUserPassword}
+                    POSTGRES_PASSWORD=${MasterUserPassword},
+                    SECRET_KEY=${DjangoSecretKey},
+                    SENTRY_DSN=${DjangoSentryDSN}
                 directory=/var/www/validator
                 socket=tcp://localhost:8001
 
@@ -362,19 +434,45 @@ Resources:
                 /var/www/validator/.venv/bin/python /var/www/validator/manage.py migrate --noinput --skip-checks
                 /var/www/validator/.venv/bin/python /var/www/validator/manage.py collectstatic --noinput --clear --skip-checks
                 /bin/systemctl restart supervisord
-                # /var/www/validator/.venv/bin/python /var/www/validator/manage.py initialize_validator
-                # if [ "${ValidatorType}" = "primary" ]; then
-                #   /var/www/validator/.venv/bin/python /var/www/validator/manage.py set_primary_validator
-                # fi
+                if [ ! -f /var/www/validator/.init_done ]; then
+                  IP_ADDRESS=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
+
+                  /var/www/validator/.venv/bin/python /var/www/validator/manage.py initialize_validator \
+                    --node_type ${NodeType} \
+                    --node_identifier ${NodeIdentifier} \
+                    --account_number ${AccountNumber} \
+                    --default_transaction_fee ${DefaultTransactionFee} \
+                    --seed_block_identifier ${SeedBlockIdentifier} \
+                    --root_account_file ${RootAccountFile} \
+                    --version_number ${VersionNumber} \
+                    --protocol http \
+                    --ip_address $IP_ADDRESS \
+                    --unattended
+
+                  touch /var/www/validator/.init_done
+                fi
+                if [ -f /var/www/validator/.init_done ] && [ ! -f /var/www/validator/.set_primary_done ] && [ "${ValidatorType}" != "primary" ]; then
+                  /var/www/validator/.venv/bin/python /var/www/validator/manage.py set_primary_validator \
+                    --ip_address ${PrimaryIp} \
+                    --protocol ${PrimaryProto} \
+                    --port ${PrimaryPort} \
+                    --trust ${PrimaryTrust} \
+                    --unattended
+
+                  touch /var/www/validator/.set_primary_done
+                fi
 
               cwd: /var/www/validator
               env:
                 DJANGO_APPLICATION_ENVIRONMENT: 'production'
                 DJANGO_SETTINGS_MODULE: 'config.settings.production'
+                NETWORK_SIGNING_KEY: !Ref NetworkSigningKey
                 POSTGRES_HOST: !Ref DBEndpoint
                 POSTGRES_DB: !Sub ${EnvironmentName}Validator
                 POSTGRES_USER: 'root'
                 POSTGRES_PASSWORD: !Ref MasterUserPassword
+                SECRET_KEY: !Ref DjangoSecretKey
+                SENTRY_DSN: !Ref DjangoSentryDSN
 
         Start:
           services:

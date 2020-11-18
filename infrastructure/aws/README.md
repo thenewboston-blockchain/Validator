@@ -2,8 +2,9 @@ Requirements
 =
 1. [AWS cli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-welcome.html)
 2. [AWS sam](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html)
-3. [Python](https://www.python.org/)
-4. [AWS account](https://aws.amazon.com/)
+3. [Python 3](https://www.python.org/)
+4. `pip install -r requirements.txt`
+5. [AWS account](https://aws.amazon.com/)
 
 Configure
 =
@@ -21,15 +22,24 @@ Configure
    Note, `bucket name` should be unique across the entire AWS
 5. Run
    ```shell script
-   ./update_stack.py --s3-bucket <bucket name from previous step> --sign-key <network sign key> --db-pass <create a password for your database>
-   
+   ./update_stack.py \
+     --s3-bucket <value> \
+     --sign-key <value> \
+     --primary-url <value> \
+     --primary-trust <value> \
+     --node-identifier <value> \
+     --account-number <value> \
+     --default-transaction-fee <value> \
+     --root-account-file <value> \
+     --version-number <value>
    ```
+   Refer to `./update_stack.py --help` about values
 6. In the end you will see something like
    ```shell script
-   
-   Key                 EC2InstanceIpAddress                                                                                                                                                                                                                                                                          
-   Description         Server Public IP                                                                                                                                                                                                                                                                              
-   Value               <ip address>  
-   
+
+   Key                 EC2InstanceIpAddress
+   Description         Server Public IP
+   Value               <ip address>
+
    ```
    Put the http://<ip address>/config to your browser, in a while (on avg in 3-5 minutes) you should a correct response
