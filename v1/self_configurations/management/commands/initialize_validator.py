@@ -53,6 +53,7 @@ class Command(InitializeNode):
         self.required_input = {
             'account_number': None,
             'default_transaction_fee': None,
+            'daily_confirmation_rate':None,
             'head_block_hash': None,
             'ip_address': None,
             'node_identifier': None,
@@ -229,6 +230,11 @@ class Command(InitializeNode):
             human_readable_name='default transaction fee',
             value=options.get('default_transaction_fee')
         )
+        self.get_fee(
+            attribute_name='daily_confirmation_rate',
+            human_readable_name='daily confirmation rate',
+            value=options.get('daily_confirmation_rate')
+         )
         self.get_node_type(value=options.get('node_type'))
         self.get_seed_block_identifier(value=options.get('seed_block_identifier'))
         self.get_head_block_hash(value=options.get('head_block_hash'))
