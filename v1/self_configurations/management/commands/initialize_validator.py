@@ -157,6 +157,7 @@ class Command(InitializeNode):
                 logger.exception(e)
                 self.stdout.write(self.style.ERROR(f'Error downloading {root_account_file}'))
                 self.stdout.write(self.style.ERROR(e))
+                continue
 
             file_hash = get_file_hash(settings.ROOT_ACCOUNT_FILE_PATH)
 
