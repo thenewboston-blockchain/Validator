@@ -44,7 +44,7 @@ logger = logging.getLogger('thenewboston')
 
 
 class Command(InitializeNode):
-    _help = 'Initialize validator'
+    help = 'Initialize validator' # noqa
 
     def __init__(self, *args, **kwargs):
         """Inits Command class"""

@@ -18,7 +18,7 @@ Running this script will:
 
 
 class Command(FetchPrimaryValidatorConfig):
-    _help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
+    help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator' # noqa
 
     def __init__(self, *args, **kwargs):
         """Inits Command class"""
