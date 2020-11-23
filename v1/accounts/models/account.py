@@ -6,7 +6,7 @@ from thenewboston.constants.network import BALANCE_LOCK_LENGTH, MAX_POINT_VALUE,
 
 
 class Account(models.Model):
-    id = models.UUIDField(default=uuid4, editable=False, primary_key=True) # noqa
+    id = models.UUIDField(default=uuid4, editable=False, primary_key=True)  # noqa
     account_number = models.CharField(max_length=VERIFY_KEY_LENGTH, unique=True)
     balance = models.PositiveBigIntegerField(
         default=0,
