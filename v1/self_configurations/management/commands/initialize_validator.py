@@ -44,7 +44,7 @@ logger = logging.getLogger('thenewboston')
 
 
 class Command(InitializeNode):
-    help = 'Initialize validator'
+    _help = 'Initialize validator'
 
     def __init__(self, *args, **kwargs):
         """Inits Command class"""
@@ -74,10 +74,7 @@ class Command(InitializeNode):
         parser.add_argument('--root_account_file', type=url_validator(suffix='.json'))
 
     def get_head_block_hash(self, value=None):
-        """
-        Get head block hash
-        """
-
+        """Get head block hash"""
         if not self.required_input['seed_block_identifier']:
             return
 
@@ -100,10 +97,7 @@ class Command(InitializeNode):
             valid = True
 
     def get_node_type(self, value=None):
-        """
-        Get node type
-        """
-
+        """Get node type"""
         valid = False
 
         while not valid:
@@ -123,10 +117,7 @@ class Command(InitializeNode):
             valid = True
 
     def get_root_account_file(self, value=None):
-        """
-        Get root account file from user
-        """
-
+        """Get root account file from user"""
         valid = False
 
         while not valid:
@@ -178,10 +169,7 @@ class Command(InitializeNode):
             valid = True
 
     def get_seed_block_identifier(self, value=None):
-        """
-        Get seed block identifier from user
-        """
-
+        """Get seed block identifier from user"""
         valid = False
 
         while not valid:
@@ -210,10 +198,7 @@ class Command(InitializeNode):
             valid = True
 
     def handle(self, *args, **options):
-        """
-        Run script
-        """
-
+        """Run script"""
         # Input values
         self.get_verify_key(
             attribute_name='node_identifier',
@@ -244,20 +229,19 @@ class Command(InitializeNode):
     def initialize_validator(self):
         """
         Process to initialize validator:
+
         - delete existing SelfConfiguration and related Validator objects
         - create SelfConfiguration and related Validator objects
         - create Account objects based on downloaded root_account_file
         - rebuild cache
         """
-
         head_block_hash = self.required_input.pop('head_block_hash')
         node_type = self.required_input.pop('node_type')
 
         # Delete existing SelfConfiguration and related Validator objects
         SelfConfiguration.objects.all().delete()
         Validator.objects.filter(
-            Q(ip_address=self.required_input['ip_address']) |
-            Q(node_identifier=self.required_input['node_identifier'])
+            Q(ip_address=self.required_input['ip_address']) | Q(node_identifier=self.required_input['node_identifier'])
         ).delete()
 
         # Create SelfConfiguration and related Validator objects

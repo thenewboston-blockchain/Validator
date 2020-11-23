@@ -13,10 +13,7 @@ logger = logging.getLogger('thenewboston')
 
 @shared_task
 def send_confirmation_block_history(*, block_identifier, ip_address, port, protocol):
-    """
-    Send historical confirmation blocks (starting with the block_identifier) to the confirmation validator
-    """
-
+    """Send historical confirmation blocks (starting with the block_identifier) to the confirmation validator"""
     address = format_address(
         ip_address=ip_address,
         port=port,

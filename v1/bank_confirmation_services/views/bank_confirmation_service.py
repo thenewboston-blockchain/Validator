@@ -11,6 +11,7 @@ class BankConfirmationServiceViewSet(
 ):
     """
     Bank confirmation services
+
     ---
     list:
       description: List bank confirmation services

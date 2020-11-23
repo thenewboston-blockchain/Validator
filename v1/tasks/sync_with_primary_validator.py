@@ -26,10 +26,7 @@ logger = logging.getLogger('thenewboston')
 
 
 def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
-    """
-    Return valid confirmation block
-    """
-
+    """Return valid confirmation block"""
     address = format_address(
         ip_address=primary_validator.ip_address,
         port=primary_validator.port,
@@ -46,10 +43,7 @@ def fetch_valid_confirmation_block(*, primary_validator, block_identifier):
 
 
 def get_trust(*, config):
-    """
-    Return trust level for existing validator
-    """
-
+    """Return trust level for existing validator"""
     validator = Validator.objects.filter(
         ip_address=config.get('ip_address'),
         node_identifier=config.get('node_identifier')
@@ -62,21 +56,14 @@ def get_trust(*, config):
 
 
 def remove_existing_validators(*, config):
-    """
-    Remove any existing validators
-    """
-
+    """Remove any existing validators"""
     Validator.objects.filter(
-        Q(ip_address=config.get('ip_address')) |
-        Q(node_identifier=config.get('node_identifier'))
+        Q(ip_address=config.get('ip_address')) | Q(node_identifier=config.get('node_identifier'))
     ).delete()
 
 
 def send_confirmation_block_history_request():
-    """
-    Request missing blocks from the primary validator
-    """
-
+    """Request missing blocks from the primary validator"""
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     primary_validator = self_configuration.primary_validator
 
@@ -102,10 +89,7 @@ def send_confirmation_block_history_request():
 
 
 def set_primary_validator(*, validator):
-    """
-    Set validator as primary validator
-    """
-
+    """Set validator as primary validator"""
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     self_configuration.primary_validator = validator
     self_configuration.save()
@@ -117,6 +101,7 @@ def set_primary_validator(*, validator):
 def sync_blockchains(*, primary_validator):
     """
     Sync blockchains with the primary validator
+
     - delete all queued confirmation blocks
     - determine the starting block to sync from
     - send a request for any missing blocks
@@ -131,7 +116,6 @@ def sync_blockchains(*, primary_validator):
     3. PV root_account_file_hash - if no PV seed_block_identifier exists, that indicates that the PV has began as a
     brand new network and we therefore must sync from the root_account_file_hash
     """
-
     delete_all_queued_confirmation_blocks()
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
 
@@ -156,7 +140,6 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
     - is first being initialized
     - has a blockchain that is out of sync with the PV
     """
-
     try:
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         download_root_account_file(url=primary_validator.root_account_file)
@@ -177,10 +160,7 @@ def sync_from_primary_validators_initial_block(*, primary_validator):
 
 @shared_task
 def sync_with_primary_validator(*, config, trust=None):
-    """
-    Sync with primary validator
-    """
-
+    """Sync with primary validator"""
     config = {k: v for k, v in config.items() if k in standard_field_names(Validator)}
 
     if trust is None:

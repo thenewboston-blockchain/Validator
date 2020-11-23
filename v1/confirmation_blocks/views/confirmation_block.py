@@ -16,6 +16,7 @@ from ..serializers.confirmation_block import ConfirmationBlockSerializerCreate
 class ConfirmationBlockViewSet(ViewSet):
     """
     Confirmation block
+
     ---
     create:
       description: Add a confirmation block to the queue

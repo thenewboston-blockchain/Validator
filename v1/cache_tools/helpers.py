@@ -10,10 +10,7 @@ from .cache_keys import (
 
 
 def rebuild_cache(*, head_block_hash):
-    """
-    Rebuild cache
-    """
-
+    """Rebuild cache"""
     cache.clear()
     cache.set(BLOCK_QUEUE, [], None)
     cache.set(HEAD_BLOCK_HASH, head_block_hash, None)

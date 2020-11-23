@@ -8,10 +8,7 @@ from ..helpers.block_identifier import get_initial_block_identifier
 
 @api_view(['GET'])
 def block_chain_view(_):
-    """
-    Return block chain
-    """
-
+    """Return block chain"""
     block_chain = {}
     initial_block_identifier = get_initial_block_identifier()
     block_identifier = initial_block_identifier

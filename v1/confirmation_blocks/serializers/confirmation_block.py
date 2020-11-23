@@ -25,10 +25,7 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
     updated_balances = UpdatedBalanceSerializer(many=True)
 
     def create(self, validated_data):
-        """
-        Add a confirmation block to the queue
-        """
-
+        """Add a confirmation block to the queue"""
         add_queued_confirmation_block(confirmation_block=self.initial_data)
         return validated_data['block_identifier']
 
@@ -36,10 +33,7 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
         pass
 
     def validate(self, data):
-        """
-        Check that confirmation block is unique (based on block_identifier)
-        """
-
+        """Check that confirmation block is unique (based on block_identifier)"""
         block_identifier = data['block_identifier']
 
         queued_confirmation_block_cache_key = get_queued_confirmation_block_cache_key(block_identifier=block_identifier)
@@ -58,10 +52,7 @@ class ConfirmationBlockSerializerCreate(serializers.Serializer):
 
     @staticmethod
     def validate_updated_balances(updated_balances):
-        """
-        Verify that only 1 updated balance includes a balance_lock (the sender)
-        """
-
+        """Verify that only 1 updated balance includes a balance_lock (the sender)"""
         account_numbers = {i['account_number'] for i in updated_balances}
 
         if len(account_numbers) != len(updated_balances):

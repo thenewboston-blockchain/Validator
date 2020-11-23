@@ -24,7 +24,6 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
         If self is currently set as primary validator, no action is required
         """
-
         self_configuration = get_self_configuration(exception_class=RuntimeError)
 
         if self_configuration.node_type == CONFIRMATION_VALIDATOR:
@@ -42,9 +41,9 @@ class UpgradeRequestSerializer(serializers.Serializer):
     def validate(self, data):
         """
         Check that self node_identifier matches validator_node_identifier
+
         - this ensures that the request was intended for self
         """
-
         self_configuration = get_self_configuration(exception_class=RuntimeError)
         self_node_identifier = self_configuration.node_identifier
         validator_node_identifier = data['validator_node_identifier']
@@ -59,10 +58,7 @@ class UpgradeRequestSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_node_identifier(node_identifier):
-        """
-        Validate node_identifier is that of most trusted bank
-        """
-
+        """Validate node_identifier is that of most trusted bank"""
         bank = Bank.objects.filter(node_identifier=node_identifier).first()
 
         if not bank:

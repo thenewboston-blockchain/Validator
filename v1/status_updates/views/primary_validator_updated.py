@@ -9,6 +9,7 @@ from ..serializers.primary_validator_updated import PrimaryValidatorUpdatedSeria
 class PrimaryValidatorUpdatedViewSet(ViewSet):
     """
     Primary validator updated
+
     ---
     create:
       description: Primary validator updated notice from bank

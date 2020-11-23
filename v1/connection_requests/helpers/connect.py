@@ -14,9 +14,9 @@ logger = logging.getLogger('thenewboston')
 def connect_to_primary_validator(*, primary_validator):
     """
     Connect to a validator
+
     - used in the syncing process
     """
-
     self_configuration = get_self_configuration(exception_class=RuntimeError)
 
     primary_validator_address = format_address(
@@ -49,10 +49,7 @@ def connect_to_primary_validator(*, primary_validator):
 
 
 def is_connected_to_primary_validator(*, primary_validator_address, self_configuration):
-    """
-    Return boolean to indicate if self is connected to primary validator
-    """
-
+    """Return boolean to indicate if self is connected to primary validator"""
     url = f'{primary_validator_address}/validators/{self_configuration.node_identifier}'
 
     try:
@@ -66,10 +63,7 @@ def is_connected_to_primary_validator(*, primary_validator_address, self_configu
 
 
 def is_self_known_to_node(*, node, self_configuration):
-    """
-    Return boolean to indicate if self is known to node
-    """
-
+    """Return boolean to indicate if self is known to node"""
     node_address = format_address(
         ip_address=node.ip_address,
         port=node.port,
@@ -88,10 +82,7 @@ def is_self_known_to_node(*, node, self_configuration):
 
 
 def send_connection_request(*, node, self_configuration):
-    """
-    Send connection request to node
-    """
-
+    """Send connection request to node"""
     node_address = format_address(
         ip_address=node.ip_address,
         port=node.port,

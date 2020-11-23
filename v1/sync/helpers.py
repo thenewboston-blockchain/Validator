@@ -8,10 +8,7 @@ from v1.accounts.models.account import Account
 
 
 def download_root_account_file(*, url):
-    """
-    Download root account JSON file and save
-    """
-
+    """Download root account JSON file and save"""
     request = Request(url)
     response = urlopen(request)
 
@@ -20,10 +17,7 @@ def download_root_account_file(*, url):
 
 
 def sync_accounts_table_to_root_account_file():
-    """
-    Sync Account objects using root account file data
-    """
-
+    """Sync Account objects using root account file data"""
     Account.objects.all().delete()
     account_data = read_json(settings.ROOT_ACCOUNT_FILE_PATH)
     accounts = [

@@ -25,10 +25,7 @@ class SelfConfiguration(NetworkValidator):
         )
 
     def _update_related_validator(self):
-        """
-        Update related row in the validator table
-        """
-
+        """Update related row in the validator table"""
         validator = Validator.objects.filter(ip_address=self.ip_address)
         field_names = common_field_names(self, Validator)
         data = {f: getattr(self, f) for f in field_names}
@@ -39,10 +36,7 @@ class SelfConfiguration(NetworkValidator):
             Validator.objects.create(**data, trust=100)
 
     def _validate(self, error):
-        """
-        Ensure only one SelfConfiguration exists
-        """
-
+        """Ensure only one SelfConfiguration exists"""
         if not self.id and SelfConfiguration.objects.exists():
             raise error('Only one SelfConfiguration allowed')
 

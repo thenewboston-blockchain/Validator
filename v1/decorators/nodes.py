@@ -16,10 +16,7 @@ logger = logging.getLogger('thenewboston')
 
 
 def is_self_signed_message(func):
-    """
-    Verify that the client making the request is self
-    """
-
+    """Verify that the client making the request is self"""
     @wraps(func)
     def inner(obj, request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='message')
@@ -41,11 +38,11 @@ def is_self_signed_message(func):
 def is_signed_bank_block(func):
     """
     Decorator to verify:
+
     - block data exists
     - block signature
     - signer is registered bank
     """
-
     @wraps(func)
     def inner(request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='block')
@@ -70,10 +67,10 @@ def is_signed_bank_block(func):
 def is_signed_by_primary_validator(func):
     """
     Decorator to verify:
+
     - self is not primary validator
     - the request has been signed by the primary validator
     """
-
     @wraps(func)
     def inner(request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='message')
@@ -108,10 +105,7 @@ def is_signed_by_primary_validator(func):
 
 
 def is_signed_message(func):
-    """
-    Decorator to verify the request signature
-    """
-
+    """Decorator to verify the request signature"""
     @wraps(func)
     def inner(obj, request, *args, **kwargs):
         request, error = verify_request_signature(request=request, signed_data_key='message')
@@ -130,7 +124,6 @@ def verify_request_signature(*, request, signed_data_key):
 
     signed_data - block or message
     """
-
     node_identifier = request.data.get('node_identifier')
     signature = request.data.get('signature')
     signed_data = request.data.get(signed_data_key)

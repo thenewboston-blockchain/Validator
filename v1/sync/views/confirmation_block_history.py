@@ -9,6 +9,7 @@ from ..serializers.confirmation_block_history import ConfirmationBlockHistorySer
 class ConfirmationBlockHistoryViewSet(ViewSet):
     """
     Confirmation block history
+
     ---
     create:
       description: Confirmation block history request from a confirmation validator

@@ -11,6 +11,7 @@ def primary_validator(primary_validator_configuration):
 def test_incorrect_amount():
     """
     Block with incorrect amount(s) is not valid
+
     - amount of 426 was changed from 425
     """
     data = [
@@ -50,10 +51,7 @@ def test_incorrect_amount():
 
 
 def test_incorrect_balance_key():
-    """
-    Block with incorrect balance key is not valid
-    """
-
+    """Block with incorrect balance key is not valid"""
     data = [
         ('bacon', False),
         ('484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc', False),
@@ -88,10 +86,7 @@ def test_incorrect_balance_key():
 
 
 def test_incorrect_signature():
-    """
-    Block with incorrect signature is not valid
-    """
-
+    """Block with incorrect signature is not valid"""
     data = [
         (
             'bacon',
@@ -140,9 +135,9 @@ def test_incorrect_signature():
 def test_invalid_amount():
     """
     Treasury balance = 10,000
+
     Total amount = 10,005
     """
-
     block = {
         'account_number': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
         'message': {
@@ -169,10 +164,7 @@ def test_invalid_amount():
 
 
 def test_missing_transaction():
-    """
-    Block with missing transaction should be invalid
-    """
-
+    """Block with missing transaction should be invalid"""
     block = {
         'account_number': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
         'message': {
@@ -195,10 +187,7 @@ def test_missing_transaction():
 
 
 def test_valid_block():
-    """
-    Valid block is validated correctly
-    """
-
+    """Valid block is validated correctly"""
     block = {
         'account_number': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
         'message': {

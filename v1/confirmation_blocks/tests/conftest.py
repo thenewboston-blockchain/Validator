@@ -1,7 +1,7 @@
+import pytest
 from faker import Faker
 from nacl.encoding import HexEncoder
 from nacl.signing import SigningKey
-import pytest
 from thenewboston.constants.network import BLOCK_IDENTIFIER_LENGTH
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.signed_requests import generate_signed_request

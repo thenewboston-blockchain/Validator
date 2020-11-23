@@ -20,9 +20,9 @@ logger = logging.getLogger('thenewboston')
 def process_block_queue():
     """
     Process block queue
+
     - this is for primary validators only
     """
-
     with cache.lock(BLOCK_QUEUE_CACHE_LOCK_KEY):
         block_queue = cache.get(BLOCK_QUEUE)
 
@@ -60,10 +60,10 @@ def process_block_queue():
 def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
     """
     Send confirmed block to confirmation validators
+
     This function is called by the primary validator only
     - confirmation validators send their confirmation blocks to their banks
     """
-
     # TODO: Optimize
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     confirmation_validators = Validator.objects.exclude(node_identifier=self_configuration.node_identifier)

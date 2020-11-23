@@ -28,10 +28,10 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
     def create(self, validated_data):
         """
         Handle banks primary validator updated notice
+
         A response of True indicates to the requesting bank that self (this validator) will remain on the same network
         Delete banks switching to different networks
         """
-
         bank = validated_data['node_identifier']
         ip_address = validated_data['ip_address']
         port = validated_data['port']
@@ -46,8 +46,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
             return True
 
         if (
-            self_configuration.node_type == CONFIRMATION_VALIDATOR and
-            bank == get_most_trusted_bank()
+            self_configuration.node_type == CONFIRMATION_VALIDATOR and bank == get_most_trusted_bank()
         ):
             address = format_address(
                 ip_address=ip_address,
@@ -68,10 +67,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
 
     @staticmethod
     def primary_validator_synchronized(ip_address, self_configuration):
-        """
-        Return boolean indicating if self primary validator is set to given IP address
-        """
-
+        """Return boolean indicating if self primary validator is set to given IP address"""
         if self_configuration.node_type == CONFIRMATION_VALIDATOR:
             primary_validator = self_configuration.primary_validator
 
@@ -93,10 +89,7 @@ class PrimaryValidatorUpdatedSerializer(serializers.Serializer):
 
     @staticmethod
     def validate_node_identifier(node_identifier):
-        """
-        Validate node_identifier is from bank
-        """
-
+        """Validate node_identifier is from bank"""
         bank = Bank.objects.filter(node_identifier=node_identifier).first()
 
         if not bank:

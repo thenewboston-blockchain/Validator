@@ -18,7 +18,7 @@ Running this script will:
 
 
 class Command(FetchPrimaryValidatorConfig):
-    help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
+    _help = 'Fetch config from PV, create related Validator, set that Validator as the primary validator'
 
     def __init__(self, *args, **kwargs):
         """Inits Command class"""
@@ -27,10 +27,7 @@ class Command(FetchPrimaryValidatorConfig):
             self.stdout.write(self.style.SUCCESS('Enter primary validator information'))
 
     def handle_primary_validator_config(self, primary_validator_config):
-        """
-        Sync with primary validator
-        """
-
+        """Sync with primary validator"""
         self.stdout.write(self.style.SUCCESS('Syncing with primary validator...'))
         sync_with_primary_validator(
             config=primary_validator_config,

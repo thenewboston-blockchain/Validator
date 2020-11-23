@@ -10,6 +10,7 @@ from ..serializers.upgrade_request import UpgradeRequestSerializer
 class UpgradeRequestViewSet(ViewSet):
     """
     Upgrade request
+
     ---
     create:
       description: Bank asking a confirmation validator to upgrade to a primary validator

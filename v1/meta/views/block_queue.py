@@ -7,10 +7,7 @@ from v1.cache_tools.cache_keys import BLOCK_QUEUE
 
 @api_view(['GET'])
 def block_queue_view(_):
-    """
-    Return BLOCK_QUEUE
-    """
-
+    """Return BLOCK_QUEUE"""
     return Response({
         'block_queue': cache.get(BLOCK_QUEUE)
     })
