@@ -1,0 +1,30 @@
+v1.meta package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   v1.meta.helpers
+   v1.meta.views
+
+Submodules
+----------
+
+v1.meta.urls module
+-------------------
+
+.. automodule:: v1.meta.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: v1.meta
+   :members:
+   :undoc-members:
+   :show-inheritance:

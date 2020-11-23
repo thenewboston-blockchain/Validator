@@ -109,7 +109,11 @@ When adding a package, add to `requirements/base.in` and then :
 ```
 bash scripts/compile_requirements.sh
 ```
-
+To generate documentation
+```
+cd docs
+make html
+```
 ## Community
 
 Join the community to stay updated on the most recent developments, project roadmaps, and random discussions about 
