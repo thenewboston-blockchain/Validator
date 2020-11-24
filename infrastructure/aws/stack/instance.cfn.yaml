@@ -103,14 +103,19 @@ Resources:
       AWS::CloudFormation::Init:
         configSets:
           InstallAndRun:
+            - InstallUpdate
+            - CreateDirs
+            - SourceFiles
             - ConfigFiles
-            - Install
+            - Init
             - Start
-        ConfigFiles:
-          files:
-            /usr/local/bin/validator-install:
-              content: !Sub |
-                #!/bin/bash -xe
+
+        InstallUpdate:
+          commands:
+            installUpdate:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
                 yum update -y
                 yum install -y amazon-linux-extras
                 amazon-linux-extras enable python3.8 nginx1 redis4.0
@@ -118,8 +123,12 @@ Resources:
                 yum install -y python38 python38-devel nginx redis supervisor openssl-devel bzip2-devel libffi-devel postgresql-devel
                 yum -y groupinstall "Development Tools"
 
-                rm -rf /var/www/validator
-
+        CreateDirs:
+          commands:
+            createDirs:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
                 mkdir -p /var/log/celery
                 mkdir -p /var/log/daphne
                 chmod -R 0777 /var/log/celery
@@ -134,16 +143,12 @@ Resources:
                 chmod 0775 /var/run/daphne
                 chown nobody:nobody /var/run/daphne
 
-                wget https://github.com/thenewboston-developers/Validator/archive/master.zip -P /tmp
-                unzip /tmp/master.zip -d /tmp
-                mv /tmp/Validator-master/* /var/www/validator
-                rm -rf /tmp/Validator-master /tmp/master.zip
-                python3.8 -m venv --clear /var/www/validator/.venv
-                /var/www/validator/.venv/bin/pip install -r /var/www/validator/requirements/production.txt
-              mode: '000755'
-              owner: 'root'
-              group: 'root'
+        SourceFiles:
+          sources:
+            /var/www/validator/source: https://github.com/thenewboston-developers/Validator/tarball/master
 
+        ConfigFiles:
+          files:
             /etc/nginx/nginx.conf:
               content: !Sub |
                 user nginx;
@@ -184,11 +189,11 @@ Resources:
                         client_max_body_size    75M;
 
                         location /media {
-                            alias /var/www/validator/media;
+                            alias /var/www/validator/source/media;
                         }
 
                         location /static {
-                            alias /var/www/validator/static;
+                            alias /var/www/validator/source/static;
                         }
 
                         location / {
@@ -223,8 +228,8 @@ Resources:
                     POSTGRES_USER=root,
                     POSTGRES_PASSWORD=${MasterUserPassword},
                     SECRET_KEY=${DjangoSecretKey},
-                    SENTRY_DSN=${DjangoSentryDSN}
-                directory=/var/www/validator
+                    SENTRY_DSN='${DjangoSentryDSN}'
+                directory=/var/www/validator/source
 
                 user=nobody
                 numprocs=1
@@ -234,7 +239,7 @@ Resources:
                 autorestart=true
                 startsecs=10
 
-                command=/var/www/validator/.venv/bin/celery worker
+                command=/var/www/validator/venv/bin/celery worker
                     -A config.settings
                     --loglevel=DEBUG
                     --max-tasks-per-child=5000
@@ -257,8 +262,8 @@ Resources:
                     POSTGRES_USER=root,
                     POSTGRES_PASSWORD=${MasterUserPassword},
                     SECRET_KEY=${DjangoSecretKey},
-                    SENTRY_DSN=${DjangoSentryDSN}
-                directory=/var/www/validator
+                    SENTRY_DSN='${DjangoSentryDSN}'
+                directory=/var/www/validator/source
 
                 user=nobody
                 numprocs=1
@@ -268,7 +273,7 @@ Resources:
                 autorestart=true
                 startsecs=10
 
-                command=/var/www/validator/.venv/bin/celery worker
+                command=/var/www/validator/venv/bin/celery worker
                     -A config.settings
                     --loglevel=DEBUG
                     --max-tasks-per-child=5000
@@ -291,8 +296,8 @@ Resources:
                     POSTGRES_USER=root,
                     POSTGRES_PASSWORD=${MasterUserPassword},
                     SECRET_KEY=${DjangoSecretKey},
-                    SENTRY_DSN=${DjangoSentryDSN}
-                directory=/var/www/validator
+                    SENTRY_DSN='${DjangoSentryDSN}'
+                directory=/var/www/validator/source
 
                 user=nobody
                 numprocs=1
@@ -302,7 +307,7 @@ Resources:
                 autorestart=true
                 startsecs=10
 
-                command=/var/www/validator/.venv/bin/celery worker
+                command=/var/www/validator/venv/bin/celery worker
                     -A config.settings
                     --loglevel=DEBUG
                     --max-tasks-per-child=5000
@@ -331,8 +336,8 @@ Resources:
                     POSTGRES_USER=root,
                     POSTGRES_PASSWORD=${MasterUserPassword},
                     SECRET_KEY=${DjangoSecretKey},
-                    SENTRY_DSN=${DjangoSentryDSN}
-                directory=/var/www/validator
+                    SENTRY_DSN='${DjangoSentryDSN}'
+                directory=/var/www/validator/source
                 socket=tcp://localhost:8001
 
                 user=nobody
@@ -343,7 +348,7 @@ Resources:
                 autorestart=true
                 startsecs=10
 
-                command=/var/www/validator/.venv/bin/daphne
+                command=/var/www/validator/venv/bin/daphne
                     -u /var/run/daphne/daphne%(process_num)d.sock
                     --fd 0
                     --access-log -
@@ -423,46 +428,118 @@ Resources:
               owner: 'root'
               group: 'root'
 
-        Install:
+        Init:
           commands:
-            1.install:
-              command: /usr/local/bin/validator-install
-
-            2.init:
+            0.env:
               command: !Sub |
-                #!/bin/bash -xe
-                /var/www/validator/.venv/bin/python /var/www/validator/manage.py migrate --noinput --skip-checks
-                /var/www/validator/.venv/bin/python /var/www/validator/manage.py collectstatic --noinput --clear --skip-checks
+                #!/bin/bash
+                set -xe
+                rm -f /var/www/validator/.env
+                echo "export DJANGO_APPLICATION_ENVIRONMENT=$DJANGO_APPLICATION_ENVIRONMENT" >> /var/www/validator/.env
+                echo "export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE" >> /var/www/validator/.env
+                echo "export NETWORK_SIGNING_KEY=$NETWORK_SIGNING_KEY" >> /var/www/validator/.env
+                echo "export POSTGRES_HOST=$POSTGRES_HOST" >> /var/www/validator/.env
+                echo "export POSTGRES_DB=$POSTGRES_DB" >> /var/www/validator/.env
+                echo "export POSTGRES_USER=$POSTGRES_USER" >> /var/www/validator/.env
+                echo "export POSTGRES_PASSWORD=$POSTGRES_PASSWORD" >> /var/www/validator/.env
+                echo "export SECRET_KEY=$SECRET_KEY" >> /var/www/validator/.env
+                echo "export SENTRY_DSN=$SENTRY_DSN" >> /var/www/validator/.env
+              env:
+                DJANGO_APPLICATION_ENVIRONMENT: 'production'
+                DJANGO_SETTINGS_MODULE: 'config.settings.production'
+                NETWORK_SIGNING_KEY: !Ref NetworkSigningKey
+                POSTGRES_HOST: !Ref DBEndpoint
+                POSTGRES_DB: !Sub ${EnvironmentName}Validator
+                POSTGRES_USER: 'root'
+                POSTGRES_PASSWORD: !Ref MasterUserPassword
+                SECRET_KEY: !Ref DjangoSecretKey
+                SENTRY_DSN: !Ref DjangoSentryDSN
+
+            1.venvInit:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
+                python3.8 -m venv --clear /var/www/validator/venv
+              test: test ! -e /var/www/validator/venv
+
+            2.venvInstall:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
+                /var/www/validator/venv/bin/pip install -r /var/www/validator/source/requirements/production.txt
+
+            3.djangoInit:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
+                /var/www/validator/venv/bin/python /var/www/validator/source/manage.py migrate --noinput --skip-checks
+                /var/www/validator/venv/bin/python /var/www/validator/source/manage.py collectstatic --noinput --clear --skip-checks
+              cwd: /var/www/validator/source
+              env:
+                DJANGO_APPLICATION_ENVIRONMENT: 'production'
+                DJANGO_SETTINGS_MODULE: 'config.settings.production'
+                NETWORK_SIGNING_KEY: !Ref NetworkSigningKey
+                POSTGRES_HOST: !Ref DBEndpoint
+                POSTGRES_DB: !Sub ${EnvironmentName}Validator
+                POSTGRES_USER: 'root'
+                POSTGRES_PASSWORD: !Ref MasterUserPassword
+                SECRET_KEY: !Ref DjangoSecretKey
+                SENTRY_DSN: !Ref DjangoSentryDSN
+
+            4.restartServices:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
+                /bin/systemctl start redis
                 /bin/systemctl restart supervisord
+                /bin/systemctl restart nginx
+
+            5.validatorInit:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
                 if [ ! -f /var/www/validator/.init_done ]; then
                   IP_ADDRESS=$(curl http://169.254.169.254/latest/meta-data/public-ipv4)
 
-                  /var/www/validator/.venv/bin/python /var/www/validator/manage.py initialize_validator \
-                    --node_type ${NodeType} \
+                  /var/www/validator/venv/bin/python /var/www/validator/source/manage.py initialize_validator \
                     --node_identifier ${NodeIdentifier} \
                     --account_number ${AccountNumber} \
                     --default_transaction_fee ${DefaultTransactionFee} \
-                    --seed_block_identifier ${SeedBlockIdentifier} \
+                    --node_type ${NodeType} \
+                    `if [ "${SeedBlockIdentifier}" != "" ]; then echo "--seed_block_identifier ${SeedBlockIdentifier}"; fi` \
                     --root_account_file ${RootAccountFile} \
-                    --version_number ${VersionNumber} \
                     --protocol http \
                     --ip_address $IP_ADDRESS \
-                    --unattended
-
-                  touch /var/www/validator/.init_done
+                    --version_number ${VersionNumber} \
+                    --unattended \
+                    & touch /var/www/validator/.init_done
                 fi
-                if [ -f /var/www/validator/.init_done ] && [ ! -f /var/www/validator/.set_primary_done ] && [ "${ValidatorType}" != "primary" ]; then
-                  /var/www/validator/.venv/bin/python /var/www/validator/manage.py set_primary_validator \
+              cwd: /var/www/validator/source
+              env:
+                DJANGO_APPLICATION_ENVIRONMENT: 'production'
+                DJANGO_SETTINGS_MODULE: 'config.settings.production'
+                NETWORK_SIGNING_KEY: !Ref NetworkSigningKey
+                POSTGRES_HOST: !Ref DBEndpoint
+                POSTGRES_DB: !Sub ${EnvironmentName}Validator
+                POSTGRES_USER: 'root'
+                POSTGRES_PASSWORD: !Ref MasterUserPassword
+                SECRET_KEY: !Ref DjangoSecretKey
+                SENTRY_DSN: !Ref DjangoSentryDSN
+
+            6.primarySet:
+              command: !Sub |
+                #!/bin/bash
+                set -xe
+                if [ -f /var/www/validator/.init_done ] && [ ! -f /var/www/validator/.set_primary_done ] && [ "${NodeIdentifier}" != "PRIMARY_VALIDATOR" ]; then
+                  /var/www/validator/venv/bin/python /var/www/validator/source/manage.py set_primary_validator \
                     --ip_address ${PrimaryIp} \
                     --protocol ${PrimaryProto} \
                     --port ${PrimaryPort} \
                     --trust ${PrimaryTrust} \
-                    --unattended
-
-                  touch /var/www/validator/.set_primary_done
+                    --unattended \
+                  & touch /var/www/validator/.set_primary_done
                 fi
-
-              cwd: /var/www/validator
+              cwd: /var/www/validator/source
               env:
                 DJANGO_APPLICATION_ENVIRONMENT: 'production'
                 DJANGO_SETTINGS_MODULE: 'config.settings.production'
@@ -494,8 +571,6 @@ Resources:
                 files:
                   - /etc/nginx/nginx.conf
                   - /etc/supervisord.d/daphne.ini
-                sources:
-                  - /var/www/validator
 
               supervisord:
                 enabled: true
@@ -503,8 +578,6 @@ Resources:
                 files:
                   - /etc/supervisord.d/celery.ini
                   - /etc/supervisord.d/daphne.ini
-                sources:
-                  - /var/www/validator
 
     CreationPolicy:
       ResourceSignal:
@@ -513,9 +586,9 @@ Resources:
       UserData:
         Fn::Base64:
           !Sub |
-            #!/bin/bash -xe
+            #!/bin/bash
+            set -xe
             yum install -y aws-cfn-bootstrap
-            echo 1
             /opt/aws/bin/cfn-init -v --stack ${AWS::StackName} --resource ValidatorInstance --configsets InstallAndRun --region ${AWS::Region}
             /opt/aws/bin/cfn-signal -e $? --stack ${AWS::StackName} --resource ValidatorInstance --region ${AWS::Region}
       ImageId: ami-0528a5175983e7f28
