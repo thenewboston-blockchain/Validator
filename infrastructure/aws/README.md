@@ -24,15 +24,15 @@ Configure
    ```shell script
    ./update_stack.py \
      --s3-bucket <value> \
-     --sign-key <value> \
+     --db-pass <value> \
      --primary-url <value> \
      --primary-trust <value> \
-     --node-identifier <value> \
      --account-number <value> \
      --default-transaction-fee <value> \
      --root-account-file <value> \
      --version-number <value>
    ```
+   NOTE. Please save those values you've entered
    Refer to `./update_stack.py --help` about values
 6. In the end you will see something like
    ```shell script
