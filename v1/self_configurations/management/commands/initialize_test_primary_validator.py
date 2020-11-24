@@ -36,7 +36,7 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'  # noqa
+    help = 'Delete existing data, load in fixture data, set self as primary validator, rebuild cache'  # noqa: A003
 
     def add_arguments(self, parser):
         """
