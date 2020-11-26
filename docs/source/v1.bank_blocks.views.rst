@@ -1,0 +1,21 @@
+v1.bank\_blocks.views package
+=============================
+
+Submodules
+----------
+
+v1.bank\_blocks.views.bank\_block module
+----------------------------------------
+
+.. automodule:: v1.bank_blocks.views.bank_block
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: v1.bank_blocks.views
+   :members:
+   :undoc-members:
+   :show-inheritance:
