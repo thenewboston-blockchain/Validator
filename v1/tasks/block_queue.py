@@ -53,13 +53,13 @@ def process_block_queue():
             new_accounts=new_accounts
         )
         add_valid_confirmation_block(confirmation_block=confirmation_block)
-        send_confirmation_block_to_confirmation_validators.delay(confirmation_block=confirmation_block)
+        send_confirmation_block_to_all_confirmation_validators.delay(confirmation_block=confirmation_block)
 
 
 @shared_task
-def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
+def send_confirmation_block_to_all_confirmation_validators(*, confirmation_block):
     """
-    Send confirmed block to confirmation validators
+    Send confirmation block to all confirmation validators
     This function is called by the primary validator only
     - confirmation validators send their confirmation blocks to their banks
     """
@@ -74,10 +74,30 @@ def send_confirmation_block_to_confirmation_validators(*, confirmation_block):
             port=validator.port,
             protocol=validator.protocol
         )
-        url = f'{address}/confirmation_blocks'
+        confirmation_validator_url = f'{address}/confirmation_blocks'
+        send_confirmation_block_to_individual_confirmation_validator.delay(
+            confirmation_block=confirmation_block,
+            confirmation_validator_id=validator.id,
+            confirmation_validator_url=confirmation_validator_url
+        )
 
-        try:
-            post(url=url, body=confirmation_block)
-        except Exception as e:
-            capture_exception(e)
-            logger.exception(e)
+
+@shared_task
+def send_confirmation_block_to_individual_confirmation_validator(
+    *,
+    confirmation_block,
+    confirmation_validator_id,
+    confirmation_validator_url
+):
+    """
+    Send a confirmed block to a confirmation validator
+    If NetworkException then delete that confirmation validator
+    - occurs when the confirmation validator has gone offline or is not configured properly
+    """
+
+    try:
+        post(url=confirmation_validator_url, body=confirmation_block)
+    except Exception as e:
+        Validator.objects.filter(id=confirmation_validator_id).delete()
+        capture_exception(e)
+        logger.exception(e)
