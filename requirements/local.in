@@ -1,1 +1,3 @@
 -r base.in
+
+sphinx==3.3.1
