@@ -4,7 +4,8 @@ exclude =
     .git,
     __pycache__,
     migrations,
-    venv
+    venv,
+    docs
 filename = *.py
 application-import-names =
     config
