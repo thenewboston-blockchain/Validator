@@ -12,10 +12,7 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
     node_identifier = serializers.CharField(max_length=VERIFY_KEY_LENGTH)
 
     def create(self, validated_data):
-        """
-        Send historical confirmation blocks (starting with the block_identifier) to the confirmation validator
-        """
-
+        """Send historical confirmation blocks (starting with the block_identifier) to the confirmation validator"""
         block_identifier = validated_data['block_identifier']
         validator = validated_data['node_identifier']
 
@@ -32,10 +29,7 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
         pass
 
     def validate(self, data):
-        """
-        Validate self is configured as primary validator
-        """
-
+        """Validate self is configured as primary validator"""
         self_configuration = get_self_configuration(exception_class=RuntimeError)
 
         if self_configuration.node_type != PRIMARY_VALIDATOR:
@@ -45,10 +39,7 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
 
     @staticmethod
     def validate_block_identifier(block_identifier):
-        """
-        Validate confirmation block matching block_identifier exists
-        """
-
+        """Validate confirmation block matching block_identifier exists"""
         valid_confirmation_block = get_valid_confirmation_block(block_identifier=block_identifier)
 
         if not valid_confirmation_block:
@@ -58,10 +49,7 @@ class ConfirmationBlockHistorySerializer(serializers.Serializer):
 
     @staticmethod
     def validate_node_identifier(node_identifier):
-        """
-        Validate node_identifier is from a connected validator
-        """
-
+        """Validate node_identifier is from a connected validator"""
         validator = Validator.objects.filter(node_identifier=node_identifier).first()
 
         if not validator:

@@ -15,9 +15,9 @@ logger = logging.getLogger('thenewboston')
 def sign_block_to_confirm_and_update_head_block_hash(*, block, existing_accounts, new_accounts):
     """
     Sign block to confirm validity
+
     Update HEAD_BLOCK_HASH
     """
-
     try:
         head_block_hash = cache.get(HEAD_BLOCK_HASH)
 

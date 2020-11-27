@@ -16,6 +16,7 @@ logger = logging.getLogger('thenewboston')
 def send_upgrade_notices(*, requesting_banks_node_identifier):
     """
     Description:
+
     - notice from a previous confirmation validator that they are now a primary validator
     - triggered from an /upgrade_request from the validators most trusted bank
     - banks that trust self more than their existing primary validator will set self as new primary validator
@@ -30,7 +31,6 @@ def send_upgrade_notices(*, requesting_banks_node_identifier):
         The requesting (most trusted) bank may be excluded from notice recipients since it will already receive the
         updated information from the /upgrade_request response
     """
-
     banks = Bank.objects.all().exclude(node_identifier=requesting_banks_node_identifier)
 
     for bank in banks:

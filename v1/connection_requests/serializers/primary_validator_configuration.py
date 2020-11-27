@@ -18,9 +18,9 @@ class PrimaryValidatorConfigurationSerializer(PrimaryValidatorSerializer):
     def validate(self, requesting_node_primary_validator_configuration):
         """
         Validate that requesting nodes primary validator matches self primary validator
+
         - note that port fields are nullable
         """
-
         self_configuration = get_self_configuration(exception_class=RuntimeError)
 
         if self_configuration.node_type == PRIMARY_VALIDATOR:

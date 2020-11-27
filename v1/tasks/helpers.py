@@ -18,18 +18,15 @@ logger = logging.getLogger('thenewboston')
 def format_updated_balances(existing_accounts, new_accounts):
     """
     Standardize shape of updated balances
+
     Convert balance to string to ensure it is JSON serializable
     """
-
     updated_balances = existing_accounts + new_accounts
     return sorted(updated_balances, key=itemgetter('account_number'))
 
 
 def get_updated_accounts(*, sender_account_balance, validated_block):
-    """
-    Return the updated balances of all accounts involved
-    """
-
+    """Return the updated balances of all accounts involved"""
     existing_accounts = []
     new_accounts = []
 
@@ -65,6 +62,7 @@ def get_updated_accounts(*, sender_account_balance, validated_block):
 def is_block_valid(*, block):
     """
     For given block verify:
+
     - signature
     - account balance exists
     - amount sent does not exceed account balance
@@ -72,7 +70,6 @@ def is_block_valid(*, block):
 
     Return boolean indicating validity, senders account balance
     """
-
     account_number = block.get('account_number')
     message = block.get('message')
     signature = block.get('signature')
@@ -120,7 +117,6 @@ def is_total_amount_valid(*, block, account_balance):
 
     Return boolean indicating validity, error
     """
-
     message = block['message']
     txs = message['txs']
 
@@ -134,10 +130,7 @@ def is_total_amount_valid(*, block, account_balance):
 
 
 def update_accounts_cache(*, existing_accounts, new_accounts):
-    """
-    Update accounts cache
-    """
-
+    """Update accounts cache"""
     for account in existing_accounts:
         account_number = account['account_number']
         balance = account['balance']
@@ -162,10 +155,7 @@ def update_accounts_cache(*, existing_accounts, new_accounts):
 
 
 def update_accounts_table(*, existing_accounts, new_accounts):
-    """
-    Update or create accounts in the accounts table
-    """
-
+    """Update or create accounts in the accounts table"""
     for account in existing_accounts:
         Account.objects.filter(
             account_number=account['account_number']

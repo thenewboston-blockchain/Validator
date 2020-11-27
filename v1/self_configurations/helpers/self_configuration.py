@@ -6,10 +6,7 @@ from ..models.self_configuration import SelfConfiguration
 
 
 def get_primary_validator():
-    """
-    Return primary validator
-    """
-
+    """Return primary validator"""
     # TODO: This should be hitting the cache
 
     self_configuration = get_self_configuration(exception_class=RuntimeError)
@@ -17,10 +14,7 @@ def get_primary_validator():
 
 
 def get_root_account_file_url(*, address=None):
-    """
-    Return root account file URL
-    """
-
+    """Return root account file URL"""
     if not address:
         self_configuration = get_self_configuration(exception_class=RuntimeError)
 
@@ -34,10 +28,7 @@ def get_root_account_file_url(*, address=None):
 
 
 def get_self_configuration(*, exception_class):
-    """
-    Return self configuration
-    """
-
+    """Return self configuration"""
     self_configuration = SelfConfiguration.objects.first()
 
     if not self_configuration:

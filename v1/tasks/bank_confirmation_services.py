@@ -9,10 +9,7 @@ from .signed_requests import send_signed_post_request
 
 
 def create_confirmation_service(*, bank, confirmation_service_amount):
-    """
-    Create confirmation service for bank
-    """
-
+    """Create confirmation service for bank"""
     current_confirmation_expiration = bank.confirmation_expiration
     now = timezone.now()
 
@@ -52,9 +49,9 @@ def create_confirmation_service(*, bank, confirmation_service_amount):
 def handle_bank_confirmation_services(*, block, self_account_number):
     """
     Check validated block to see if there are any payments to self from banks
+
     If so, convert to confirmation service time
     """
-
     message = block['message']
     txs = message['txs']
 

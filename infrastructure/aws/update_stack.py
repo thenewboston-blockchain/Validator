@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-from secrets import token_urlsafe
 import subprocess
+from secrets import token_urlsafe
 from typing import TYPE_CHECKING
 from urllib.parse import urlparse
 

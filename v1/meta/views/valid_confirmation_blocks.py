@@ -6,10 +6,7 @@ from v1.cache_tools.valid_confirmation_blocks import get_all_valid_confirmation_
 
 @api_view(['GET'])
 def valid_confirmation_blocks_view(_):
-    """
-    Return list of valid confirmation blocks
-    """
-
+    """Return list of valid confirmation blocks"""
     return Response({
         'valid_confirmation_blocks': get_all_valid_confirmation_blocks()
     })

@@ -3,10 +3,7 @@ from v1.tasks.confirmation_block_queue import handle_bank_confirmation_services
 
 
 def test_seconds_purchased(confirmation_validator_configuration):
-    """
-    Test that the correct amount of time is purchased
-    """
-
+    """Test that the correct amount of time is purchased"""
     self_configuration = get_self_configuration(exception_class=RuntimeError)
 
     data = [

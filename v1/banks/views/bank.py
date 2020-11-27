@@ -15,6 +15,7 @@ class BankViewSet(
 ):
     """
     Banks
+
     ---
     list:
       description: List banks

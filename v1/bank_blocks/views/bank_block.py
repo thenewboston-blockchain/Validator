@@ -19,6 +19,7 @@ This view should check the block formatting only and not the validity of the tra
 class BankBlockViewSet(ViewSet):
     """
     Bank block
+
     ---
     create:
       description: Add a block to the queue

@@ -20,9 +20,9 @@ logger = logging.getLogger('thenewboston')
 def process_block_queue():
     """
     Process block queue
+
     - this is for primary validators only
     """
-
     with cache.lock(BLOCK_QUEUE_CACHE_LOCK_KEY):
         block_queue = cache.get(BLOCK_QUEUE)
 
@@ -60,10 +60,10 @@ def process_block_queue():
 def send_confirmation_block_to_all_confirmation_validators(*, confirmation_block):
     """
     Send confirmation block to all confirmation validators
+
     This function is called by the primary validator only
     - confirmation validators send their confirmation blocks to their banks
     """
-
     # TODO: Optimize
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     confirmation_validators = Validator.objects.exclude(node_identifier=self_configuration.node_identifier)
@@ -91,10 +91,10 @@ def send_confirmation_block_to_individual_confirmation_validator(
 ):
     """
     Send a confirmed block to a confirmation validator
+
     If NetworkException then delete that confirmation validator
     - occurs when the confirmation validator has gone offline or is not configured properly
     """
-
     try:
         post(url=confirmation_validator_url, body=confirmation_block)
     except Exception as e:

@@ -11,10 +11,7 @@ class ConnectionRequestView(APIView):
 
     @is_signed_message
     def post(self, request):
-        """
-        description: Create connection request
-        """
-
+        """description: Create connection request"""
         serializer = ConnectionRequestSerializerCreate(
             data={
                 **request.data['message'],

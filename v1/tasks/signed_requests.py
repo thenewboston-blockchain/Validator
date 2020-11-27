@@ -13,10 +13,7 @@ logger = logging.getLogger('thenewboston')
 
 @shared_task
 def send_signed_post_request(*, data, ip_address, port, protocol, url_path):
-    """
-    Sign data and send to recipient
-    """
-
+    """Sign data and send to recipient"""
     signed_request = generate_signed_request(
         data=data,
         nid_signing_key=get_signing_key()

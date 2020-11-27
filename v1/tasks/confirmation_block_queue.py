@@ -31,13 +31,13 @@ logger = logging.getLogger('thenewboston')
 def process_confirmation_block_queue():
     """
     Process confirmation block queue
+
     - this is for confirmation validators only
 
     Ran after:
     - initial sync with primary validator
     - receiving confirmation block from the primary validator
     """
-
     self_configuration = get_self_configuration(exception_class=RuntimeError)
     head_block_hash = cache.get(HEAD_BLOCK_HASH)
     confirmation_block = get_queued_confirmation_block(block_identifier=head_block_hash)
@@ -92,10 +92,10 @@ def process_confirmation_block_queue():
 def send_confirmation_block_to_banks(*, confirmation_block):
     """
     Send confirmed block to banks with active confirmation services
+
     This function is called by the confirmation validators only
     - primary validators send their confirmation blocks to the confirmation validators
     """
-
     for bank in get_banks_with_active_confirmation_services():
         address = format_address(
             ip_address=bank.ip_address,
@@ -114,9 +114,9 @@ def send_confirmation_block_to_banks(*, confirmation_block):
 def send_invalid_block_to_banks(*, confirmation_block):
     """
     Send invalid block to banks
+
     This function is called by the confirmation validators only
     """
-
     block = confirmation_block['block']
     block_identifier = confirmation_block['block_identifier']
 
@@ -150,8 +150,5 @@ def send_invalid_block_to_banks(*, confirmation_block):
 
 
 def updated_balances_match(a, b):
-    """
-    Compare two lists of dicts to determine if they are identical
-    """
-
+    """Compare two lists of dicts to determine if they are identical"""
     return json.dumps(a, sort_keys=True) == json.dumps(b, sort_keys=True)

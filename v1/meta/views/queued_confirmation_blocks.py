@@ -6,10 +6,7 @@ from v1.cache_tools.queued_confirmation_blocks import get_all_queued_confirmatio
 
 @api_view(['GET'])
 def queued_confirmation_blocks_view(_):
-    """
-    Return list of queued confirmation blocks
-    """
-
+    """Return list of queued confirmation blocks"""
     return Response({
         'queued_confirmation_blocks': get_all_queued_confirmation_blocks()
     })

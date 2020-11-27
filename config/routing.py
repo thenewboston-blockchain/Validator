@@ -5,7 +5,6 @@ from v1.crawl import routing as crawl_routing
 
 application = ProtocolTypeRouter({
     'websocket': URLRouter(
-        clean_routing.websocket_urlpatterns +
-        crawl_routing.websocket_urlpatterns
+        clean_routing.websocket_urlpatterns + crawl_routing.websocket_urlpatterns
     )
 })
