@@ -1,0 +1,38 @@
+v1.sync package
+===============
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   v1.sync.serializers
+   v1.sync.views
+
+Submodules
+----------
+
+v1.sync.helpers module
+----------------------
+
+.. automodule:: v1.sync.helpers
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+v1.sync.urls module
+-------------------
+
+.. automodule:: v1.sync.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: v1.sync
+   :members:
+   :undoc-members:
+   :show-inheritance:

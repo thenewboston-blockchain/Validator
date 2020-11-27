@@ -1,0 +1,31 @@
+v1.confirmation\_blocks package
+===============================
+
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   v1.confirmation_blocks.serializers
+   v1.confirmation_blocks.tests
+   v1.confirmation_blocks.views
+
+Submodules
+----------
+
+v1.confirmation\_blocks.urls module
+-----------------------------------
+
+.. automodule:: v1.confirmation_blocks.urls
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: v1.confirmation_blocks
+   :members:
+   :undoc-members:
+   :show-inheritance:
