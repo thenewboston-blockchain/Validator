@@ -1,6 +1,6 @@
 import iptools
 
-from .base import *   # noqa: F401
+from .base import *  # noqa: F401
 
 DEBUG = True
 
