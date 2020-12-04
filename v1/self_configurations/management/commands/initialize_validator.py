@@ -131,8 +131,8 @@ class Command(InitializeNode):
                 continue
 
             try:
-                url_validator = URLValidator(schemes=['http', 'https'])
-                url_validator(root_account_file)
+                validator = URLValidator(schemes=['http', 'https'])
+                validator(root_account_file)
             except ValidationError:
                 self._error('Invalid URL')
                 continue
