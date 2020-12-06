@@ -3,7 +3,65 @@
 Follow the steps below to set up the project on your environment. If you run into any problems, feel free to leave a 
 GitHub Issue or reach out to any of our communities above.
 
-## Windows
+## Local Development (Docker edition)
+
+You need to have [Docker](https://docs.docker.com/engine/install/) and [docker-compose](https://docs.docker.com/compose/install/) installed
+
+Copy `dotenv` to `.env` 
+
+Open .env and edit settings
+
+- `PUBLIC_IP_ADDRESS` is an IP address of your docker host, usually it's 127.0.0.1
+- `ACCOUNT_NUMBER` use `TNB Account Manager` app to generate a new account for test purposes
+
+Login to Github's registry 
+```shell
+docker login docker.pkg.github.com
+```
+Use your github's credentials or personal key if you have 2FA configured.
+
+Run:
+```shell
+docker-compose up # add -d to detach from donsole
+```
+
+This will start a dev network to work with, network consists of PV, 2x CVs, Bank and all the needed services (celery, db, redis).
+
+On a first run it will take some time to provision and configure test network settings.
+
+If something failed, deleting `postgresql-data` and `redis-data` volumes might solve the issue (refer to `docker volume` cli), and try previous command again.
+
+As a result
+```
+http://$PUBLIC_IP_ADDRESS:8001 - PV
+http://$PUBLIC_IP_ADDRESS:8002 - CV 1
+http://$PUBLIC_IP_ADDRESS:8003 - CV 2
+http://$PUBLIC_IP_ADDRESS:8004 - BANK
+```
+
+You can add those to your TNB Account Manager app
+
+### For Python developers (Docker edition)
+To run all tests in parallel:
+```shell
+docker-compose run pv pytest -n auto
+# or
+docker-compose exec pv pytest # if docker-compose run is running
+```
+
+To monitor Celery tasks:
+```shell
+# For PV
+docker-compose exec celery_pv celery flower -A config.settings --address=127.0.0.1 --port=5555
+# For CV n. 1
+docker-compose exec celery_cv1 celery flower -A config.settings --address=127.0.0.1 --port=5555
+# For CV n. 2
+docker-compose exec celery_cv2 celery flower -A config.settings --address=127.0.0.1 --port=5555
+# For BANK
+docker-compose exec celery_bank celery flower -A config.settings --address=127.0.0.1 --port=5555
+```
+
+## Windows (without docker)
 
 This guide targets a unix environment however it is possible to perform this setup on Windows by installing Cygwin 
 [here](https://cygwin.com/install.html).
@@ -23,7 +81,7 @@ Once installed use Cygwin for all your command-line operations.
 
 *This is because one of the dependencies, uWSGI, does not provide Windows support directly.*
 
-## Steps
+## Steps (without docker)
 
 Set required environment variables:
 ```
@@ -55,7 +113,7 @@ python3 manage.py migrate
 python3 manage.py initialize_test_primary_validator -ip [IP ADDRESS]
 ```
 
-## Local Development
+## Local Development (without docker)
 
 Run Redis:
 ```
@@ -74,44 +132,25 @@ To monitor Celery tasks:
 celery flower -A config.settings --address=127.0.0.1 --port=5555
 ```
 
-## Local Development (Docker edition)
-
-Run:
-```
-docker-compose up # add -d to detach from donsole
-```
-
-To run all tests in parallel:
-```
-docker-compose run app pytest -n auto
-# or
-docker-compose exec app pytest # if docker-compose run is running
-```
-
-To monitor Celery tasks:
-```
-docker-compose exec celery celery flower -A config.settings --address=127.0.0.1 --port=5555
-```
-
 ## Developers
 
 To watch log files:
-```commandline
+```shell
 tail -f logs/warning.log -n 10
 ```
 
 To run all tests in parallel:
-```
+```shell
 pytest -n auto
 ```
 
 When adding a package, add to `requirements/base.in` and then :
-```
+```shell
 bash scripts/compile_requirements.sh
 ```
 
 To generate documentation:
-```
+```shell
 cd docs
 make html
 ```

@@ -42,4 +42,5 @@ Configure
    Value               <ip address>
 
    ```
-   Put the http://<ip address>/config to your browser, in a while (on avg in 3-5 minutes) you should a correct response
+   Put the http://<ip address>/config to your browser, in a while (on avg in 3-5 minutes) you should see a correct response
+

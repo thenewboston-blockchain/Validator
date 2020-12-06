@@ -15,7 +15,7 @@ class Bank(NetworkNode):
         ]
     )
 
-    class Meta:
+    class Meta(NetworkNode.Meta):
         default_related_name = 'banks'
 
     def __str__(self):
