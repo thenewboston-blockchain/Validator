@@ -9,10 +9,10 @@ from .views.valid_confirmation_blocks import valid_confirmation_blocks_view
 urlpatterns = [
 
     # Block chain
-    path('meta/block_chain', block_chain_view),
+    path('meta/block_chain', block_chain_view, name='meta/block_chain'),
 
     # Block queue
-    path('meta/block_queue', block_queue_view),
+    path('meta/block_queue', block_queue_view, name='meta/block_queue'),
 
     # HEAD block hash
     path('meta/head_block_hash', head_block_hash_view),
