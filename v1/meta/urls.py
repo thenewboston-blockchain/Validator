@@ -15,12 +15,12 @@ urlpatterns = [
     path('meta/block_queue', block_queue_view, name='meta/block_queue'),
 
     # HEAD block hash
-    path('meta/head_block_hash', head_block_hash_view),
+    path('meta/head_block_hash', head_block_hash_view, name='meta/head_block_hash'),
 
     # Queued confirmation blocks
-    path('meta/queued_confirmation_blocks', queued_confirmation_blocks_view),
+    path('meta/queued_confirmation_blocks', queued_confirmation_blocks_view, name='meta/queued_confirmation_blocks'),
 
     # Valid confirmation blocks
-    path('meta/valid_confirmation_blocks', valid_confirmation_blocks_view),
+    path('meta/valid_confirmation_blocks', valid_confirmation_blocks_view, name='meta/valid_confirmation_blocks'),
 
 ]

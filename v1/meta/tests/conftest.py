@@ -8,7 +8,7 @@ from ..helpers.block_identifier import get_initial_block_identifier
 
 
 @pytest.fixture
-def block_identifier():
+def block_identifier(confirmation_validator_configuration):
     return get_initial_block_identifier()
 
 
