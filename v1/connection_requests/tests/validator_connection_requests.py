@@ -1,11 +1,10 @@
-
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from v1.validators.models.validator import Validator
 
 
 def test_connection_requests_post_validator_success(
-    client, validator_config, requests_mock, validator_connection_requests_signed_request, validator_address
+    client, validator, validator_config, requests_mock, validator_connection_requests_signed_request, validator_address
 ):
     Validator.objects.all().delete()
 
@@ -20,6 +19,9 @@ def test_connection_requests_post_validator_success(
         expected=HTTP_201_CREATED,
     )
     assert response == {}
+    assert Validator.objects.filter(
+        ip_address=validator.ip_address, protocol=validator.protocol, port=validator.port
+    ).exists()
 
 
 def test_connection_requests_post_validator_existed_validate_node_identifier(

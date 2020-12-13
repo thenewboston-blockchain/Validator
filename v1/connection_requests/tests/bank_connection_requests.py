@@ -12,7 +12,7 @@ from thenewboston.verify_keys.verify_key import encode_verify_key
 
 
 def test_connection_requests_post_bank_success(
-    client, bank_config, requests_mock, bank_connection_requests_signed_request, bank_address
+    client, bank, bank_config, requests_mock, bank_connection_requests_signed_request, bank_address
 ):
     Bank.objects.all().delete()
 
@@ -27,6 +27,9 @@ def test_connection_requests_post_bank_success(
         expected=HTTP_201_CREATED,
     )
     assert response == {}
+    assert Bank.objects.filter(
+        ip_address=bank.ip_address, protocol=bank.protocol, port=bank.port
+    ).exists()
 
 
 def test_connection_requests_post_bank_existed_validate_node_identifier(
