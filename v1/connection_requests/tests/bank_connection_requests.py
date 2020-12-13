@@ -25,6 +25,25 @@ def test_connection_requests_post_bank_success(
     ).exists()
 
 
+def test_connection_requests_post_from_bank_no_primary_config(
+    client, bank, bank_config_no_primary_validator_info, requests_mock,
+    bank_connection_requests_signed_request, bank_address
+):
+    Bank.objects.all().delete()
+
+    requests_mock.get(
+        f'{bank_address}/config',
+        json=bank_config_no_primary_validator_info,
+    )
+
+    response = client.post_json(
+        reverse('connection_requests'),
+        bank_connection_requests_signed_request,
+        expected=HTTP_400_BAD_REQUEST
+    )
+    assert response == {'primary_validator': ['This field is required.']}
+
+
 def test_connection_requests_post_bank_existed_validate_node_identifier(
     client, bank_connection_requests_signed_request
 ):
