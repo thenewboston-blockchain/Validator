@@ -1,14 +1,7 @@
-import pytest
-from faker import Faker
-from thenewboston.utils.format import format_address
-from v1.banks.serializers.bank import BankSerializer
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from thenewboston.utils.signed_requests import generate_signed_request
+
 from v1.banks.models.bank import Bank
-from thenewboston.serializers.primary_validator import PrimaryValidatorSerializer
-from thenewboston.constants.network import VERIFY_KEY_LENGTH
-from thenewboston.verify_keys.verify_key import encode_verify_key
 
 
 def test_connection_requests_post_bank_success(
@@ -52,7 +45,4 @@ def test_connection_requests_post_bank_already_connected(
         bank_connection_requests_signed_request_new_node_identifier,
         expected=HTTP_400_BAD_REQUEST,
     )
-    assert response['non_field_errors'] == ["Already connected to bank"]
-
-
-
+    assert response['non_field_errors'] == ['Already connected to bank']

@@ -1,5 +1,6 @@
 from rest_framework.reverse import reverse
 from rest_framework.status import HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+
 from v1.validators.models.validator import Validator
 
 
@@ -44,7 +45,7 @@ def test_connection_requests_post_validator_already_connected(
         validator_connection_requests_signed_request_new_node_identifier,
         expected=HTTP_400_BAD_REQUEST,
     )
-    assert response['non_field_errors'] == ["Already connected to validator"]
+    assert response['non_field_errors'] == ['Already connected to validator']
 
 
 def test_connection_requests_post_connection_requests_to_itself(
