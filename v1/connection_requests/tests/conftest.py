@@ -21,7 +21,7 @@ def bank_config(bank, primary_validator_config):
 
 
 @pytest.fixture
-def confirmation_validator_config(validator, primary_validator_config):
+def validator_config(validator, primary_validator_config):
     validator_config = ValidatorSerializer(validator).data
     validator_config['node_type'] = 'CONFIRMATION_VALIDATOR'
     validator_config['primary_validator'] = primary_validator_config

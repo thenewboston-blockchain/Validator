@@ -35,14 +35,8 @@ def test_connection_requests_post_validator_existed_validate_node_identifier(
 
 
 def test_connection_requests_post_validator_already_connected(
-    client, validator_config, requests_mock,
-    validator_connection_requests_signed_request_new_node_identifier, validator_address
+    client, validator_connection_requests_signed_request_new_node_identifier,
 ):
-    requests_mock.get(
-        f'{validator_address}/config',
-        json=validator_config,
-    )
-
     response = client.post_json(
         reverse('connection_requests'),
         validator_connection_requests_signed_request_new_node_identifier,
@@ -57,6 +51,6 @@ def test_connection_requests_post_connection_requests_to_itself(
     response = client.post_json(
         reverse('connection_requests'),
         validator_connection_requests_signed_request_connect_to_itself,
-        expected=HTTP_201_CREATED,
+        expected=HTTP_400_BAD_REQUEST,
     )
     assert response['non_field_errors'] == ['Unable to connect to self']
