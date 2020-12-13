@@ -4,6 +4,7 @@ from thenewboston.serializers.primary_validator import PrimaryValidatorSerialize
 from thenewboston.utils.signed_requests import generate_signed_request
 from thenewboston.utils.format import format_address
 from thenewboston.accounts.manage import create_account
+from v1.validators.serializers.validator import ValidatorSerializer
 
 
 @pytest.fixture
@@ -20,6 +21,14 @@ def bank_config(bank, primary_validator_config):
 
 
 @pytest.fixture
+def confirmation_validator_config(validator, primary_validator_config):
+    validator_config = ValidatorSerializer(validator).data
+    validator_config['node_type'] = 'CONFIRMATION_VALIDATOR'
+    validator_config['primary_validator'] = primary_validator_config
+    yield validator_config
+
+
+@pytest.fixture
 def bank_connection_requests_signed_request(bank, signing_key):
     yield generate_signed_request(
         data={
@@ -29,6 +38,18 @@ def bank_connection_requests_signed_request(bank, signing_key):
         },
         nid_signing_key=signing_key
     )
+
+@pytest.fixture
+def validator_connection_requests_signed_request(validator, signing_key):
+    yield generate_signed_request(
+        data={
+            "ip_address": validator.ip_address,
+            "port": validator.port,
+            "protocol": validator.protocol,
+        },
+        nid_signing_key=signing_key
+    )
+
 
 @pytest.fixture
 def bank_connection_requests_signed_request_new_node_identifier(bank):
@@ -44,9 +65,44 @@ def bank_connection_requests_signed_request_new_node_identifier(bank):
 
 
 @pytest.fixture
+def validator_connection_requests_signed_request_new_node_identifier(validator):
+    signing_key, _ = create_account()
+    yield generate_signed_request(
+        data={
+            "ip_address": validator.ip_address,
+            "port": validator.port,
+            "protocol": validator.protocol,
+        },
+        nid_signing_key=signing_key
+    )
+
+
+@pytest.fixture
+def validator_connection_requests_signed_request_connect_to_itself(primary_validator_configuration):
+    signing_key, _ = create_account()
+    yield generate_signed_request(
+        data={
+            "ip_address": primary_validator_configuration.ip_address,
+            "port": primary_validator_configuration.port,
+            "protocol": primary_validator_configuration.protocol,
+        },
+        nid_signing_key=signing_key
+    )
+
+
+@pytest.fixture
 def bank_address(bank):
     yield format_address(
         ip_address=bank.ip_address,
         port=bank.port,
         protocol=bank.protocol
+    )
+
+
+@pytest.fixture
+def validator_address(validator):
+    yield format_address(
+        ip_address=validator.ip_address,
+        port=validator.port,
+        protocol=validator.protocol
     )
