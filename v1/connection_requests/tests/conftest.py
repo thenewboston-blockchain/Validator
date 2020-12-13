@@ -38,6 +38,14 @@ def validator_config_primary_node(validator, primary_validator_config):
 
 
 @pytest.fixture
+def config_unknown_node(validator, primary_validator_config):
+    validator_config = ValidatorSerializer(validator).data
+    validator_config['node_type'] = 'UNKNOWN_NODE'
+    validator_config['primary_validator'] = primary_validator_config
+    yield validator_config
+
+
+@pytest.fixture
 def bank_connection_requests_signed_request(bank, signing_key):
     yield generate_signed_request(
         data={

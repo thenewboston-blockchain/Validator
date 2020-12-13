@@ -45,6 +45,26 @@ def test_connection_requests_post_primary_validator(
     assert 'Unable to accept connection requests from primary validators' in response['non_field_errors'][0]
 
 
+def test_connection_requests_post_from_unknown_node(
+    client, validator, config_unknown_node, requests_mock,
+    validator_connection_requests_signed_request, validator_address
+):
+    Validator.objects.all().delete()
+
+    requests_mock.get(
+        f'{validator_address}/config',
+        json=config_unknown_node,
+    )
+
+    response = client.post_json(
+        reverse('connection_requests'),
+        validator_connection_requests_signed_request,
+        expected=HTTP_400_BAD_REQUEST
+    )
+
+    assert 'Invalid node_type' in response['non_field_errors'][0]
+
+
 def test_connection_requests_post_validator_existed_validate_node_identifier(
     client, validator_connection_requests_signed_request
 ):
