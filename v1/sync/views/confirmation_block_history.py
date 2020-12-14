@@ -29,4 +29,4 @@ class ConfirmationBlockHistoryViewSet(ViewSet):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        return Response({}, status=HTTP_200_OK)
+        return Response(request.data, status=HTTP_200_OK)
