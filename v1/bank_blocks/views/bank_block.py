@@ -56,4 +56,4 @@ class BankBlockViewSet(ViewSet):
         serializer.is_valid(raise_exception=True)
         BankBlockViewSet.add_block_to_queue(block)
 
-        return Response({}, status=status.HTTP_200_OK)
+        return Response(block, status=status.HTTP_200_OK)

@@ -30,3 +30,27 @@ def test_validator_patch(client, primary_validator_configuration, validator, val
         expected=HTTP_200_OK,
     )
     assert float(response['trust']) == validator_fake_data['trust']
+
+
+def test_validator_post(client, primary_validator_configuration, validator_fake_data):
+    response = client.post_json(
+        reverse('validator-list'),
+        generate_signed_request(
+            data=validator_fake_data,
+            nid_signing_key=get_signing_key(),
+        ),
+        expected=HTTP_200_OK,
+    )
+    assert float(response['trust']) == validator_fake_data['trust']
+
+
+def test_validator_detail(client, primary_validator_configuration, validator):
+    print(primary_validator_configuration)
+    response = client.get_json(
+        reverse(
+            'validator-detail',
+            args=[validator.node_identifier]
+        ),
+        expected=HTTP_200_OK,
+    )
+    assert_objects_vs_dicts([validator], [response], key='node_identifier')
