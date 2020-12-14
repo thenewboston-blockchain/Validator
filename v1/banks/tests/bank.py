@@ -30,3 +30,16 @@ def test_banks_patch(client, primary_validator_configuration, bank, bank_fake_da
         expected=HTTP_200_OK,
     )
     assert float(response['trust']) == bank_fake_data['trust']
+
+
+def test_banks_post(client, primary_validator_configuration, bank, bank_fake_data):
+    response = client.post_json(
+        reverse('bank-list'),
+        generate_signed_request(
+            data=bank_fake_data,
+            nid_signing_key=get_signing_key(),
+        ),
+        expected=HTTP_200_OK,
+    )
+
+    assert float(response['trust']) == bank_fake_data['trust']
