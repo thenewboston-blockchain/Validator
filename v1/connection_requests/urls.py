@@ -5,6 +5,6 @@ from .views.connection_request import ConnectionRequestView
 urlpatterns = [
 
     # Connection requests
-    path('connection_requests', ConnectionRequestView.as_view()),
+    path('connection_requests', ConnectionRequestView.as_view(), name='connection_requests'),
 
 ]
