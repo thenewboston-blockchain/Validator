@@ -1,6 +1,8 @@
+import random
+
 import pytest
 from rest_framework.reverse import reverse
-from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_200_OK, HTTP_401_UNAUTHORIZED
 from thenewboston.third_party.pytest.asserts import assert_objects_vs_dicts
 
 
@@ -35,3 +37,15 @@ def test_account_balance_lock(client, account):
         expected=HTTP_200_OK,
     )
     assert response['balance_lock'] == account.balance_lock
+
+
+def test_validator_account_max_length(client, account):
+    account.account_number = ''.join(random.choice('0123456789ABCDEF') for i in range(66))
+    response = client.get_json(
+        reverse(
+            'account-balance',
+            args=[account.account_number],
+        ),
+        expected=HTTP_401_UNAUTHORIZED,
+    )
+    assert response

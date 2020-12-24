@@ -1,7 +1,9 @@
+from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
+from thenewboston.constants.network import VERIFY_KEY_LENGTH
 
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
 from ..models.account import Account
@@ -31,12 +33,18 @@ class AccountViewSet(
 
     @action(methods=['get'], detail=True)
     def balance(self, request, account_number=None):
+        if len(account_number) >= VERIFY_KEY_LENGTH:
+            return Response({'balance': None}, status=status.HTTP_401_UNAUTHORIZED)
+
         return Response({
             'balance': get_account_balance(account_number=account_number)
         })
 
     @action(methods=['get'], detail=True)
     def balance_lock(self, request, account_number=None):
+        if len(account_number) >= VERIFY_KEY_LENGTH:
+            return Response({'balance': None}, status=status.HTTP_401_UNAUTHORIZED)
+
         return Response({
             'balance_lock': get_account_balance_lock(account_number=account_number)
         })

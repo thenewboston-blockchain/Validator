@@ -6,7 +6,7 @@ from ..models.account import Account
 
 
 class AccountFactory(DjangoModelFactory):
-    account_number = Faker('pystr', max_chars=VERIFY_KEY_LENGTH)
+    account_number = Faker('pystr', max_chars=VERIFY_KEY_LENGTH - 1)
     balance = Faker('pyint', max_value=MAX_POINT_VALUE)
     balance_lock = Faker('pystr', max_chars=BALANCE_LOCK_LENGTH)
 
