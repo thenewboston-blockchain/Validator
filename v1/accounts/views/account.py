@@ -33,7 +33,7 @@ class AccountViewSet(
 
     @action(methods=['get'], detail=True)
     def balance(self, request, account_number=None):
-        if len(account_number) >= VERIFY_KEY_LENGTH:
+        if account_number is not None and len(account_number) >= VERIFY_KEY_LENGTH:
             return Response({'balance': None}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({
@@ -42,7 +42,7 @@ class AccountViewSet(
 
     @action(methods=['get'], detail=True)
     def balance_lock(self, request, account_number=None):
-        if len(account_number) >= VERIFY_KEY_LENGTH:
+        if  account_number is not None and len(account_number) >= VERIFY_KEY_LENGTH:
             return Response({'balance': None}, status=status.HTTP_401_UNAUTHORIZED)
 
         return Response({
