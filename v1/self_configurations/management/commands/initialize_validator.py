@@ -52,6 +52,7 @@ class Command(InitializeNode):
 
         self.required_input = {
             'account_number': None,
+            'daily_confirmation_rate': None,
             'default_transaction_fee': None,
             'head_block_hash': None,
             'ip_address': None,
@@ -63,7 +64,6 @@ class Command(InitializeNode):
             'root_account_file_hash': None,
             'seed_block_identifier': None,
             'version': None,
-            'daily_confirmation_rate': None,
         }
 
     def add_arguments(self, parser: CommandParser):
