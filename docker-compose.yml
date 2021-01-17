@@ -19,7 +19,7 @@ services:
 
   pv:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
@@ -50,7 +50,7 @@ services:
 
   cv1:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
@@ -83,7 +83,7 @@ services:
 
   cv2:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
@@ -144,7 +144,7 @@ services:
 
   celery_pv:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
@@ -169,7 +169,7 @@ services:
 
   celery_cv1:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
@@ -194,7 +194,7 @@ services:
 
   celery_cv2:
     build:
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile_dev
       context: .
     environment:
       - DJANGO_APPLICATION_ENVIRONMENT=local
