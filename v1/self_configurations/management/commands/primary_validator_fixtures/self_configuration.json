@@ -4,14 +4,14 @@
     "pk": "9604e7f0-b894-4629-a148-d9fd6f61751b",
     "fields": {
       "account_number": "ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314",
-      "ip_address": "192.168.1.75",
+      "ip_address": "192.168.1.74",
       "node_identifier": "3afdf37573f1a511def0bd85553404b7091a76bcd79cdcebba1310527b167521",
       "port": 8000,
       "protocol": "http",
       "version": "v1.0",
       "default_transaction_fee": 4,
-      "root_account_file": "https://gist.githubusercontent.com/buckyroberts/5c82af10872bc25f7ab51ac71f2b5378/raw/77ff5cab1385b59cb2b212e091394afd16bfe23d/1.json",
-      "root_account_file_hash": "544ee30e7e7fa1e6fcc9b8d0bf61e5e3b9ea7999bac15b694b6ad7db7a0c99aa",
+      "root_account_file": "https://gist.githubusercontent.com/buckyroberts/032e8459789a7a2606b59ac0241fdc48/raw/25296313948f46b7b0dcb8790ec2dd0036e06d14/alpha-01.json",
+      "root_account_file_hash": "4694e1ee1dcfd8ee5f989e59ae40a9f751812bf5ca52aca2766b322c4060672b",
       "seed_block_identifier": "",
       "primary_validator": null,
       "node_type": "PRIMARY_VALIDATOR"
