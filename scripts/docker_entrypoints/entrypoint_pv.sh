@@ -19,6 +19,7 @@ init_node() {
       --node_identifier "$NODE_IDENTIFIER" \
       --account_number "$ACCOUNT_NUMBER" \
       --default_transaction_fee 1 \
+      --daily_confirmation_rate 1 \
       --node_type PRIMARY_VALIDATOR \
       --protocol http \
       --ip_address "$PUBLIC_IP_ADDRESS" \

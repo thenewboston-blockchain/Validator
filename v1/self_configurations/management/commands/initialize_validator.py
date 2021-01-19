@@ -52,6 +52,7 @@ class Command(InitializeNode):
 
         self.required_input = {
             'account_number': None,
+            'daily_confirmation_rate': None,
             'default_transaction_fee': None,
             'head_block_hash': None,
             'ip_address': None,
@@ -62,7 +63,7 @@ class Command(InitializeNode):
             'root_account_file': None,
             'root_account_file_hash': None,
             'seed_block_identifier': None,
-            'version': None
+            'version': None,
         }
 
     def add_arguments(self, parser: CommandParser):
@@ -72,6 +73,7 @@ class Command(InitializeNode):
         parser.add_argument('--seed_block_identifier', type=str_length_validator(length=BLOCK_IDENTIFIER_LENGTH))
         parser.add_argument('--head_block_hash', type=str_length_validator(length=HEAD_HASH_LENGTH))
         parser.add_argument('--root_account_file', type=url_validator(suffix='.json'))
+        parser.add_argument('--daily_confirmation_rate', type=int)
 
     def get_head_block_hash(self, value=None):
         """Get head block hash"""
@@ -214,6 +216,11 @@ class Command(InitializeNode):
             attribute_name='default_transaction_fee',
             human_readable_name='default transaction fee',
             value=options.get('default_transaction_fee')
+        )
+        self.get_fee(
+            attribute_name='daily_confirmation_rate',
+            human_readable_name='daily confirmation rate',
+            value=options.get('daily_confirmation_rate')
         )
         self.get_node_type(value=options.get('node_type'))
         self.get_seed_block_identifier(value=options.get('seed_block_identifier'))
