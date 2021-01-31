@@ -18,3 +18,9 @@ def test_style():
     style = pycodestyle.StyleGuide(ignore=['E501', 'W504'])
     result = style.check_files(['config/', 'v1/'])
     assert not result.total_errors
+
+
+def test_validate_maximum_invalid_balance_amount(amount):
+    """Test maximum balance amount"""
+    if float(amount) > 281474976710656.0:
+        return 400
