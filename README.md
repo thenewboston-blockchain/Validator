@@ -22,7 +22,7 @@ Use your github's credentials or personal key if you have 2FA configured.
 
 Run:
 ```shell
-docker-compose up # add -d to detach from donsole
+docker-compose up # add -d to detach from console
 ```
 
 This will start a dev network to work with, network consists of PV, 2x CVs, Bank and all the needed services (celery, db, redis).
@@ -61,7 +61,7 @@ docker-compose exec celery_cv2 celery flower -A config.settings --address=127.0.
 docker-compose exec celery_bank celery flower -A config.settings --address=127.0.0.1 --port=5555
 ```
 
-## Windows (without docker)
+## Windows (without Docker)
 
 This guide targets a unix environment however it is possible to perform this setup on Windows by installing Cygwin 
 [here](https://cygwin.com/install.html).
@@ -81,7 +81,7 @@ Once installed use Cygwin for all your command-line operations.
 
 *This is because one of the dependencies, uWSGI, does not provide Windows support directly.*
 
-## Steps (without docker)
+## Steps (without Docker)
 
 Set required environment variables:
 ```
@@ -113,7 +113,7 @@ python3 manage.py migrate
 python3 manage.py initialize_test_primary_validator -ip [IP ADDRESS]
 ```
 
-## Local Development (without docker)
+## Local Development (without Docker)
 
 Run Redis:
 ```
