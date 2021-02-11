@@ -4,13 +4,15 @@ from operator import itemgetter
 from django.core.cache import cache
 from nacl.exceptions import BadSignatureError
 from sentry_sdk import capture_exception
+
 from thenewboston.blocks.signatures import verify_signature
+from thenewboston.constants.network import PRIMARY_VALIDATOR
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.tools import sort_and_encode
-
 from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
 from v1.cache_tools.cache_keys import get_account_balance_cache_key, get_account_balance_lock_cache_key
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 
 logger = logging.getLogger('thenewboston')
 
@@ -73,6 +75,9 @@ def is_block_valid(*, block):
     account_number = block.get('account_number')
     message = block.get('message')
     signature = block.get('signature')
+    txs = message['txs']
+
+    self_configuration = get_self_configuration(exception_class=RuntimeError)
 
     try:
         verify_signature(
@@ -105,6 +110,13 @@ def is_block_valid(*, block):
     if balance_key != account_balance_lock:
         logger.error(
             f'Balance key of {balance_key} does not match balance lock of {account_balance_lock}'
+        )
+        return False, None
+
+    pv_tx = next(tx for tx in txs if tx['fee'] == PRIMARY_VALIDATOR)
+    if pv_tx['recipient'] != self_configuration.account_number:
+        logger.error(
+            'Tx PV fee recipient does not match node account_number'
         )
         return False, None
 
