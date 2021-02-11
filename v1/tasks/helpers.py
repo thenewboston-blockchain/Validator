@@ -4,11 +4,11 @@ from operator import itemgetter
 from django.core.cache import cache
 from nacl.exceptions import BadSignatureError
 from sentry_sdk import capture_exception
-
 from thenewboston.blocks.signatures import verify_signature
 from thenewboston.constants.network import PRIMARY_VALIDATOR
 from thenewboston.utils.messages import get_message_hash
 from thenewboston.utils.tools import sort_and_encode
+
 from v1.accounts.models.account import Account
 from v1.cache_tools.accounts import get_account_balance, get_account_balance_lock
 from v1.cache_tools.cache_keys import get_account_balance_cache_key, get_account_balance_lock_cache_key
