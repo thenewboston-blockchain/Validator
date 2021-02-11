@@ -1,6 +1,14 @@
 import pytest
 
+from thenewboston.constants.network import BANK, PRIMARY_VALIDATOR
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.block_queue import is_block_valid
+
+
+@pytest.mark.django_db
+def get_account_number():
+    self_configuration = get_self_configuration(exception_class=RuntimeError)
+    return self_configuration.account_number
 
 
 @pytest.fixture(autouse=True)
@@ -35,11 +43,13 @@ def test_incorrect_amount():
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_account_number()
                     }
                 ]
             },
@@ -71,11 +81,13 @@ def test_incorrect_balance_key():
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_account_number()
                     }
                 ]
             },
@@ -118,11 +130,13 @@ def test_incorrect_signature():
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_account_number()
                     }
                 ]
             },
@@ -149,11 +163,13 @@ def test_invalid_amount():
                 },
                 {
                     'amount': 1,
-                    'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
+                    'fee': BANK,
+                        'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                 },
                 {
                     'amount': 4,
-                    'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                    'fee': PRIMARY_VALIDATOR,
+                    'recipient': get_account_number()
                 }
             ]
         },
@@ -176,6 +192,7 @@ def test_missing_transaction():
                 },
                 {
                     'amount': 4,
+                    'fee': BANK,
                     'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
                 }
             ]
@@ -187,6 +204,8 @@ def test_missing_transaction():
 
 
 def test_valid_block():
+    # self_configuration = get_self_configuration(exception_class=RuntimeError)
+
     """Valid block is validated correctly"""
     block = {
         'account_number': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
@@ -199,11 +218,13 @@ def test_valid_block():
                 },
                 {
                     'amount': 1,
+                    'fee': BANK,
                     'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                 },
                 {
                     'amount': 4,
-                    'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                    'fee': PRIMARY_VALIDATOR,
+                    'recipient': get_account_number()
                 }
             ]
         },
