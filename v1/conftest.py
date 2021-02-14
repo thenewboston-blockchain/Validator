@@ -6,6 +6,7 @@ from django.core.management import call_command
 from pytest_django.migrations import DisableMigrations
 from thenewboston.accounts.manage import create_account
 from thenewboston.blocks.block import generate_block
+from thenewboston.constants.network import PRIMARY_VALIDATOR
 from thenewboston.third_party.pytest.client import UserWrapper
 from thenewboston.verify_keys.verify_key import encode_verify_key
 
@@ -49,6 +50,11 @@ def block_data(account_data, encoded_account_number, random_encoded_account_numb
         signing_key=signing_key,
         transactions=[
             {
+                'amount': 4,
+                'fee': PRIMARY_VALIDATOR,
+                'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+            },
+            {
                 'amount': 1,
                 'recipient': random_encoded_account_number
             }
@@ -77,12 +83,6 @@ def enable_db_access_for_all_tests(transactional_db):
     pass
 
 
-@pytest.fixture(scope='session', autouse=True)
-def migrations_disabled():
-    settings.MIGRATION_MODULES = DisableMigrations()
-    yield None
-
-
 @pytest.fixture
 def encoded_account_number(account_number):
     yield encode_verify_key(verify_key=account_number)
@@ -99,6 +99,12 @@ def load_validator_fixtures(fixtures_dir):
     for fixture_file in fixture_files:
         fixture = os.path.join(fixtures_dir, fixture_file)
         call_command('loaddata', fixture, verbosity=1)
+
+
+@pytest.fixture(scope='session', autouse=True)
+def migrations_disabled():
+    settings.MIGRATION_MODULES = DisableMigrations()
+    yield None
 
 
 @pytest.fixture

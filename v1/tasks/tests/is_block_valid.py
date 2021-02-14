@@ -1,6 +1,14 @@
 import pytest
+from thenewboston.constants.network import BANK, PRIMARY_VALIDATOR
 
+from v1.self_configurations.helpers.self_configuration import get_self_configuration
 from v1.tasks.block_queue import is_block_valid
+
+
+@pytest.mark.django_db
+def get_self_account_number():
+    self_configuration = get_self_configuration(exception_class=RuntimeError)
+    return self_configuration.account_number
 
 
 @pytest.fixture(autouse=True)
@@ -12,11 +20,11 @@ def test_incorrect_amount():
     """
     Block with incorrect amount(s) is not valid
 
-    - amount of 426 was changed from 425
+    - original (valid) amount of non-fee Tx is 425
     """
     data = [
-        (23, False),
         (0, False),
+        (23, False),
         (424, False),
         (425, True),
         (426, False),
@@ -35,17 +43,18 @@ def test_incorrect_amount():
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_self_account_number()
                     }
                 ]
             },
-            'signature': '72457709aca384c0a8659112d26773b5c32468fad4dd1329c88445979f2896d05ce52bc1d3990cd6dbec65f0fdb378b7685515f865e304f97b2a3ef9ab19a20d'
+            'signature': '2c2aae162c0de7d7c66856a1728e06c26fe1732a8073721ca0cf6d22f868be07158f7256ba02e34eb913aea0f3c16cc135bacc3631a74f97b1fb7a3463059707'
         }
-
         is_valid, account_balance = is_block_valid(block=block)
         assert is_valid == expected_result
 
@@ -66,20 +75,22 @@ def test_incorrect_balance_key():
                 'balance_key': balance_key,
                 'txs': [
                     {
-                        'amount': 4,
+                        'amount': 425,
                         'recipient': '484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc'
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_self_account_number()
                     }
                 ]
             },
-            'signature': '9c95931ff252b24d53ea899c0766f313675d05e0a522c81ef860415e7ebae88098f6f120ffb7dbe8f6acb3969aaab39be9bbb3eb6445f5f8d99b84a162107a0a'
+            'signature': '2c2aae162c0de7d7c66856a1728e06c26fe1732a8073721ca0cf6d22f868be07158f7256ba02e34eb913aea0f3c16cc135bacc3631a74f97b1fb7a3463059707'
         }
         is_valid, account_balance = is_block_valid(block=block)
         assert is_valid == expected_result
@@ -101,7 +112,7 @@ def test_incorrect_signature():
             False
         ),
         (
-            'cfcba759125dfbaaefa627c4a41db4e5052705875d01228e5e280e13d403483fff495157b53192a6c1032ee815429f4979c0b4beb10d259fae3692123cf01f0d',
+            '2c2aae162c0de7d7c66856a1728e06c26fe1732a8073721ca0cf6d22f868be07158f7256ba02e34eb913aea0f3c16cc135bacc3631a74f97b1fb7a3463059707',
             True
         ),
     ]
@@ -113,16 +124,18 @@ def test_incorrect_signature():
                 'balance_key': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
                 'txs': [
                     {
-                        'amount': 4.25,
+                        'amount': 425,
                         'recipient': '484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc'
                     },
                     {
                         'amount': 1,
+                        'fee': BANK,
                         'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                     },
                     {
                         'amount': 4,
-                        'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                        'fee': PRIMARY_VALIDATOR,
+                        'recipient': get_self_account_number()
                     }
                 ]
             },
@@ -149,11 +162,13 @@ def test_invalid_amount():
                 },
                 {
                     'amount': 1,
+                    'fee': BANK,
                     'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                 },
                 {
                     'amount': 4,
-                    'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                    'fee': PRIMARY_VALIDATOR,
+                    'recipient': get_self_account_number()
                 }
             ]
         },
@@ -176,6 +191,7 @@ def test_missing_transaction():
                 },
                 {
                     'amount': 4,
+                    'fee': BANK,
                     'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
                 }
             ]
@@ -194,20 +210,22 @@ def test_valid_block():
             'balance_key': '0cdd4ba04456ca169baca3d66eace869520c62fe84421329086e03d91a68acdb',
             'txs': [
                 {
-                    'amount': 4,
+                    'amount': 425,
                     'recipient': '484b3176c63d5f37d808404af1a12c4b9649cd6f6769f35bdf5a816133623fbc'
                 },
                 {
                     'amount': 1,
+                    'fee': BANK,
                     'recipient': '5e12967707909e62b2bb2036c209085a784fabbc3deccefee70052b6181c8ed8'
                 },
                 {
                     'amount': 4,
-                    'recipient': 'ad1f8845c6a1abb6011a2a434a079a087c460657aad54329a84b406dce8bf314'
+                    'fee': PRIMARY_VALIDATOR,
+                    'recipient': get_self_account_number()
                 }
             ]
         },
-        'signature': '9c95931ff252b24d53ea899c0766f313675d05e0a522c81ef860415e7ebae88098f6f120ffb7dbe8f6acb3969aaab39be9bbb3eb6445f5f8d99b84a162107a0a'
+        'signature': '2c2aae162c0de7d7c66856a1728e06c26fe1732a8073721ca0cf6d22f868be07158f7256ba02e34eb913aea0f3c16cc135bacc3631a74f97b1fb7a3463059707'
     }
     is_valid, account_balance = is_block_valid(block=block)
     assert is_valid
