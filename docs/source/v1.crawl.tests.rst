@@ -1,37 +1,37 @@
-v1.crawl.tests package
+thenewboston_validator.crawl.tests package
 ======================
 
 Submodules
 ----------
 
-v1.crawl.tests.conftest module
+thenewboston_validator.crawl.tests.conftest module
 ------------------------------
 
-.. automodule:: v1.crawl.tests.conftest
+.. automodule:: thenewboston_validator.crawl.tests.conftest
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.crawl.tests.crawl\_confirmation\_validator module
+thenewboston_validator.crawl.tests.crawl\_confirmation\_validator module
 ----------------------------------------------------
 
-.. automodule:: v1.crawl.tests.crawl_confirmation_validator
+.. automodule:: thenewboston_validator.crawl.tests.crawl_confirmation_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.crawl.tests.crawl\_primary\_validator module
+thenewboston_validator.crawl.tests.crawl\_primary\_validator module
 -----------------------------------------------
 
-.. automodule:: v1.crawl.tests.crawl_primary_validator
+.. automodule:: thenewboston_validator.crawl.tests.crawl_primary_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.crawl.tests.crawl\_status\_async module
+thenewboston_validator.crawl.tests.crawl\_status\_async module
 ------------------------------------------
 
-.. automodule:: v1.crawl.tests.crawl_status_async
+.. automodule:: thenewboston_validator.crawl.tests.crawl_status_async
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ v1.crawl.tests.crawl\_status\_async module
 Module contents
 ---------------
 
-.. automodule:: v1.crawl.tests
+.. automodule:: thenewboston_validator.crawl.tests
    :members:
    :undoc-members:
    :show-inheritance:

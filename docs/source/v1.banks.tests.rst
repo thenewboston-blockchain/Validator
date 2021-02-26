@@ -1,21 +1,21 @@
-v1.banks.tests package
+thenewboston_validator.banks.tests package
 ======================
 
 Submodules
 ----------
 
-v1.banks.tests.bank module
+thenewboston_validator.banks.tests.bank module
 --------------------------
 
-.. automodule:: v1.banks.tests.bank
+.. automodule:: thenewboston_validator.banks.tests.bank
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.banks.tests.conftest module
+thenewboston_validator.banks.tests.conftest module
 ------------------------------
 
-.. automodule:: v1.banks.tests.conftest
+.. automodule:: thenewboston_validator.banks.tests.conftest
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.banks.tests.conftest module
 Module contents
 ---------------
 
-.. automodule:: v1.banks.tests
+.. automodule:: thenewboston_validator.banks.tests
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,4 +1,4 @@
-v1.bank\_confirmation\_services package
+thenewboston_validator.bank\_confirmation\_services package
 =======================================
 
 Subpackages
@@ -7,36 +7,36 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.bank_confirmation_services.factories
-   v1.bank_confirmation_services.migrations
-   v1.bank_confirmation_services.models
-   v1.bank_confirmation_services.serializers
-   v1.bank_confirmation_services.tests
-   v1.bank_confirmation_services.views
+   thenewboston_validator.bank_confirmation_services.factories
+   thenewboston_validator.bank_confirmation_services.migrations
+   thenewboston_validator.bank_confirmation_services.models
+   thenewboston_validator.bank_confirmation_services.serializers
+   thenewboston_validator.bank_confirmation_services.tests
+   thenewboston_validator.bank_confirmation_services.views
 
 Submodules
 ----------
 
-v1.bank\_confirmation\_services.admin module
+thenewboston_validator.bank\_confirmation\_services.admin module
 --------------------------------------------
 
-.. automodule:: v1.bank_confirmation_services.admin
+.. automodule:: thenewboston_validator.bank_confirmation_services.admin
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.bank\_confirmation\_services.apps module
+thenewboston_validator.bank\_confirmation\_services.apps module
 -------------------------------------------
 
-.. automodule:: v1.bank_confirmation_services.apps
+.. automodule:: thenewboston_validator.bank_confirmation_services.apps
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.bank\_confirmation\_services.urls module
+thenewboston_validator.bank\_confirmation\_services.urls module
 -------------------------------------------
 
-.. automodule:: v1.bank_confirmation_services.urls
+.. automodule:: thenewboston_validator.bank_confirmation_services.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ v1.bank\_confirmation\_services.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.bank_confirmation_services
+.. automodule:: thenewboston_validator.bank_confirmation_services
    :members:
    :undoc-members:
    :show-inheritance:

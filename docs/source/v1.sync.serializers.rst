@@ -1,21 +1,21 @@
-v1.sync.serializers package
+thenewboston_validator.sync.serializers package
 ===========================
 
 Submodules
 ----------
 
-v1.sync.serializers.confirmation\_block\_history module
+thenewboston_validator.sync.serializers.confirmation\_block\_history module
 -------------------------------------------------------
 
-.. automodule:: v1.sync.serializers.confirmation_block_history
+.. automodule:: thenewboston_validator.sync.serializers.confirmation_block_history
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.sync.serializers.primary\_validator\_sync module
+thenewboston_validator.sync.serializers.primary\_validator\_sync module
 ---------------------------------------------------
 
-.. automodule:: v1.sync.serializers.primary_validator_sync
+.. automodule:: thenewboston_validator.sync.serializers.primary_validator_sync
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.sync.serializers.primary\_validator\_sync module
 Module contents
 ---------------
 
-.. automodule:: v1.sync.serializers
+.. automodule:: thenewboston_validator.sync.serializers
    :members:
    :undoc-members:
    :show-inheritance:

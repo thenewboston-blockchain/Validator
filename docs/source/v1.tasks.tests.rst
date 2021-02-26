@@ -1,29 +1,29 @@
-v1.tasks.tests package
+thenewboston_validator.tasks.tests package
 ======================
 
 Submodules
 ----------
 
-v1.tasks.tests.handle\_bank\_confirmation\_services module
+thenewboston_validator.tasks.tests.handle\_bank\_confirmation\_services module
 ----------------------------------------------------------
 
-.. automodule:: v1.tasks.tests.handle_bank_confirmation_services
+.. automodule:: thenewboston_validator.tasks.tests.handle_bank_confirmation_services
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.tasks.tests.is\_block\_valid module
+thenewboston_validator.tasks.tests.is\_block\_valid module
 --------------------------------------
 
-.. automodule:: v1.tasks.tests.is_block_valid
+.. automodule:: thenewboston_validator.tasks.tests.is_block_valid
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.tasks.tests.sync\_with\_primary\_validator module
+thenewboston_validator.tasks.tests.sync\_with\_primary\_validator module
 ----------------------------------------------------
 
-.. automodule:: v1.tasks.tests.sync_with_primary_validator
+.. automodule:: thenewboston_validator.tasks.tests.sync_with_primary_validator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ v1.tasks.tests.sync\_with\_primary\_validator module
 Module contents
 ---------------
 
-.. automodule:: v1.tasks.tests
+.. automodule:: thenewboston_validator.tasks.tests
    :members:
    :undoc-members:
    :show-inheritance:

@@ -1,21 +1,21 @@
-v1.accounts.tests package
+thenewboston_validator.accounts.tests package
 =========================
 
 Submodules
 ----------
 
-v1.accounts.tests.account module
+thenewboston_validator.accounts.tests.account module
 --------------------------------
 
-.. automodule:: v1.accounts.tests.account
+.. automodule:: thenewboston_validator.accounts.tests.account
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.accounts.tests.conftest module
+thenewboston_validator.accounts.tests.conftest module
 ---------------------------------
 
-.. automodule:: v1.accounts.tests.conftest
+.. automodule:: thenewboston_validator.accounts.tests.conftest
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.accounts.tests.conftest module
 Module contents
 ---------------
 
-.. automodule:: v1.accounts.tests
+.. automodule:: thenewboston_validator.accounts.tests
    :members:
    :undoc-members:
    :show-inheritance:

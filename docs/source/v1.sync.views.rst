@@ -1,13 +1,13 @@
-v1.sync.views package
+thenewboston_validator.sync.views package
 =====================
 
 Submodules
 ----------
 
-v1.sync.views.confirmation\_block\_history module
+thenewboston_validator.sync.views.confirmation\_block\_history module
 -------------------------------------------------
 
-.. automodule:: v1.sync.views.confirmation_block_history
+.. automodule:: thenewboston_validator.sync.views.confirmation_block_history
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ v1.sync.views.confirmation\_block\_history module
 Module contents
 ---------------
 
-.. automodule:: v1.sync.views
+.. automodule:: thenewboston_validator.sync.views
    :members:
    :undoc-members:
    :show-inheritance:

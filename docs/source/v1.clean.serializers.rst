@@ -1,13 +1,13 @@
-v1.clean.serializers package
+thenewboston_validator.clean.serializers package
 ============================
 
 Submodules
 ----------
 
-v1.clean.serializers.clean module
+thenewboston_validator.clean.serializers.clean module
 ---------------------------------
 
-.. automodule:: v1.clean.serializers.clean
+.. automodule:: thenewboston_validator.clean.serializers.clean
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ v1.clean.serializers.clean module
 Module contents
 ---------------
 
-.. automodule:: v1.clean.serializers
+.. automodule:: thenewboston_validator.clean.serializers
    :members:
    :undoc-members:
    :show-inheritance:

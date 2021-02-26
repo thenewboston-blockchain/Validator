@@ -22,14 +22,14 @@ INSTALLED_APPS = [
     'rest_framework',
 
     # API (v1) network nodes
-    'v1.banks.apps.BanksConfig',
-    'v1.validators.apps.ValidatorsConfig',
+    'thenewboston_validator.banks.apps.BanksConfig',
+    'thenewboston_validator.validators.apps.ValidatorsConfig',
 
     # API (v1)
-    'v1.accounts.apps.AccountsConfig',
-    'v1.bank_confirmation_services.apps.BankConfirmationServicesConfig',
-    'v1.connection_requests.apps.ConnectionRequestsConfig',
-    'v1.self_configurations.apps.SelfConfigurationsConfig',
+    'thenewboston_validator.accounts.apps.AccountsConfig',
+    'thenewboston_validator.bank_confirmation_services.apps.BankConfirmationServicesConfig',
+    'thenewboston_validator.connection_requests.apps.ConnectionRequestsConfig',
+    'thenewboston_validator.self_configurations.apps.SelfConfigurationsConfig',
 
 ]
 
@@ -161,7 +161,7 @@ REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': [
         'rest_framework.filters.OrderingFilter',
     ],
-    'DEFAULT_PAGINATION_CLASS': 'v1.third_party.rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_PAGINATION_CLASS': 'thenewboston_validator.third_party.rest_framework.pagination.LimitOffsetPagination',
 }
 
 PAGINATION_DEFAULT_LIMIT = 50

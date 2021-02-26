@@ -1,21 +1,21 @@
-v1.status\_updates.serializers package
+thenewboston_validator.status\_updates.serializers package
 ======================================
 
 Submodules
 ----------
 
-v1.status\_updates.serializers.primary\_validator\_updated module
+thenewboston_validator.status\_updates.serializers.primary\_validator\_updated module
 -----------------------------------------------------------------
 
-.. automodule:: v1.status_updates.serializers.primary_validator_updated
+.. automodule:: thenewboston_validator.status_updates.serializers.primary_validator_updated
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.status\_updates.serializers.upgrade\_request module
+thenewboston_validator.status\_updates.serializers.upgrade\_request module
 ------------------------------------------------------
 
-.. automodule:: v1.status_updates.serializers.upgrade_request
+.. automodule:: thenewboston_validator.status_updates.serializers.upgrade_request
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.status\_updates.serializers.upgrade\_request module
 Module contents
 ---------------
 
-.. automodule:: v1.status_updates.serializers
+.. automodule:: thenewboston_validator.status_updates.serializers
    :members:
    :undoc-members:
    :show-inheritance:

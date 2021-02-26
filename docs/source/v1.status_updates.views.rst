@@ -1,21 +1,21 @@
-v1.status\_updates.views package
+thenewboston_validator.status\_updates.views package
 ================================
 
 Submodules
 ----------
 
-v1.status\_updates.views.primary\_validator\_updated module
+thenewboston_validator.status\_updates.views.primary\_validator\_updated module
 -----------------------------------------------------------
 
-.. automodule:: v1.status_updates.views.primary_validator_updated
+.. automodule:: thenewboston_validator.status_updates.views.primary_validator_updated
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.status\_updates.views.upgrade\_request module
+thenewboston_validator.status\_updates.views.upgrade\_request module
 ------------------------------------------------
 
-.. automodule:: v1.status_updates.views.upgrade_request
+.. automodule:: thenewboston_validator.status_updates.views.upgrade_request
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.status\_updates.views.upgrade\_request module
 Module contents
 ---------------
 
-.. automodule:: v1.status_updates.views
+.. automodule:: thenewboston_validator.status_updates.views
    :members:
    :undoc-members:
    :show-inheritance:

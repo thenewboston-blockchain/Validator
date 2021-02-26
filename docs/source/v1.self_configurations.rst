@@ -1,4 +1,4 @@
-v1.self\_configurations package
+thenewboston_validator.self\_configurations package
 ===============================
 
 Subpackages
@@ -7,37 +7,37 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.self_configurations.helpers
-   v1.self_configurations.management
-   v1.self_configurations.migrations
-   v1.self_configurations.models
-   v1.self_configurations.serializers
-   v1.self_configurations.tests
-   v1.self_configurations.views
+   thenewboston_validator.self_configurations.helpers
+   thenewboston_validator.self_configurations.management
+   thenewboston_validator.self_configurations.migrations
+   thenewboston_validator.self_configurations.models
+   thenewboston_validator.self_configurations.serializers
+   thenewboston_validator.self_configurations.tests
+   thenewboston_validator.self_configurations.views
 
 Submodules
 ----------
 
-v1.self\_configurations.admin module
+thenewboston_validator.self\_configurations.admin module
 ------------------------------------
 
-.. automodule:: v1.self_configurations.admin
+.. automodule:: thenewboston_validator.self_configurations.admin
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.apps module
+thenewboston_validator.self\_configurations.apps module
 -----------------------------------
 
-.. automodule:: v1.self_configurations.apps
+.. automodule:: thenewboston_validator.self_configurations.apps
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.urls module
+thenewboston_validator.self\_configurations.urls module
 -----------------------------------
 
-.. automodule:: v1.self_configurations.urls
+.. automodule:: thenewboston_validator.self_configurations.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,7 +45,7 @@ v1.self\_configurations.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.self_configurations
+.. automodule:: thenewboston_validator.self_configurations
    :members:
    :undoc-members:
    :show-inheritance:

@@ -12,8 +12,8 @@ app.autodiscover_tasks()
 
 app.conf.update(
     task_routes={
-        'v1.tasks.block_queue.process_block_queue': {'queue': 'block_queue'},
-        'v1.tasks.confirmation_block_queue.process_confirmation_block_queue': {'queue': 'confirmation_block_queue'},
+        'thenewboston_validator.tasks.block_queue.process_block_queue': {'queue': 'block_queue'},
+        'thenewboston_validator.tasks.confirmation_block_queue.process_confirmation_block_queue': {'queue': 'confirmation_block_queue'},
     },
 )
 

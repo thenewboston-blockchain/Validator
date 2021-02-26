@@ -1,21 +1,21 @@
-v1.status\_updates.tests package
+thenewboston_validator.status\_updates.tests package
 ================================
 
 Submodules
 ----------
 
-v1.status\_updates.tests.primary\_validator\_updated module
+thenewboston_validator.status\_updates.tests.primary\_validator\_updated module
 -----------------------------------------------------------
 
-.. automodule:: v1.status_updates.tests.primary_validator_updated
+.. automodule:: thenewboston_validator.status_updates.tests.primary_validator_updated
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.status\_updates.tests.upgrade\_request module
+thenewboston_validator.status\_updates.tests.upgrade\_request module
 ------------------------------------------------
 
-.. automodule:: v1.status_updates.tests.upgrade_request
+.. automodule:: thenewboston_validator.status_updates.tests.upgrade_request
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.status\_updates.tests.upgrade\_request module
 Module contents
 ---------------
 
-.. automodule:: v1.status_updates.tests
+.. automodule:: thenewboston_validator.status_updates.tests
    :members:
    :undoc-members:
    :show-inheritance:

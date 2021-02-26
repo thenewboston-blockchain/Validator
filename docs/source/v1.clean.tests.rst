@@ -1,37 +1,37 @@
-v1.clean.tests package
+thenewboston_validator.clean.tests package
 ======================
 
 Submodules
 ----------
 
-v1.clean.tests.clean\_confirmation\_validator module
+thenewboston_validator.clean.tests.clean\_confirmation\_validator module
 ----------------------------------------------------
 
-.. automodule:: v1.clean.tests.clean_confirmation_validator
+.. automodule:: thenewboston_validator.clean.tests.clean_confirmation_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.clean.tests.clean\_primary\_validator module
+thenewboston_validator.clean.tests.clean\_primary\_validator module
 -----------------------------------------------
 
-.. automodule:: v1.clean.tests.clean_primary_validator
+.. automodule:: thenewboston_validator.clean.tests.clean_primary_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.clean.tests.clean\_status\_async module
+thenewboston_validator.clean.tests.clean\_status\_async module
 ------------------------------------------
 
-.. automodule:: v1.clean.tests.clean_status_async
+.. automodule:: thenewboston_validator.clean.tests.clean_status_async
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.clean.tests.conftest module
+thenewboston_validator.clean.tests.conftest module
 ------------------------------
 
-.. automodule:: v1.clean.tests.conftest
+.. automodule:: thenewboston_validator.clean.tests.conftest
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ v1.clean.tests.conftest module
 Module contents
 ---------------
 
-.. automodule:: v1.clean.tests
+.. automodule:: thenewboston_validator.clean.tests
    :members:
    :undoc-members:
    :show-inheritance:

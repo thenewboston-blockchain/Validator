@@ -1,4 +1,4 @@
-v1.sync package
+thenewboston_validator.sync package
 ===============
 
 Subpackages
@@ -7,24 +7,24 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.sync.serializers
-   v1.sync.views
+   thenewboston_validator.sync.serializers
+   thenewboston_validator.sync.views
 
 Submodules
 ----------
 
-v1.sync.helpers module
+thenewboston_validator.sync.helpers module
 ----------------------
 
-.. automodule:: v1.sync.helpers
+.. automodule:: thenewboston_validator.sync.helpers
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.sync.urls module
+thenewboston_validator.sync.urls module
 -------------------
 
-.. automodule:: v1.sync.urls
+.. automodule:: thenewboston_validator.sync.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -32,7 +32,7 @@ v1.sync.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.sync
+.. automodule:: thenewboston_validator.sync
    :members:
    :undoc-members:
    :show-inheritance:

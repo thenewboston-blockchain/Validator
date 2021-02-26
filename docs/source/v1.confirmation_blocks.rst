@@ -1,4 +1,4 @@
-v1.confirmation\_blocks package
+thenewboston_validator.confirmation\_blocks package
 ===============================
 
 Subpackages
@@ -7,17 +7,17 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.confirmation_blocks.serializers
-   v1.confirmation_blocks.tests
-   v1.confirmation_blocks.views
+   thenewboston_validator.confirmation_blocks.serializers
+   thenewboston_validator.confirmation_blocks.tests
+   thenewboston_validator.confirmation_blocks.views
 
 Submodules
 ----------
 
-v1.confirmation\_blocks.urls module
+thenewboston_validator.confirmation\_blocks.urls module
 -----------------------------------
 
-.. automodule:: v1.confirmation_blocks.urls
+.. automodule:: thenewboston_validator.confirmation_blocks.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,7 +25,7 @@ v1.confirmation\_blocks.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.confirmation_blocks
+.. automodule:: thenewboston_validator.confirmation_blocks
    :members:
    :undoc-members:
    :show-inheritance:

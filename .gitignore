@@ -80,3 +80,7 @@ env/
 venv
 venv.bak/
 venv/
+
+!.gitkeep
+
+/local/

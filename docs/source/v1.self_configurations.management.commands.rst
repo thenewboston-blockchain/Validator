@@ -1,37 +1,37 @@
-v1.self\_configurations.management.commands package
+thenewboston_validator.self\_configurations.management.commands package
 ===================================================
 
 Submodules
 ----------
 
-v1.self\_configurations.management.commands.initialize\_test\_confirmation\_validator module
+thenewboston_validator.self\_configurations.management.commands.initialize\_test\_confirmation\_validator module
 --------------------------------------------------------------------------------------------
 
-.. automodule:: v1.self_configurations.management.commands.initialize_test_confirmation_validator
+.. automodule:: thenewboston_validator.self_configurations.management.commands.initialize_test_confirmation_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.management.commands.initialize\_test\_primary\_validator module
+thenewboston_validator.self\_configurations.management.commands.initialize\_test\_primary\_validator module
 ---------------------------------------------------------------------------------------
 
-.. automodule:: v1.self_configurations.management.commands.initialize_test_primary_validator
+.. automodule:: thenewboston_validator.self_configurations.management.commands.initialize_test_primary_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.management.commands.initialize\_validator module
+thenewboston_validator.self\_configurations.management.commands.initialize\_validator module
 ------------------------------------------------------------------------
 
-.. automodule:: v1.self_configurations.management.commands.initialize_validator
+.. automodule:: thenewboston_validator.self_configurations.management.commands.initialize_validator
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.management.commands.set\_primary\_validator module
+thenewboston_validator.self\_configurations.management.commands.set\_primary\_validator module
 --------------------------------------------------------------------------
 
-.. automodule:: v1.self_configurations.management.commands.set_primary_validator
+.. automodule:: thenewboston_validator.self_configurations.management.commands.set_primary_validator
    :members:
    :undoc-members:
    :show-inheritance:
@@ -39,7 +39,7 @@ v1.self\_configurations.management.commands.set\_primary\_validator module
 Module contents
 ---------------
 
-.. automodule:: v1.self_configurations.management.commands
+.. automodule:: thenewboston_validator.self_configurations.management.commands
    :members:
    :undoc-members:
    :show-inheritance:

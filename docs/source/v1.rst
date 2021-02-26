@@ -1,5 +1,5 @@
-v1 package
-==========
+thenewboston_validator package
+==============================
 
 Subpackages
 -----------
@@ -7,33 +7,33 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.accounts
-   v1.bank_blocks
-   v1.bank_confirmation_services
-   v1.banks
-   v1.cache_tools
-   v1.clean
-   v1.confirmation_blocks
-   v1.connection_requests
-   v1.constants
-   v1.crawl
-   v1.decorators
-   v1.meta
-   v1.notifications
-   v1.self_configurations
-   v1.status_updates
-   v1.sync
-   v1.tasks
-   v1.third_party
-   v1.validators
+   thenewboston_validator.accounts
+   thenewboston_validator.bank_blocks
+   thenewboston_validator.bank_confirmation_services
+   thenewboston_validator.banks
+   thenewboston_validator.cache_tools
+   thenewboston_validator.clean
+   thenewboston_validator.confirmation_blocks
+   thenewboston_validator.connection_requests
+   thenewboston_validator.constants
+   thenewboston_validator.crawl
+   thenewboston_validator.decorators
+   thenewboston_validator.meta
+   thenewboston_validator.notifications
+   thenewboston_validator.self_configurations
+   thenewboston_validator.status_updates
+   thenewboston_validator.sync
+   thenewboston_validator.tasks
+   thenewboston_validator.third_party
+   thenewboston_validator.validators
 
 Submodules
 ----------
 
-v1.conftest module
+thenewboston_validator.conftest module
 ------------------
 
-.. automodule:: v1.conftest
+.. automodule:: thenewboston_validator.conftest
    :members:
    :undoc-members:
    :show-inheritance:
@@ -41,7 +41,7 @@ v1.conftest module
 Module contents
 ---------------
 
-.. automodule:: v1
+.. automodule:: thenewboston_validator
    :members:
    :undoc-members:
    :show-inheritance:

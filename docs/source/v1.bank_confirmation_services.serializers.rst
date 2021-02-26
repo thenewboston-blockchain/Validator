@@ -1,13 +1,13 @@
-v1.bank\_confirmation\_services.serializers package
+thenewboston_validator.bank\_confirmation\_services.serializers package
 ===================================================
 
 Submodules
 ----------
 
-v1.bank\_confirmation\_services.serializers.bank\_confirmation\_service module
+thenewboston_validator.bank\_confirmation\_services.serializers.bank\_confirmation\_service module
 ------------------------------------------------------------------------------
 
-.. automodule:: v1.bank_confirmation_services.serializers.bank_confirmation_service
+.. automodule:: thenewboston_validator.bank_confirmation_services.serializers.bank_confirmation_service
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ v1.bank\_confirmation\_services.serializers.bank\_confirmation\_service module
 Module contents
 ---------------
 
-.. automodule:: v1.bank_confirmation_services.serializers
+.. automodule:: thenewboston_validator.bank_confirmation_services.serializers
    :members:
    :undoc-members:
    :show-inheritance:

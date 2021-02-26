@@ -1,13 +1,13 @@
-v1.meta.helpers package
+thenewboston_validator.meta.helpers package
 =======================
 
 Submodules
 ----------
 
-v1.meta.helpers.block\_identifier module
+thenewboston_validator.meta.helpers.block\_identifier module
 ----------------------------------------
 
-.. automodule:: v1.meta.helpers.block_identifier
+.. automodule:: thenewboston_validator.meta.helpers.block_identifier
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ v1.meta.helpers.block\_identifier module
 Module contents
 ---------------
 
-.. automodule:: v1.meta.helpers
+.. automodule:: thenewboston_validator.meta.helpers
    :members:
    :undoc-members:
    :show-inheritance:

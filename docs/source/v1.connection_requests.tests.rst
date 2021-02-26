@@ -1,10 +1,10 @@
-v1.connection\_requests.tests package
+thenewboston_validator.connection\_requests.tests package
 =====================================
 
 Module contents
 ---------------
 
-.. automodule:: v1.connection_requests.tests
+.. automodule:: thenewboston_validator.connection_requests.tests
    :members:
    :undoc-members:
    :show-inheritance:

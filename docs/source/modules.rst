@@ -7,4 +7,4 @@ Validator
    config
    manage
    tests
-   v1
+   thenewboston_validator

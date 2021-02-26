@@ -1,4 +1,4 @@
-v1.status\_updates package
+thenewboston_validator.status\_updates package
 ==========================
 
 Subpackages
@@ -7,17 +7,17 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.status_updates.serializers
-   v1.status_updates.tests
-   v1.status_updates.views
+   thenewboston_validator.status_updates.serializers
+   thenewboston_validator.status_updates.tests
+   thenewboston_validator.status_updates.views
 
 Submodules
 ----------
 
-v1.status\_updates.urls module
+thenewboston_validator.status\_updates.urls module
 ------------------------------
 
-.. automodule:: v1.status_updates.urls
+.. automodule:: thenewboston_validator.status_updates.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -25,7 +25,7 @@ v1.status\_updates.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.status_updates
+.. automodule:: thenewboston_validator.status_updates
    :members:
    :undoc-members:
    :show-inheritance:

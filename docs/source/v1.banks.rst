@@ -1,4 +1,4 @@
-v1.banks package
+thenewboston_validator.banks package
 ================
 
 Subpackages
@@ -7,37 +7,37 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.banks.factories
-   v1.banks.helpers
-   v1.banks.migrations
-   v1.banks.models
-   v1.banks.serializers
-   v1.banks.tests
-   v1.banks.views
+   thenewboston_validator.banks.factories
+   thenewboston_validator.banks.helpers
+   thenewboston_validator.banks.migrations
+   thenewboston_validator.banks.models
+   thenewboston_validator.banks.serializers
+   thenewboston_validator.banks.tests
+   thenewboston_validator.banks.views
 
 Submodules
 ----------
 
-v1.banks.admin module
+thenewboston_validator.banks.admin module
 ---------------------
 
-.. automodule:: v1.banks.admin
+.. automodule:: thenewboston_validator.banks.admin
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.banks.apps module
+thenewboston_validator.banks.apps module
 --------------------
 
-.. automodule:: v1.banks.apps
+.. automodule:: thenewboston_validator.banks.apps
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.banks.urls module
+thenewboston_validator.banks.urls module
 --------------------
 
-.. automodule:: v1.banks.urls
+.. automodule:: thenewboston_validator.banks.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -45,7 +45,7 @@ v1.banks.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.banks
+.. automodule:: thenewboston_validator.banks
    :members:
    :undoc-members:
    :show-inheritance:

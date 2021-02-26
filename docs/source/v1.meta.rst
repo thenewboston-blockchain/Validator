@@ -1,4 +1,4 @@
-v1.meta package
+thenewboston_validator.meta package
 ===============
 
 Subpackages
@@ -7,16 +7,16 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.meta.helpers
-   v1.meta.views
+   thenewboston_validator.meta.helpers
+   thenewboston_validator.meta.views
 
 Submodules
 ----------
 
-v1.meta.urls module
+thenewboston_validator.meta.urls module
 -------------------
 
-.. automodule:: v1.meta.urls
+.. automodule:: thenewboston_validator.meta.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,7 +24,7 @@ v1.meta.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.meta
+.. automodule:: thenewboston_validator.meta
    :members:
    :undoc-members:
    :show-inheritance:

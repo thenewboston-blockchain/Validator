@@ -1,4 +1,4 @@
-v1.bank\_blocks package
+thenewboston_validator.bank\_blocks package
 =======================
 
 Subpackages
@@ -7,16 +7,16 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.bank_blocks.tests
-   v1.bank_blocks.views
+   thenewboston_validator.bank_blocks.tests
+   thenewboston_validator.bank_blocks.views
 
 Submodules
 ----------
 
-v1.bank\_blocks.urls module
+thenewboston_validator.bank\_blocks.urls module
 ---------------------------
 
-.. automodule:: v1.bank_blocks.urls
+.. automodule:: thenewboston_validator.bank_blocks.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -24,7 +24,7 @@ v1.bank\_blocks.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.bank_blocks
+.. automodule:: thenewboston_validator.bank_blocks
    :members:
    :undoc-members:
    :show-inheritance:

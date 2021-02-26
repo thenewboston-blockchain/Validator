@@ -1,21 +1,21 @@
-v1.banks.helpers package
+thenewboston_validator.banks.helpers package
 ========================
 
 Submodules
 ----------
 
-v1.banks.helpers.confirmation\_services module
+thenewboston_validator.banks.helpers.confirmation\_services module
 ----------------------------------------------
 
-.. automodule:: v1.banks.helpers.confirmation_services
+.. automodule:: thenewboston_validator.banks.helpers.confirmation_services
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.banks.helpers.most\_trusted module
+thenewboston_validator.banks.helpers.most\_trusted module
 -------------------------------------
 
-.. automodule:: v1.banks.helpers.most_trusted
+.. automodule:: thenewboston_validator.banks.helpers.most_trusted
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.banks.helpers.most\_trusted module
 Module contents
 ---------------
 
-.. automodule:: v1.banks.helpers
+.. automodule:: thenewboston_validator.banks.helpers
    :members:
    :undoc-members:
    :show-inheritance:

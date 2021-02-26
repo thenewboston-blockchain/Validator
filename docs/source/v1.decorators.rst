@@ -1,13 +1,13 @@
-v1.decorators package
+thenewboston_validator.decorators package
 =====================
 
 Submodules
 ----------
 
-v1.decorators.nodes module
+thenewboston_validator.decorators.nodes module
 --------------------------
 
-.. automodule:: v1.decorators.nodes
+.. automodule:: thenewboston_validator.decorators.nodes
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ v1.decorators.nodes module
 Module contents
 ---------------
 
-.. automodule:: v1.decorators
+.. automodule:: thenewboston_validator.decorators
    :members:
    :undoc-members:
    :show-inheritance:

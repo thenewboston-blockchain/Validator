@@ -1,4 +1,4 @@
-v1.crawl package
+thenewboston_validator.crawl package
 ================
 
 Subpackages
@@ -7,34 +7,34 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.crawl.consumers
-   v1.crawl.serializers
-   v1.crawl.tests
-   v1.crawl.views
+   thenewboston_validator.crawl.consumers
+   thenewboston_validator.crawl.serializers
+   thenewboston_validator.crawl.tests
+   thenewboston_validator.crawl.views
 
 Submodules
 ----------
 
-v1.crawl.helpers module
+thenewboston_validator.crawl.helpers module
 -----------------------
 
-.. automodule:: v1.crawl.helpers
+.. automodule:: thenewboston_validator.crawl.helpers
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.crawl.routing module
+thenewboston_validator.crawl.routing module
 -----------------------
 
-.. automodule:: v1.crawl.routing
+.. automodule:: thenewboston_validator.crawl.routing
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.crawl.urls module
+thenewboston_validator.crawl.urls module
 --------------------
 
-.. automodule:: v1.crawl.urls
+.. automodule:: thenewboston_validator.crawl.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -42,7 +42,7 @@ v1.crawl.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.crawl
+.. automodule:: thenewboston_validator.crawl
    :members:
    :undoc-members:
    :show-inheritance:

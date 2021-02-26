@@ -9,7 +9,7 @@ exclude =
 filename = *.py
 application-import-names =
     config
-    v1
+    thenewboston_validator
 accept-encodings = utf-8,utf-16
 import-order-style = pycharm
 inline-quotes = single

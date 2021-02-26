@@ -1,4 +1,4 @@
-v1.accounts package
+thenewboston_validator.accounts package
 ===================
 
 Subpackages
@@ -7,36 +7,36 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   v1.accounts.factories
-   v1.accounts.migrations
-   v1.accounts.models
-   v1.accounts.serializers
-   v1.accounts.tests
-   v1.accounts.views
+   thenewboston_validator.accounts.factories
+   thenewboston_validator.accounts.migrations
+   thenewboston_validator.accounts.models
+   thenewboston_validator.accounts.serializers
+   thenewboston_validator.accounts.tests
+   thenewboston_validator.accounts.views
 
 Submodules
 ----------
 
-v1.accounts.admin module
+thenewboston_validator.accounts.admin module
 ------------------------
 
-.. automodule:: v1.accounts.admin
+.. automodule:: thenewboston_validator.accounts.admin
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.accounts.apps module
+thenewboston_validator.accounts.apps module
 -----------------------
 
-.. automodule:: v1.accounts.apps
+.. automodule:: thenewboston_validator.accounts.apps
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.accounts.urls module
+thenewboston_validator.accounts.urls module
 -----------------------
 
-.. automodule:: v1.accounts.urls
+.. automodule:: thenewboston_validator.accounts.urls
    :members:
    :undoc-members:
    :show-inheritance:
@@ -44,7 +44,7 @@ v1.accounts.urls module
 Module contents
 ---------------
 
-.. automodule:: v1.accounts
+.. automodule:: thenewboston_validator.accounts
    :members:
    :undoc-members:
    :show-inheritance:

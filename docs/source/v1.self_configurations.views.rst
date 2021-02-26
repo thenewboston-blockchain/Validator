@@ -1,21 +1,21 @@
-v1.self\_configurations.views package
+thenewboston_validator.self\_configurations.views package
 =====================================
 
 Submodules
 ----------
 
-v1.self\_configurations.views.head\_block\_hash module
+thenewboston_validator.self\_configurations.views.head\_block\_hash module
 ------------------------------------------------------
 
-.. automodule:: v1.self_configurations.views.head_block_hash
+.. automodule:: thenewboston_validator.self_configurations.views.head_block_hash
    :members:
    :undoc-members:
    :show-inheritance:
 
-v1.self\_configurations.views.self\_configuration module
+thenewboston_validator.self\_configurations.views.self\_configuration module
 --------------------------------------------------------
 
-.. automodule:: v1.self_configurations.views.self_configuration
+.. automodule:: thenewboston_validator.self_configurations.views.self_configuration
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ v1.self\_configurations.views.self\_configuration module
 Module contents
 ---------------
 
-.. automodule:: v1.self_configurations.views
+.. automodule:: thenewboston_validator.self_configurations.views
    :members:
    :undoc-members:
    :show-inheritance:
