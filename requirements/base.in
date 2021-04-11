@@ -1,5 +1,5 @@
 celery==4.4.2
-cryptography==3.4.6
+cryptography==3.4.7
 fakeredis[lua]==1.4.4
 flower==0.9.5
 psycopg2==2.8.6

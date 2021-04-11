@@ -21,7 +21,7 @@ channels==2.4.0           # via channels-redis, thenewboston
 chardet==4.0.0            # via requests
 constantly==15.1.0        # via twisted
 coverage==5.5             # via pytest-cov
-cryptography==3.4.6       # via -r requirements/base.in, autobahn, pyopenssl, service-identity
+cryptography==3.4.7       # via -r requirements/base.in, autobahn, pyopenssl, service-identity
 daphne==2.5.0             # via channels
 django-cors-headers==3.7.0  # via thenewboston
 django-debug-toolbar==3.2  # via thenewboston
